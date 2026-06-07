@@ -360,7 +360,6 @@ export interface Database {
     Views: {
       products_with_best_offer: {
         Row: {
-          // product columns
           id: string
           name: string
           slug: string
@@ -376,7 +375,6 @@ export interface Database {
           total_reviews: number
           created_at: string
           updated_at: string
-          // aggregated offer columns
           best_price: number | null
           best_original_price: number | null
           best_merchant_id: string | null
