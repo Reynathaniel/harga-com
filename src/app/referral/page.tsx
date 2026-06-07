@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 /**
  * /referral — Halaman dashboard referral user
  */

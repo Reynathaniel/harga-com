@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { SearchAutocomplete } from '@/components/SearchAutocomplete'
 import { ProductCard } from '@/components/ProductCard'
 import { getProducts, getCategories } from '@/lib/db/products'
