@@ -313,11 +313,12 @@ interface StatCardProps {
 }
 
 function StatCard({ icon, label, value, sub, highlight }: StatCardProps) {
-  const highlightClass = {
+  const colorMap: Record<string, string> = {
     amber:  'border-amber-500/20 bg-amber-500/5',
     green:  'border-green-500/20 bg-green-500/5',
     indigo: 'border-amber-500/20 bg-amber-500/5',
-  }[highlight ?? ''] ?? 'border-[var(--border)] bg-[var(--bg-card)]'
+  }
+  const highlightClass = highlight ? colorMap[highlight] : 'border-[var(--border)] bg-[var(--bg-card)]'
 
   return (
     <div className={`border rounded-2xl p-4 ${highlightClass}`}>
@@ -327,6 +328,9 @@ function StatCard({ icon, label, value, sub, highlight }: StatCardProps) {
       </div>
       <div className="text-lg font-bold text-white">{value}</div>
       <div className="text-[10px] text-[var(--text-muted)] mt-0.5">{sub}</div>
+    </div>
+  )
+}
     </div>
   )
 }
