@@ -8,7 +8,9 @@ import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
 import { TrendingDown, Bell, Wallet, Shield, Zap, RefreshCw, ArrowRight, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
 
-export const revalidate = 3600
+// force-dynamic: prevents build-time Supabase calls that hang the Vercel build.
+// Page is rendered on each request and cached by CDN edge.
+export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
   const { products: allProducts } = await getProducts({ sort: 'popular', limit: 16 })

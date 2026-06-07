@@ -2,6 +2,22 @@ import { createClient } from '@supabase/supabase-js'
 import type { Database } from './database.types'
 
 // ============================================================
+// Fetch wrapper with 8-second timeout
+// Prevents build-time Supabase calls from hanging the Vercel build
+// when the project is paused or unreachable (TCP timeout ~60s).
+// ============================================================
+
+function fetchWithTimeout(timeout = 8_000) {
+  return (input: RequestInfo | URL, init?: RequestInit) => {
+    const controller = new AbortController()
+    const id = setTimeout(() => controller.abort(), timeout)
+    return fetch(input, { ...init, signal: controller.signal }).finally(() =>
+      clearTimeout(id)
+    )
+  }
+}
+
+// ============================================================
 // Config detection
 // ============================================================
 
@@ -39,6 +55,7 @@ export function getBrowserClient() {
         persistSession: true,
         autoRefreshToken: true,
       },
+      global: { fetch: fetchWithTimeout(8_000) },
     })
   }
   return _browserClient
@@ -64,6 +81,7 @@ export function getServerClient() {
       persistSession: false,
       autoRefreshToken: false,
     },
+    global: { fetch: fetchWithTimeout(8_000) },
   })
 }
 

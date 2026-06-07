@@ -17,10 +17,11 @@ import { ShareButton } from '@/components/ShareButton'
 import type { PlatformId } from '@/lib/types'
 
 export const revalidate = 300
-
+// Return empty array — all product pages are ISR'd on first request.
+// Avoids making Supabase network calls at build time which can hang
+// the Vercel build if the project is unreachable (~55s TCP timeout).
 export async function generateStaticParams() {
-  const ids = await getAllProductIds()
-  return ids.map(id => ({ id }))
+  return []
 }
 
 export default async function ProductPage({ params }: { params: { id: string } }) {
