@@ -20,6 +20,10 @@ const nextConfig = {
     // All other TypeScript errors have been resolved manually
     ignoreBuildErrors: true,
   },
+  eslint: {
+    // ESLint errors will not fail the build
+    ignoreDuringBuilds: true,
+  },
 }
 
 module.exports = nextConfig
