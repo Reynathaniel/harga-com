@@ -9,7 +9,7 @@ import { PlatformBadge } from '@/components/PlatformBadge'
 import { ProductActions } from '@/components/ProductActions'
 import {
   Star, ShoppingCart, Shield, Truck,
-  TrendingDown, Share2, Bookmark,
+  TrendingDown, Bookmark,
   CheckCircle2, Info, Zap, Tag, Users, ChevronRight
 } from 'lucide-react'
 import Link from 'next/link'
@@ -49,7 +49,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
           <ChevronRight size={12} className="shrink-0" />
           <Link href="/cari" className="hover:text-white transition-colors">Cari</Link>
           <ChevronRight size={12} className="shrink-0" />
-          <Link href={`/cari?kategori=${product.category.toLowerCase()}`} className="hover:text-white transition-colors">
+          <Link href={"/cari?kategori=" + product.category.toLowerCase()} className="hover:text-white transition-colors">
             {product.category}
           </Link>
           <ChevronRight size={12} className="shrink-0" />
@@ -60,25 +60,21 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
           {/* LEFT: Image */}
           <div className="lg:col-span-4">
-            <div className="relative aspect-square bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden mb-3 group">
+            <div className="relative aspect-square bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden mb-3 group">
               <Image src={product.images[0]} alt={product.name} fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500" priority />
               <div className="absolute top-3 left-3">
                 <PlatformBadge platformId={cheapest.platformId} size="sm" />
               </div>
               <div className="absolute top-3 right-3 flex flex-col gap-2">
-                <button className="w-9 h-9 bg-[var(--bg-card)]/90 border border-[var(--border)] rounded-xl flex items-center justify-center text-[var(--text-muted)] hover:text-white transition-colors backdrop-blur-sm">
+                <button className="w-9 h-9 bg-[var(--bg-card)]/90 border border-[var(--border-subtle)] rounded-xl flex items-center justify-center text-[var(--text-muted)] hover:text-white transition-colors backdrop-blur-sm">
                   <Bookmark size={15} />
                 </button>
-                <ShareButton
-                  productId={product.id}
-                  productName={product.name}
-                  variant="icon"
-                />
+                <ShareButton productId={product.id} productName={product.name} variant="icon" />
               </div>
               {savings > 0 && (
                 <div className="absolute bottom-3 left-3">
-                  <span className="text-xs font-bold bg-green-500 text-white px-2 py-1 rounded-lg shadow-lg">
+                  <span className="text-xs font-bold bg-green-500 text-white px-2 py-1 rounded-lg shadow-md">
                     Hemat {formatRupiah(savings, true)}
                   </span>
                 </div>
@@ -88,9 +84,8 @@ export default async function ProductPage({ params }: { params: { id: string } }
             {product.images.length > 1 && (
               <div className="flex gap-2 mb-4">
                 {product.images.map((img, i) => (
-                  <div key={i} className={`w-16 h-16 relative bg-[var(--bg-card)] border rounded-xl overflow-hidden cursor-pointer transition-all hover:scale-105 ${
-                    i === 0 ? 'border-indigo-500/60' : 'border-[var(--border)] hover:border-indigo-500/40'
-                  }`}>
+                  <div key={i} className={"w-16 h-16 relative bg-[var(--bg-card)] border rounded-xl overflow-hidden cursor-pointer transition-all hover:scale-105 " +
+                    (i === 0 ? 'border-amber-500/60' : 'border-[var(--border-subtle)] hover:border-amber-500/35')}>
                     <Image src={img} alt="" fill className="object-cover" />
                   </div>
                 ))}
@@ -101,9 +96,9 @@ export default async function ProductPage({ params }: { params: { id: string } }
               {[
                 { icon: <Shield size={14} className="text-blue-400" />, label: 'Toko Resmi', sub: 'Terverifikasi' },
                 { icon: <Truck size={14} className="text-green-400" />, label: 'Gratis Ongkir', sub: 'Semua area' },
-                { icon: <Zap size={14} className="text-amber-400" />, label: 'Cashback', sub: `${cheapestPlatform.cashbackPct}%` },
+                { icon: <Zap size={14} className="text-amber-400" />, label: 'Cashback', sub: cheapestPlatform.cashbackPct + '%' },
               ].map(t => (
-                <div key={t.label} className="flex flex-col items-center gap-1 p-3 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-center hover:border-indigo-500/20 transition-colors">
+                <div key={t.label} className="flex flex-col items-center gap-1 p-3 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl text-center hover:border-amber-500/20 transition-colors">
                   {t.icon}
                   <span className="text-[10px] font-medium text-white">{t.label}</span>
                   <span className="text-[9px] text-[var(--text-muted)]">{t.sub}</span>
@@ -115,10 +110,10 @@ export default async function ProductPage({ params }: { params: { id: string } }
           {/* CENTER: Info + Price table */}
           <div className="lg:col-span-5">
             <div className="flex items-center gap-2 mb-3 flex-wrap">
-              <span className="text-xs bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 px-2.5 py-1 rounded-lg font-semibold">{product.brand}</span>
-              <span className="text-xs bg-[var(--bg-card)] text-[var(--text-muted)] border border-[var(--border)] px-2.5 py-1 rounded-lg">{product.category}</span>
+              <span className="text-xs bg-amber-500/15 text-amber-400 border border-amber-500/25 px-2.5 py-1 rounded-lg font-semibold">{product.brand}</span>
+              <span className="text-xs bg-[var(--bg-card)] text-[var(--text-muted)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-lg">{product.category}</span>
               {product.subcategory && (
-                <span className="text-xs bg-[var(--bg-card)] text-[var(--text-muted)] border border-[var(--border)] px-2.5 py-1 rounded-lg">{product.subcategory}</span>
+                <span className="text-xs bg-[var(--bg-card)] text-[var(--text-muted)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-lg">{product.subcategory}</span>
               )}
             </div>
 
@@ -143,7 +138,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
             </div>
 
             {savings > 0 && (
-              <div className="flex items-center gap-2 bg-green-500/6 border border-green-500/20 rounded-xl px-4 py-2.5 mb-5">
+              <div className="flex items-center gap-2 bg-green-500/5 border border-green-500/15 rounded-xl px-4 py-2.5 mb-5">
                 <TrendingDown size={14} className="text-green-400 shrink-0" />
                 <span className="text-sm text-green-400 font-semibold">Hemat hingga {formatRupiah(savings, true)}</span>
                 <span className="text-xs text-green-400/70">({savingsPct}%)</span>
@@ -157,15 +152,12 @@ export default async function ProductPage({ params }: { params: { id: string } }
                 <Tag size={11} />
                 Perbandingan Harga ({sorted.length} Platform)
               </div>
-
-              {/* Table header */}
-              <div className="grid grid-cols-4 gap-2 px-3 py-1.5 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest border-b border-[var(--border)] mb-1">
+              <div className="grid grid-cols-4 gap-2 px-3 py-1.5 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest border-b border-[var(--border-subtle)] mb-1">
                 <span>Platform</span>
                 <span className="text-right">Harga</span>
                 <span className="text-right">CB</span>
                 <span className="text-right">Aksi</span>
               </div>
-
               <div className="space-y-1.5">
                 {sorted.map((listing, idx) => {
                   const platform = PLATFORMS[listing.platformId]
@@ -174,14 +166,12 @@ export default async function ProductPage({ params }: { params: { id: string } }
                   const diff = priceDiffPercent(cheapest.price, listing.price)
                   const listingCashback = Math.round(listing.price * platform.cashbackPct / 100)
                   const bgColor = platform.id === 'tiktok' ? '#1a1a1a' : platform.color
-
                   return (
                     <div key={listing.platformId}
-                      className={`relative flex items-center gap-2.5 px-3 py-3 rounded-xl border transition-all ${
-                        isCheapest ? 'border-green-500/30 bg-green-500/4' : 'border-[var(--border)] bg-[var(--bg-card)]'
-                      }`}>
+                      className={"relative flex items-center gap-2.5 px-3 py-3 rounded-xl border transition-all " +
+                        (isCheapest ? 'border-green-500/25 bg-green-500/4' : 'border-[var(--border-subtle)] bg-[var(--bg-card)]')}>
                       {isCheapest && (
-                        <span className="absolute -top-2 left-3 text-[10px] font-bold text-green-400 bg-[var(--bg-primary)] px-2 py-0.5 border border-green-500/30 rounded-full">
+                        <span className="absolute -top-2 left-3 text-[10px] font-bold text-green-400 bg-[var(--bg-primary)] px-2 py-0.5 border border-green-500/25 rounded-full">
                           TERMURAH
                         </span>
                       )}
@@ -194,7 +184,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                           <span className="text-sm font-semibold text-white">{platform.name}</span>
                           {listing.shopVerified && <Shield size={10} className="text-blue-400" />}
                           {listing.freeShipping && (
-                            <span className="text-[9px] bg-blue-500/12 text-blue-400 px-1.5 py-0.5 rounded-md">Gratis</span>
+                            <span className="text-[9px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded-md border border-blue-500/15">Gratis</span>
                           )}
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
@@ -205,9 +195,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                       <div className="text-right shrink-0">
                         <div className="font-bold text-white text-sm">{formatRupiah(listing.price, true)}</div>
                         {listing.originalPrice && listing.discount && listing.discount > 0 && (
-                          <div className="text-[10px] text-[var(--text-muted)] line-through">
-                            {formatRupiah(listing.originalPrice, true)}
-                          </div>
+                          <div className="text-[10px] text-[var(--text-muted)] line-through">{formatRupiah(listing.originalPrice, true)}</div>
                         )}
                       </div>
                       <div className="text-right shrink-0 min-w-[44px]">
@@ -215,7 +203,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                         <div className="text-[9px] text-[var(--text-muted)]">{formatRupiah(listingCashback, true)}</div>
                       </div>
                       <a href={listing.affiliateUrl} target="_blank" rel="noopener noreferrer"
-                        className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-white transition-opacity hover:opacity-90"
+                        className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-white transition-opacity hover:opacity-85"
                         style={{ background: bgColor }}>
                         <ShoppingCart size={10} />
                         Beli
@@ -228,15 +216,14 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
             {/* Cashback info */}
             <div className="bg-amber-500/6 border border-amber-500/20 rounded-2xl p-4 flex items-start gap-3">
-              <div className="text-2xl">💰</div>
+              <div className="text-2xl">&#x1F4B0;</div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
                   <div className="text-sm font-bold text-amber-400">Dapatkan Cashback</div>
                   <span className="text-lg font-black text-amber-400">{formatRupiah(cashbackAmount, true)}</span>
                 </div>
                 <p className="text-xs text-[var(--text-secondary)] mb-2">
-                  Beli di {cheapestPlatform.name} ({formatRupiah(cheapest.price, true)}) via harga.com
-                  → cashback {cheapestPlatform.cashbackPct}% otomatis
+                  Beli di {cheapestPlatform.name} ({formatRupiah(cheapest.price, true)}) via harga.com &#8594; cashback {cheapestPlatform.cashbackPct}% otomatis
                 </p>
                 <div className="flex items-center gap-3 text-[10px] text-[var(--text-muted)] flex-wrap">
                   <span className="flex items-center gap-1"><CheckCircle2 size={10} className="text-green-400" /> GoPay/OVO</span>
@@ -249,11 +236,9 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
           {/* RIGHT: Chart + Alert + Specs */}
           <div className="lg:col-span-3 space-y-4">
-
-            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-4">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl p-4">
               <PriceChart history={product.priceHistory} activePlatforms={activePlatforms.slice(0, 4)} />
             </div>
-
             <ProductActions
               productId={product.id}
               productName={product.name}
@@ -263,16 +248,15 @@ export default async function ProductPage({ params }: { params: { id: string } }
               affiliateUrl={cheapest.affiliateUrl}
               listings={product.listings}
             />
-
             {Object.keys(product.specifications).length > 0 && (
-              <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-4">
+              <div className="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl p-4">
                 <div className="font-semibold text-white mb-3 flex items-center gap-2 text-sm">
                   <Info size={14} className="text-[var(--text-muted)]" />
                   Spesifikasi
                 </div>
                 <div className="space-y-0">
                   {Object.entries(product.specifications).map(([key, val]) => (
-                    <div key={key} className="flex justify-between gap-3 text-xs py-2 border-b border-[var(--border)] last:border-0">
+                    <div key={key} className="flex justify-between gap-3 text-xs py-2 border-b border-[var(--border-subtle)] last:border-0">
                       <span className="text-[var(--text-muted)] shrink-0">{key}</span>
                       <span className="text-[var(--text-secondary)] text-right">{val}</span>
                     </div>
@@ -285,13 +269,13 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
         {/* Description */}
         {product.description && (
-          <div className="mt-8 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-6">
+          <div className="mt-8 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl p-6">
             <h2 className="text-lg font-bold text-white mb-3">Deskripsi Produk</h2>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{product.description}</p>
             <div className="flex flex-wrap gap-2 mt-4">
               {product.tags.map(tag => (
-                <Link key={tag} href={`/cari?q=${encodeURIComponent(tag)}`}
-                  className="px-2.5 py-1 text-xs bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-muted)] hover:text-white hover:border-indigo-500/40 rounded-full transition-colors">
+                <Link key={tag} href={"/cari?q=" + encodeURIComponent(tag)}
+                  className="px-2.5 py-1 text-xs bg-[var(--bg-hover)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white hover:border-amber-500/35 rounded-full transition-colors">
                   #{tag}
                 </Link>
               ))}
@@ -307,16 +291,14 @@ export default async function ProductPage({ params }: { params: { id: string } }
                 <h2 className="text-lg font-bold text-white">Produk Serupa</h2>
                 <p className="text-sm text-[var(--text-muted)]">Dari kategori {product.category}</p>
               </div>
-              <Link href={`/cari?kategori=${product.category.toLowerCase()}`}
-                className="text-sm text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors">
+              <Link href={"/cari?kategori=" + product.category.toLowerCase()}
+                className="text-sm text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors">
                 Lihat semua <ChevronRight size={14} />
               </Link>
             </div>
-            {/* Desktop grid */}
             <div className="hidden sm:grid grid-cols-3 lg:grid-cols-4 gap-4">
               {relatedFiltered.slice(0, 4).map(p => <ProductCard key={p.id} product={p} />)}
             </div>
-            {/* Mobile horizontal scroll */}
             <div className="sm:hidden flex gap-3 scroll-x-hidden pb-3 -mx-4 px-4">
               {relatedFiltered.map(p => (
                 <div key={p.id} className="shrink-0 w-44">

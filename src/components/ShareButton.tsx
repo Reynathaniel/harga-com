@@ -81,7 +81,7 @@ export function ShareButton({
       <div className={`relative ${className}`}>
         <button
           onClick={() => setOpen(p => !p)}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-card)] border border-[var(--border)] hover:border-indigo-500/40 hover:text-white rounded-xl transition-all"
+          className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-card)] border border-[var(--border)] hover:border-amber-500/35 hover:text-white rounded-xl transition-all"
         >
           <Share2 size={14} />
           Share{referralCode ? ' & Earn' : ''}
@@ -207,8 +207,8 @@ function ShareDropdown({ onCopy, onNative, waUrl, twUrl, copied, referralCode, o
               onClick={onNative}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--bg-hover)] transition-colors text-left"
             >
-              <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
-                <LinkIcon size={14} className="text-indigo-400" />
+              <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center">
+                <LinkIcon size={14} className="text-amber-400" />
               </div>
               <span className="text-sm font-medium text-white">Bagikan via...</span>
             </button>

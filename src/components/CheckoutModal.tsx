@@ -88,7 +88,7 @@ export function CheckoutModal({
   if (!isOpen) return null
 
   const platform = PLATFORMS[selected.platformId]
-  const bgColor = selected.platformId === 'tiktok' ? '#1a1a1a' : (platform?.color ?? '#6366f1')
+  const bgColor = selected.platformId === 'tiktok' ? '#1a1a1a' : (platform?.color ?? '#f59e0b')
   const cashback = Math.round(selected.price * (platform?.cashbackPct ?? 0) / 100)
 
   return (
@@ -106,7 +106,7 @@ export function CheckoutModal({
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
-              <ShoppingCart size={16} className="text-indigo-400" />
+              <ShoppingCart size={16} className="text-amber-400" />
               <span className="text-sm font-bold text-white">Beli di Harga.com</span>
             </div>
             <button
@@ -156,8 +156,8 @@ export function CheckoutModal({
                       onClick={() => setSelected(listing)}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all text-left ${
                         isSelected
-                          ? 'border-indigo-500/50 bg-indigo-500/8'
-                          : 'border-[var(--border)] bg-[var(--bg-primary)] hover:border-indigo-500/20'
+                          ? 'border-amber-500/40 bg-amber-500/8'
+                          : 'border-[var(--border)] bg-[var(--bg-primary)] hover:border-amber-500/20'
                       }`}
                     >
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-[10px] font-bold shrink-0"
@@ -189,7 +189,7 @@ export function CheckoutModal({
                         <div className="text-[10px] text-amber-400">CB {p.cashbackPct}%</div>
                       </div>
                       {isSelected && (
-                        <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center shrink-0">
+                        <div className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center shrink-0">
                           <ChevronRight size={10} className="text-white" />
                         </div>
                       )}

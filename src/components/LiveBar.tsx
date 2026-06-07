@@ -7,7 +7,6 @@ import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
 import Image from 'next/image'
 
 export function LiveBar() {
-  // Build hot-deal items from mock products: cheapest listing per product
   const dealItems = MOCK_PRODUCTS.map(product => {
     const sorted = lowestListingFirst(product.listings)
     const cheapest = sorted[0]
@@ -17,32 +16,26 @@ export function LiveBar() {
     return { product, cheapest, savings, platform }
   })
 
-  // Duplicate for seamless loop
   const items = [...dealItems, ...dealItems]
 
   return (
-    <section className="py-8 overflow-hidden relative border-y border-[var(--border)]"
-             style={{ background: 'linear-gradient(to right, rgba(99,102,241,0.03), rgba(245,158,11,0.03))' }}>
-      {/* Fade edges */}
+    <section className="py-8 overflow-hidden relative border-y border-[var(--border-subtle)]"
+             style={{ background: 'linear-gradient(to right, rgba(245,158,11,0.02), rgba(251,146,60,0.02))' }}>
       <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[var(--bg-primary)] to-transparent z-10 pointer-events-none" />
       <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[var(--bg-primary)] to-transparent z-10 pointer-events-none" />
 
-      {/* Header */}
       <div className="max-w-7xl mx-auto px-4 flex items-center gap-2 mb-4">
         <Flame size={16} className="text-amber-400" />
         <span className="text-sm font-bold text-white">Deal Terpanas Hari Ini</span>
-        <span className="text-xs text-[var(--text-muted)]">— harga termurah dari semua platform</span>
+        <span className="text-xs text-[var(--text-muted)]">-- harga termurah dari semua platform</span>
       </div>
 
-      {/* Scrolling track */}
       <div className="flex" style={{ animation: 'ticker-scroll 60s linear infinite' }}>
         <div className="flex gap-4 px-4" style={{ width: 'max-content' }}>
           {items.map((item, i) => (
-            <Link key={i} href={`/produk/${item.product.id}`}
-              className="flex-shrink-0 w-52 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden hover:border-indigo-500/40 transition-all group">
-
-              {/* Product image */}
-              <div className="relative h-32 bg-[#0d0d1a] overflow-hidden">
+            <Link key={i} href={"/produk/" + item.product.id}
+              className="flex-shrink-0 w-52 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl overflow-hidden hover:border-amber-500/35 hover:shadow-[0_2px_12px_rgba(245,158,11,0.08)] transition-all group">
+              <div className="relative h-32 bg-[var(--bg-hover)] overflow-hidden">
                 <Image
                   src={item.product.images[0]}
                   alt={item.product.name}
@@ -56,8 +49,6 @@ export function LiveBar() {
                   </div>
                 )}
               </div>
-
-              {/* Info */}
               <div className="p-2.5">
                 <p className="text-xs text-[var(--text-secondary)] line-clamp-1 mb-1 group-hover:text-white transition-colors">
                   {item.product.name}

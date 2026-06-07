@@ -38,7 +38,6 @@ export function SearchAutocomplete({
   const inputRef = useRef<HTMLInputElement>(null)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Load recent from sessionStorage
   useEffect(() => {
     try {
       const stored = JSON.parse(sessionStorage.getItem('harga_recent') || '[]')
@@ -65,7 +64,6 @@ export function SearchAutocomplete({
         setResults(data.results || data.products || [])
       }
     } catch {
-      // fallback to empty
       setResults([])
     } finally {
       setLoading(false)
@@ -101,14 +99,14 @@ export function SearchAutocomplete({
         className={cn(
           'flex items-center gap-2 bg-[var(--bg-card)] border rounded-2xl transition-all duration-200',
           focused
-            ? 'border-indigo-500/60 shadow-[0_0_0_3px_rgba(99,102,241,0.12)]'
-            : 'border-[var(--border)] hover:border-[#2e2e44]',
+            ? 'border-amber-500/50 shadow-[0_0_0_3px_rgba(245,158,11,0.10)]'
+            : 'border-[var(--border-subtle)] hover:border-[var(--border)]',
           size === 'hero' ? 'px-5 py-4' : 'px-4 py-3'
         )}
       >
         {isUrl
-          ? <Link2 size={18} className="text-indigo-400 shrink-0" />
-          : <Search size={18} className={cn('shrink-0 transition-colors', focused ? 'text-indigo-400' : 'text-[var(--text-muted)]')} />
+          ? <Link2 size={18} className="text-amber-400 shrink-0" />
+          : <Search size={18} className={cn('shrink-0 transition-colors', focused ? 'text-amber-400' : 'text-[var(--text-muted)]')} />
         }
 
         <input
@@ -146,7 +144,7 @@ export function SearchAutocomplete({
           onClick={() => handleSearch()}
           className={cn(
             'shrink-0 font-semibold rounded-xl transition-all flex items-center gap-1.5 whitespace-nowrap',
-            'bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white',
+            'bg-amber-500 hover:bg-amber-400 active:scale-95 text-white shadow-sm shadow-amber-500/20',
             size === 'hero' ? 'px-5 py-2.5 text-sm' : 'px-4 py-2 text-xs'
           )}
         >
@@ -160,9 +158,8 @@ export function SearchAutocomplete({
 
       {/* Dropdown */}
       {showDropdown && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden z-50 slide-up">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl shadow-2xl overflow-hidden z-50 slide-up">
 
-          {/* API results */}
           {results.length > 0 && (
             <div className="py-2">
               <div className="px-4 py-1.5 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
@@ -186,7 +183,6 @@ export function SearchAutocomplete({
             </div>
           )}
 
-          {/* Loading */}
           {loading && query.length > 1 && results.length === 0 && (
             <div className="py-4 text-center text-xs text-[var(--text-muted)]">
               <div className="skeleton h-4 w-48 mx-auto rounded mb-2" />
@@ -194,7 +190,6 @@ export function SearchAutocomplete({
             </div>
           )}
 
-          {/* Recent + Popular */}
           {!loading && results.length === 0 && (
             <div className="py-2">
               {recentSearches.length > 0 && (
@@ -212,7 +207,7 @@ export function SearchAutocomplete({
                       <span className="text-sm text-[var(--text-secondary)]">{s}</span>
                     </button>
                   ))}
-                  <div className="border-t border-[var(--border)] my-1" />
+                  <div className="border-t border-[var(--border-subtle)] my-1" />
                 </>
               )}
               <div className="px-4 py-1.5 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-1.5">

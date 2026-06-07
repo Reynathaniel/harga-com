@@ -99,7 +99,7 @@ export function PriceAlertModal({
               </p>
               <button
                 onClick={onClose}
-                className="mt-5 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-colors"
+                className="mt-5 w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-xl transition-colors"
               >
                 Tutup
               </button>
@@ -156,8 +156,8 @@ export function PriceAlertModal({
                       onClick={() => setNotifyType(opt.id)}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-xl border transition-colors ${
                         notifyType === opt.id
-                          ? 'bg-indigo-600/20 border-indigo-500/50 text-indigo-300'
-                          : 'border-[var(--border)] text-[var(--text-secondary)] hover:text-white hover:border-indigo-500/30'
+                          ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
+                          : 'border-[var(--border)] text-[var(--text-secondary)] hover:text-white hover:border-amber-500/30'
                       }`}
                     >
                       {opt.icon}
@@ -178,7 +178,7 @@ export function PriceAlertModal({
                   onChange={e => setEmail(e.target.value)}
                   required
                   placeholder={notifyType === 'email' ? 'nama@email.com' : '08xxxxxxxxxx'}
-                  className="w-full bg-[var(--bg-hover)] border border-[var(--border)] focus:border-indigo-500/60 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[var(--text-muted)] outline-none transition-colors"
+                  className="w-full bg-[var(--bg-hover)] border border-[var(--border)] focus:border-amber-500/50 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[var(--text-muted)] outline-none transition-colors"
                 />
               </div>
 

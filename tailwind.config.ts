@@ -11,20 +11,21 @@ const config: Config = {
       colors: {
         brand: {
           gold:    '#f59e0b',
-          indigo:  '#6366f1',
-          dark:    '#0a0a0f',
-          card:    '#12121a',
-          border:  '#1e1e2e',
-          muted:   '#6b7280',
+          amber:   '#f59e0b',
+          orange:  '#fb923c',
+          dark:    '#09090b',
+          card:    '#18181b',
+          border:  '#3f3f46',
+          muted:   '#71717a',
         },
         platform: {
-          tokped:  '#42b549',
-          shopee:  '#ee4d2d',
-          lazada:  '#0f146d',
+          tokped:    '#42b549',
+          shopee:    '#ee4d2d',
+          lazada:    '#0f146d',
           bukalapak: '#e31e52',
-          blibli:  '#0095da',
-          tiktok:  '#010101',
-        }
+          blibli:    '#0095da',
+          tiktok:    '#010101',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -37,10 +38,11 @@ const config: Config = {
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-8px)' },
-        }
-      }
+        },
+      },
     },
   },
   plugins: [],
 }
+
 export default config

@@ -22,8 +22,8 @@ export default function ReferralPage({
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center">
-            <Share2 size={18} className="text-indigo-400" />
+          <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center">
+            <Share2 size={18} className="text-amber-400" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">Referral Dashboard</h1>

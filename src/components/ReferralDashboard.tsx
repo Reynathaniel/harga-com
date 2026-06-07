@@ -126,7 +126,7 @@ export function ReferralDashboard({ userId }: ReferralDashboardProps) {
         <div className="text-red-400 mb-2">{error}</div>
         <button
           onClick={fetchDashboard}
-          className="text-sm text-indigo-400 hover:text-indigo-300 flex items-center gap-1 mx-auto"
+          className="text-sm text-amber-400 hover:text-amber-300 flex items-center gap-1 mx-auto"
         >
           <RefreshCw size={14} /> Coba lagi
         </button>
@@ -140,9 +140,9 @@ export function ReferralDashboard({ userId }: ReferralDashboardProps) {
     <div className="space-y-6">
 
       {/* ── Referral Link Box ─────────────────────────────────────── */}
-      <div className="bg-gradient-to-br from-indigo-600/10 to-purple-600/10 border border-indigo-500/30 rounded-2xl p-5">
+      <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-3">
-          <LinkIcon size={16} className="text-indigo-400" />
+          <LinkIcon size={16} className="text-amber-400" />
           <span className="text-sm font-bold text-white">Link Referral Kamu</span>
         </div>
 
@@ -152,7 +152,7 @@ export function ReferralDashboard({ userId }: ReferralDashboardProps) {
           </span>
           <button
             onClick={handleCopy}
-            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors"
+            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-white rounded-lg transition-colors"
           >
             {copied ? <Check size={12} /> : <Copy size={12} />}
             {copied ? 'Tersalin!' : 'Salin'}
@@ -161,7 +161,7 @@ export function ReferralDashboard({ userId }: ReferralDashboardProps) {
 
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs text-[var(--text-muted)]">
-            Kode: <span className="font-mono font-bold text-indigo-300">{data.referralCode}</span>
+            Kode: <span className="font-mono font-bold text-amber-300">{data.referralCode}</span>
           </span>
           <span className="text-xs text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
             💰 Dapat komisi setiap ada yang beli lewat link ini
@@ -192,11 +192,11 @@ export function ReferralDashboard({ userId }: ReferralDashboardProps) {
           highlight="green"
         />
         <StatCard
-          icon={<DollarSign size={16} className="text-indigo-400" />}
+          icon={<DollarSign size={16} className="text-amber-400" />}
           label="Saldo"
           value={formatRp(data.referralBalance)}
           sub={`Total: ${formatRp(data.totalEarned)}`}
-          highlight="indigo"
+          highlight="amber"
         />
       </div>
 
@@ -286,7 +286,7 @@ export function ReferralDashboard({ userId }: ReferralDashboardProps) {
             { n: '3', title: 'Dapat Komisi', desc: 'Komisi affiliate masuk otomatis. 50% untukmu, 50% harga.com' },
           ].map(s => (
             <div key={s.n} className="flex gap-3">
-              <div className="w-7 h-7 rounded-lg bg-indigo-600/20 border border-indigo-500/20 flex items-center justify-center text-xs font-bold text-indigo-400 shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/20 flex items-center justify-center text-xs font-bold text-amber-400 shrink-0">
                 {s.n}
               </div>
               <div>
@@ -316,7 +316,7 @@ function StatCard({ icon, label, value, sub, highlight }: StatCardProps) {
   const highlightClass = {
     amber:  'border-amber-500/20 bg-amber-500/5',
     green:  'border-green-500/20 bg-green-500/5',
-    indigo: 'border-indigo-500/20 bg-indigo-500/5',
+    indigo: 'border-amber-500/20 bg-amber-500/5',
   }[highlight ?? ''] ?? 'border-[var(--border)] bg-[var(--bg-card)]'
 
   return (

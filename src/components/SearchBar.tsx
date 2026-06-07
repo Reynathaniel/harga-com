@@ -41,12 +41,14 @@ export function SearchBar({ size = 'normal', initialValue = '' }: SearchBarProps
     <div className="relative w-full">
       <div className={cn(
         'flex items-center gap-2 bg-[var(--bg-card)] border rounded-xl transition-all',
-        focused ? 'border-indigo-500/60 shadow-[0_0_0_3px_rgba(99,102,241,0.12)]' : 'border-[var(--border)]',
+        focused
+          ? 'border-amber-500/50 shadow-[0_0_0_3px_rgba(245,158,11,0.10)]'
+          : 'border-[var(--border-subtle)] hover:border-[var(--border)]',
         size === 'hero' ? 'px-4 py-3.5' : 'px-3 py-2.5'
       )}>
 
         {isUrl
-          ? <Link2 size={18} className="text-indigo-400 shrink-0" />
+          ? <Link2 size={18} className="text-amber-400 shrink-0" />
           : <Search size={18} className="text-[var(--text-muted)] shrink-0" />
         }
 
@@ -77,20 +79,20 @@ export function SearchBar({ size = 'normal', initialValue = '' }: SearchBarProps
           onClick={() => handleSearch()}
           className={cn(
             'shrink-0 font-semibold rounded-lg transition-all flex items-center gap-1.5',
-            'bg-indigo-600 hover:bg-indigo-500 text-white',
+            'bg-amber-500 hover:bg-amber-400 text-white shadow-sm shadow-amber-500/20',
             size === 'hero' ? 'px-5 py-2 text-sm' : 'px-3 py-1.5 text-xs'
           )}>
           {isUrl ? (
             <><ScanLine size={14} /> Analisa</>
           ) : (
-            <>Bandingkan <span className="hidden sm:inline">▶</span></>
+            <>Bandingkan</>
           )}
         </button>
       </div>
 
-      {/* Dropdown: suggestions or trending */}
+      {/* Dropdown */}
       {focused && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-2xl overflow-hidden z-50">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl shadow-2xl overflow-hidden z-50">
           {suggestions.length > 0 ? (
             <div className="py-2">
               <div className="px-3 py-1.5 text-xs text-[var(--text-muted)] font-medium">Saran pencarian</div>

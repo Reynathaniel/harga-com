@@ -48,7 +48,7 @@ export function BuyButton({
   const platform   = cheapest ? PLATFORMS[cheapest.platformId] : null
   const bgColor    = cheapest?.platformId === 'tiktok'
     ? '#1a1a1a'
-    : (platform?.color ?? '#6366f1')
+    : (platform?.color ?? '#f59e0b')
 
   const buttonContent = (
     <>

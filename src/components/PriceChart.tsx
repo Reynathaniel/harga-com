@@ -67,7 +67,7 @@ export function PriceChart({ history, activePlatforms }: PriceChartProps) {
             <button key={r.days} onClick={() => setRange(r.days)}
               className={`px-3 py-1 text-xs rounded-lg transition-colors ${
                 range === r.days
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-amber-500 text-white'
                   : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)]'
               }`}>
               {r.label}
