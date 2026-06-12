@@ -26,7 +26,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
 
   const mostExpensive = sortedListings[sortedListings.length - 1]
   const diff = priceDiffPercent(cheapest.price, mostExpensive.price)
-  const cheapestPlatform = PLATFORMS[cheapest.platformId]
+  const cheapestPlatform = PLATFORMS[cheapest.platformId] ?? PLATFORMS['tokopedia']
   const cashbackPct = cheapestPlatform.cashbackPct
   const cashbackAmount = Math.round(cheapest.price * cashbackPct / 100)
 
@@ -98,7 +98,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
 
         <div className="flex items-center gap-1.5 mb-3">
           {sortedListings.slice(0, 5).map(l => {
-            const p = PLATFORMS[l.platformId]
+            const p = PLATFORMS[l.platformId] ?? PLATFORMS['tokopedia']
             return (
               <div key={l.platformId}
                 className="w-5 h-5 rounded-full border-2 border-[var(--border-subtle)] flex items-center justify-center text-[9px] font-bold text-white shadow-sm"
@@ -114,4 +114,15 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
         </div>
 
         <div className="flex gap-2">
-          <button className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-white rounded-lg transition-colors shadow
+          <button className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-white rounded-lg transition-colors shadow-sm">
+            <ShoppingCart size={12} />
+            Beli
+          </button>
+          <button className="flex items-center justify-center w-8 h-8 rounded-lg border border-[var(--border-subtle)] hover:border-amber-500/50 hover:text-amber-400 text-[var(--text-muted)] transition-colors">
+            <Bell size={13} />
+          </button>
+        </div>
+      </div>
+    </Link>
+  )
+}
