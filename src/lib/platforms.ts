@@ -55,14 +55,63 @@ export const PLATFORMS: Record<string, Platform> = {
     id: 'tiktok',
     name: 'TikTok Shop',
     shortName: 'TikTok',
-    color: '#010101',
-    bgColor: '#f0f0f0',
+    color: '#fe2c55',
+    bgColor: '#ffe8ec',
     logo: '/logos/tiktok.svg',
     affiliateBase: 'https://tiktok.com/shop/product/',
     cashbackPct: 8,
   },
+  amazon: {
+    id: 'amazon',
+    name: 'Amazon',
+    shortName: 'Amazon',
+    color: '#ff9900',
+    bgColor: '#fff3e0',
+    logo: '/logos/amazon.svg',
+    affiliateBase: 'https://amazon.com/dp/',
+    cashbackPct: 4,
+  },
+  alibaba: {
+    id: 'alibaba',
+    name: 'Alibaba',
+    shortName: 'Alibaba',
+    color: '#ff6a00',
+    bgColor: '#fff0e6',
+    logo: '/logos/alibaba.svg',
+    affiliateBase: 'https://www.alibaba.com/product-detail/',
+    cashbackPct: 3,
+  },
+  aliexpress: {
+    id: 'aliexpress',
+    name: 'AliExpress',
+    shortName: 'AliExp',
+    color: '#e62e04',
+    bgColor: '#ffeee9',
+    logo: '/logos/aliexpress.svg',
+    affiliateBase: 'https://www.aliexpress.com/item/',
+    cashbackPct: 5,
+  },
+  jd: {
+    id: 'jd',
+    name: 'JD.ID',
+    shortName: 'JD.ID',
+    color: '#c0040e',
+    bgColor: '#ffe5e7',
+    logo: '/logos/jd.svg',
+    affiliateBase: 'https://jd.id/product/',
+    cashbackPct: 4,
+  },
 }
 
 export const PLATFORM_ORDER: string[] = [
-  'tokopedia', 'shopee', 'lazada', 'bukalapak', 'blibli', 'tiktok'
+  'tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak',
+  'amazon', 'aliexpress', 'alibaba', 'jd',
+]
+
+export const PLATFORM_PRIMARY: string[] = [
+  'tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak',
+]
+
+export const PLATFORM_INTL: string[] = [
+  'amazon', 'aliexpress', 'alibaba', 'jd',
 ]
