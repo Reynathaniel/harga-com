@@ -13,6 +13,17 @@ interface ProductCardProps {
 export function ProductCard({ product, compact = false }: ProductCardProps) {
   const sortedListings = lowestListingFirst(product.listings)
   const cheapest = sortedListings[0]
+
+  // Guard: product with no listings
+  if (!cheapest) {
+    return (
+      <div className="block bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl overflow-hidden opacity-40">
+        <div className="relative aspect-square bg-[var(--bg-hover)]" />
+        <div className="p-3"><p className="text-xs text-[var(--text-muted)]">{product.name}</p></div>
+      </div>
+    )
+  }
+
   const mostExpensive = sortedListings[sortedListings.length - 1]
   const diff = priceDiffPercent(cheapest.price, mostExpensive.price)
   const cheapestPlatform = PLATFORMS[cheapest.platformId]
@@ -103,15 +114,4 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
         </div>
 
         <div className="flex gap-2">
-          <button className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-white rounded-lg transition-colors shadow-sm">
-            <ShoppingCart size={12} />
-            Beli Termurah
-          </button>
-          <button className="p-2 text-[var(--text-muted)] hover:text-amber-400 bg-[var(--bg-hover)] hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 rounded-lg transition-colors">
-            <Bell size={14} />
-          </button>
-        </div>
-      </div>
-    </Link>
-  )
-}
+          <button className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-white rounded-lg transition-colors shadow

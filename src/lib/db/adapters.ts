@@ -18,7 +18,7 @@ export function adaptOfferToListing(offer: OfferWithMerchant): PriceListing {
     price:         offer.price,
     originalPrice: offer.original_price ?? undefined,
     discount:      offer.discount_pct ?? undefined,
-    rating:        offer.rating ?? 4.5,
+    rating:        parseFloat(String(offer.rating ?? '4.5')) || 4.5,
     reviewCount:   offer.review_count,
     sold:          offer.sold_count,
     stock:         offer.stock_count,
@@ -72,7 +72,7 @@ export function adaptDbProductToAppProduct(
     priceHistory,
     lowestPrice,
     highestPrice,
-    averageRating: product.average_rating ?? 4.5,
+    averageRating: parseFloat(String(product.average_rating ?? '4.5')) || 4.5,
     totalReviews:  product.total_reviews,
     createdAt:     new Date(product.created_at),
     updatedAt:     new Date(product.updated_at),
@@ -96,7 +96,4 @@ function generateSyntheticHistory(base: number, days = 30) {
       blibli:     Math.round(v() * 1.05 / 1000) * 1000,
       tiktok:     i > 15 ? null : Math.round(v() * 0.91 / 1000) * 1000,
     }
-    history.push({ date: subDays(new Date(), i), prices })
-  }
-  return history
-}
+    history.push({ date:
