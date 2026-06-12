@@ -83,7 +83,6 @@ export function adaptDbProductToAppProduct(
 // Used when real price history is not yet populated in DB
 
 function generateSyntheticHistory(base: number, days = 30) {
-  const PLATFORM_IDS: PlatformId[] = ['tokopedia', 'shopee', 'lazada', 'bukalapak', 'blibli', 'tiktok']
   const history = []
 
   for (let i = days; i >= 0; i--) {
@@ -96,4 +95,7 @@ function generateSyntheticHistory(base: number, days = 30) {
       blibli:     Math.round(v() * 1.05 / 1000) * 1000,
       tiktok:     i > 15 ? null : Math.round(v() * 0.91 / 1000) * 1000,
     }
-    history.push({ date:
+    history.push({ date: subDays(new Date(), i), prices })
+  }
+  return history
+}
