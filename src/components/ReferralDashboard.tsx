@@ -331,6 +331,3 @@ function StatCard({ icon, label, value, sub, highlight }: StatCardProps) {
     </div>
   )
 }
-    </div>
-  )
-}
