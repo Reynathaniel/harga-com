@@ -57,7 +57,8 @@ export interface OrchestrateResult {
 }
 
 const INDONESIAN_PLATFORMS = ['tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak']
-const ALL_PLATFORMS = [...INDONESIAN_PLATFORMS, 'amazon', 'aliexpress', 'alibaba']
+const PLATFORM_INTL = ['amazon', 'aliexpress', 'alibaba', 'jd']
+const ALL_PLATFORMS = [...INDONESIAN_PLATFORMS, ...PLATFORM_INTL]
 
 export async function scrapeAll(opts: OrchestrateOptions): Promise<OrchestrateResult> {
   const start = Date.now()
@@ -130,7 +131,7 @@ export function getRegisteredPlatforms(): string[] {
   return Array.from(getRegistry().keys())
 }
 
-export { INDONESIAN_PLATFORMS, ALL_PLATFORMS }
+export { INDONESIAN_PLATFORMS, PLATFORM_INTL, ALL_PLATFORMS }
 export type { RawListing, ScrapeResult, ScrapeRequest }
 
 // ──────────────────────────────────────────────────────────────────────────────
