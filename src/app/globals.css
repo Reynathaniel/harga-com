@@ -22,13 +22,18 @@
   --brand-amber-dark: #d97706;
   --brand-amber-light: #fbbf24;
 
-  /* Platform colors */
+  /* Platform colors — Indonesian */
   --platform-tokopedia: #42b549;
   --platform-shopee: #ee4d2d;
   --platform-lazada: #0f146d;
-  --platform-bukalapak: #d71149;
+  --platform-bukalapak: #e31e52;
   --platform-blibli: #0095da;
-  --platform-tiktok: #010101;
+  --platform-tiktok: #fe2c55;
+  /* Platform colors — International */
+  --platform-amazon: #ff9900;
+  --platform-alibaba: #ff6a00;
+  --platform-aliexpress: #e62e04;
+  --platform-jd: #c0040e;
 
   /* Shadows */
   --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
@@ -246,17 +251,10 @@ body {
 }
 
 /* Platform badge specific */
-.platform-tokopedia { background: var(--platform-tokopedia); }
-.platform-shopee    { background: var(--platform-shopee); }
-.platform-lazada    { background: var(--platform-lazada); }
-.platform-bukalapak { background: var(--platform-bukalapak); }
-.platform-blibli    { background: var(--platform-blibli); }
-.platform-tiktok    { background: #1a1a1a; border: 1px solid #333; }
-
-/* Horizontal scroll hide scrollbar */
-.scroll-x-hidden {
-  overflow-x: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.scroll-x-hidden::-webkit-scrollbar { display: none; }
+.platform-tokopedia  { background: var(--platform-tokopedia); }
+.platform-shopee     { background: var(--platform-shopee); }
+.platform-lazada     { background: var(--platform-lazada); }
+.platform-bukalapak  { background: var(--platform-bukalapak); }
+.platform-blibli     { background: var(--platform-blibli); }
+.platform-tiktok     { background: var(--platform-tiktok); }
+.platform-amaz
