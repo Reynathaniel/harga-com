@@ -1,0 +1,152 @@
+import type { ScrapeRequest, ScrapeResult, RawListing } from './types'
+import { TokopediaScraper } from './tokopedia'
+import { ShopeeScraper } from './shopee'
+import { TiktokScraper } from './tiktok'
+import { LazadaScraper } from './lazada'
+import { BukalapakScraper } from './bukalapak'
+import { BlibliScraper } from './blibli'
+import { AmazonScraper } from './amazon'
+import { AlibabaScraper } from './alibaba'
+import { AliexpressScraper } from './aliexpress'
+import { BaseScraper } from './base'
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Scraper Registry
+// ──────────────────────────────────────────────────────────────────────────────
+
+let _registry: Map<string, BaseScraper> | null = null
+
+function getRegistry(): Map<string, BaseScraper> {
+  if (!_registry) {
+    const entries: [string, BaseScraper][] = [
+      ['tokopedia',  new TokopediaScraper()],
+      ['shopee',     new ShopeeScraper()],
+      ['tiktok',     new TiktokScraper()],
+      ['lazada',     new LazadaScraper()],
+      ['bukalapak',  new BukalapakScraper()],
+      ['blibli',     new BlibliScraper()],
+      ['amazon',     new AmazonScraper()],
+      ['alibaba',    new AlibabaScraper()],
+      ['aliexpress', new AliexpressScraper()],
+    ]
+    _registry = new Map(entries)
+  }
+  return _registry
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Public API
+// ──────────────────────────────────────────────────────────────────────────────
+
+export interface OrchestrateOptions {
+  query: string
+  platforms?: string[]          // default: all Indonesian platforms
+  limit?: number                // per-platform
+  page?: number
+  concurrency?: number          // max parallel scrapers (default: 3)
+  timeoutMs?: number            // per-platform timeout override
+}
+
+export interface OrchestrateResult {
+  query: string
+  results: ScrapeResult[]
+  merged: RawListing[]          // deduped + sorted by price
+  totalFound: number
+  durationMs: number
+  errors: { platformId: string; error: string }[]
+}
+
+const INDONESIAN_PLATFORMS = ['tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak']
+const ALL_PLATFORMS = [...INDONESIAN_PLATFORMS, 'amazon', 'aliexpress', 'alibaba']
+
+export async function scrapeAll(opts: OrchestrateOptions): Promise<OrchestrateResult> {
+  const start = Date.now()
+  const registry = getRegistry()
+  const targetPlatforms = opts.platforms ?? INDONESIAN_PLATFORMS
+  const concurrency = opts.concurrency ?? 3
+
+  // Run scrapers in batches to limit concurrency
+  const allResults: ScrapeResult[] = []
+  for (let i = 0; i < targetPlatforms.length; i += concurrency) {
+    const batch = targetPlatforms.slice(i, i + concurrency)
+    const batchResults = await Promise.allSettled(
+      batch.map(platformId => {
+        const scraper = registry.get(platformId)
+        if (!scraper) {
+          return Promise.resolve({
+            platformId,
+            query: opts.query,
+            listings: [],
+            totalFound: 0,
+            scrapedAt: new Date(),
+            durationMs: 0,
+            error: `No scraper registered for ${platformId}`,
+          } satisfies ScrapeResult)
+        }
+        const req: ScrapeRequest = {
+          query: opts.query,
+          platformId,
+          limit: opts.limit ?? 30,
+          page: opts.page ?? 1,
+        }
+        return scraper.scrape(req)
+      })
+    )
+
+    for (const r of batchResults) {
+      if (r.status === 'fulfilled') allResults.push(r.value)
+      // rejected should be rare — scraper.scrape() catches internally
+    }
+  }
+
+  // Merge and deduplicate
+  const merged = mergeListings(allResults)
+  const errors = allResults
+    .filter(r => r.error)
+    .map(r => ({ platformId: r.platformId, error: r.error! }))
+
+  return {
+    query: opts.query,
+    results: allResults,
+    merged,
+    totalFound: merged.length,
+    durationMs: Date.now() - start,
+    errors,
+  }
+}
+
+/** Scrape a single platform */
+export async function scrapePlatform(platformId: string, query: string, limit = 30): Promise<ScrapeResult> {
+  const registry = getRegistry()
+  const scraper = registry.get(platformId)
+  if (!scraper) {
+    return { platformId, query, listings: [], totalFound: 0, scrapedAt: new Date(), durationMs: 0, error: `Unknown platform: ${platformId}` }
+  }
+  return scraper.scrape({ query, platformId, limit })
+}
+
+/** Get all registered platform IDs */
+export function getRegisteredPlatforms(): string[] {
+  return Array.from(getRegistry().keys())
+}
+
+export { INDONESIAN_PLATFORMS, ALL_PLATFORMS }
+export type { RawListing, ScrapeResult, ScrapeRequest }
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Merge helpers
+// ──────────────────────────────────────────────────────────────────────────────
+
+function mergeListings(results: ScrapeResult[]): RawListing[] {
+  const all: RawListing[] = []
+  for (const r of results) all.push(...r.listings)
+
+  // Deduplicate within the same platform by productId
+  const seen = new Map<string, RawListing>()
+  for (const l of all) {
+    const key = `${l.platformId}:${l.productId}`
+    if (!seen.has(key)) seen.set(key, l)
+  }
+
+  return Array.from(seen.values()).sort((a, b) => a.price - b.price)
+}
