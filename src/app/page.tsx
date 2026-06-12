@@ -74,7 +74,7 @@ export default async function HomePage() {
           <span className="text-white font-bold">22.000+</span>
           <span className="text-[var(--text-muted)]">produk</span>
           <span className="text-[var(--border)]">|</span>
-          <span className="text-white font-bold">6</span>
+          <span className="text-white font-bold">10</span>
           <span className="text-[var(--text-muted)]">platform</span>
           <span className="text-[var(--border)]">|</span>
           <span className="text-[var(--text-muted)]">Update tiap 4 jam</span>
@@ -88,7 +88,7 @@ export default async function HomePage() {
           {platformList.map(p => (
             <div key={p.id}
               className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-[10px] font-bold shadow-md hover:scale-110 transition-transform cursor-default ring-1 ring-white/5"
-              style={{ background: p.id === 'tiktok' ? '#1a1a1a' : p.color }}
+              style={{ background: p.color }}
               title={p.name}>
               {p.shortName.slice(0, 2)}
             </div>
@@ -302,7 +302,7 @@ export default async function HomePage() {
           </div>
           {[
             { title: 'Fitur', links: ['Bandingkan Harga', 'Price Alert', 'Cashback', 'Browser Extension', 'Mobile App'] },
-            { title: 'Platform', links: ['Tokopedia', 'Shopee', 'Lazada', 'Bukalapak', 'TikTok Shop'] },
+            { title: 'Platform', links: ['Tokopedia', 'Shopee', 'TikTok Shop', 'Amazon', 'AliExpress', 'Lazada'] },
             { title: 'Perusahaan', links: ['Tentang Kami', 'Blog', 'Karir', 'Hubungi Kami', 'Privasi'] },
           ].map(col => (
             <div key={col.title}>
