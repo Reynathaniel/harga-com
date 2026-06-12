@@ -1,4 +1,6 @@
-export type PlatformId = 'tokopedia' | 'shopee' | 'lazada' | 'bukalapak' | 'blibli' | 'tiktok'
+export type PlatformId =
+  | 'tokopedia' | 'shopee' | 'lazada' | 'bukalapak' | 'blibli' | 'tiktok'
+  | 'amazon' | 'alibaba' | 'aliexpress' | 'jd'
 
 export interface Platform {
   id: PlatformId
