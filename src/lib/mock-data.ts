@@ -14,6 +14,10 @@ function genHistory(base: number, days = 30): PriceHistory[] {
         bukalapak:  i > 20 ? null : Math.round(variance() * 0.97 / 1000) * 1000,
         blibli:     Math.round(variance() * 1.05 / 1000) * 1000,
         tiktok:     i > 15 ? null : Math.round(variance() * 0.91 / 1000) * 1000,
+        amazon:     null,
+        alibaba:    null,
+        aliexpress: null,
+        jd:         null,
       },
     })
   }
@@ -895,5 +899,4 @@ export const LIVE_TICKER_ITEMS = [
   { icon: '📷', name: 'Instax Mini 12', platform: 'TikTok', price: 819000, change: -6.8 },
   { icon: '👕', name: 'Uniqlo Light Down Jacket', platform: 'TikTok', price: 529000, change: -8.9 },
   { icon: '📱', name: 'Xiaomi 14 Ultra', platform: 'TikTok', price: 12799000, change: -2.9 },
-  { icon: '🖥️', name: 'LG UltraGear 27"', platform: 'TikTok', price: 5399000, change: -5.3 },
 ]
