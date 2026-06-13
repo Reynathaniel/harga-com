@@ -11,15 +11,22 @@ import Link from 'next/link'
 export const revalidate = 300
 
 interface SearchPageProps {
-  searchParams: { q?: string; kategori?: string; sort?: string; min?: string; max?: string }
+  searchParams: {
+    q?: string
+    kategori?: string
+    sort?: string
+    min?: string
+    max?: string
+    platform?: string
+  }
 }
 
 const SORT_OPTIONS = [
-  { value: 'lowest',  label: 'Termurah',      icon: '\U0001f4b8' },
-  { value: 'popular', label: 'Populer',        icon: '\U0001f525' },
-  { value: 'newest',  label: 'Terbaru',        icon: '\U00002728' },
-  { value: 'rating',  label: 'Rating Terbaik', icon: '\U00002b50' },
-  { value: 'highest', label: 'Termahal',       icon: '\U0001f4c8' },
+  { value: 'lowest',  label: 'Termurah',      icon: '\u{1F4B8}' },
+  { value: 'popular', label: 'Populer',        icon: '\u{1F525}' },
+  { value: 'newest',  label: 'Terbaru',        icon: '\u{2728}'  },
+  { value: 'rating',  label: 'Rating Terbaik', icon: '\u{2B50}'  },
+  { value: 'highest', label: 'Termahal',       icon: '\u{1F4C8}' },
 ]
 
 const PRICE_PRESETS = [
@@ -41,14 +48,14 @@ function EmptyState({ query }: { query: string }) {
         <path d="M46 50h12M52 44v12" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
       </svg>
       <h3 className="text-lg font-semibold text-white mb-2">
-        {query ? "Produk \"" + query + "\" tidak ditemukan" : 'Tidak ada produk'}
+        {query ? 'Produk "' + query + '" tidak ditemukan' : 'Tidak ada produk'}
       </h3>
       <p className="text-[var(--text-secondary)] text-sm mb-6 max-w-sm mx-auto">
         Coba kata kunci lain, atau gunakan URL produk langsung dari marketplace
       </p>
       <div className="flex flex-wrap gap-2 justify-center mb-6">
         {['iPhone 15', 'Samsung S24', 'Laptop Gaming', 'Sepatu Nike', 'PS5'].map(s => (
-          <Link key={s} href={"/cari?q=" + encodeURIComponent(s)}
+          <Link key={s} href={'/cari?q=' + encodeURIComponent(s)}
             className="px-3 py-1.5 text-xs bg-[var(--bg-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-white hover:border-amber-500/40 rounded-full transition-colors">
             {s}
           </Link>
@@ -67,12 +74,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query    = searchParams.q || ''
   const category = searchParams.kategori || ''
   const sort     = (searchParams.sort || 'lowest') as 'lowest' | 'highest' | 'rating' | 'popular' | 'newest'
+  const platform = searchParams.platform || ''
   const minPrice = searchParams.min ? Number(searchParams.min) : undefined
   const maxPrice = searchParams.max ? Number(searchParams.max) : undefined
 
   const { products, total, source } = await getProducts({
     query,
     category: category || undefined,
+    platform: platform || undefined,
     minPrice,
     maxPrice,
     sort,
@@ -82,44 +91,89 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const categories = await getCategories()
   const priceDropCount = Math.max(1, Math.ceil(products.length * 0.3))
   const activeCategory = categories.find(c => c.id === category)
+  const activePlatform = platform ? PLATFORMS[platform] : null
+  const platformList = Object.values(PLATFORMS)
 
   const buildHref = (overrides: Record<string, string | undefined>) => {
     const params = new URLSearchParams()
     const base: Record<string, string | undefined> = {
-      q: query || undefined,
+      q:        query    || undefined,
       kategori: category || undefined,
+      platform: platform || undefined,
       sort,
       min: searchParams.min,
       max: searchParams.max,
       ...overrides,
     }
     Object.entries(base).forEach(([k, v]) => { if (v) params.set(k, v) })
-    return "/cari?" + params.toString()
+    return '/cari?' + params.toString()
   }
 
   return (
     <div className="pt-[88px] min-h-screen">
+
+      {/* Search bar */}
       <div className="bg-[var(--bg-card)] border-b border-[var(--border-subtle)] px-4 py-4">
         <div className="max-w-7xl mx-auto">
           <SearchAutocomplete initialValue={query} />
         </div>
       </div>
 
-      <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-primary)] overflow-x-auto scroll-x-hidden">
+      {/* Category tabs */}
+      <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-primary)] overflow-x-auto">
         <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-2 whitespace-nowrap">
-          <Link href="/cari"
-            className={"px-3 py-1.5 text-xs rounded-full border transition-colors shrink-0 font-medium " +
+          <Link href={buildHref({ kategori: undefined })}
+            className={'px-3 py-1.5 text-xs rounded-full border transition-colors shrink-0 font-medium ' +
               (!category ? 'bg-amber-500 text-white border-amber-500' : 'text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-amber-500/40 hover:text-white')}>
             Semua
           </Link>
           {categories.map(cat => (
             <Link key={cat.id} href={buildHref({ kategori: cat.id })}
-              className={"flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-colors shrink-0 font-medium " +
+              className={'flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-colors shrink-0 font-medium ' +
                 (category === cat.id ? 'bg-amber-500 text-white border-amber-500' : 'text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-amber-500/40 hover:text-white')}>
               <span>{cat.icon}</span>
               {cat.label}
             </Link>
           ))}
+        </div>
+      </div>
+
+      {/* Platform filter tabs */}
+      <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-primary)] overflow-x-auto">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-1.5 whitespace-nowrap">
+          <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mr-1 shrink-0">
+            Platform:
+          </span>
+          <Link
+            href={buildHref({ platform: undefined })}
+            className={'px-3 py-1 text-xs rounded-full border transition-colors shrink-0 font-medium ' +
+              (!platform
+                ? 'bg-[var(--bg-hover)] text-white border-amber-500/50'
+                : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:border-amber-500/30 hover:text-white')}>
+            Semua
+          </Link>
+          {platformList.map(p => {
+            const isActive = platform === p.id
+            const bg = p.id === 'tiktok' ? '#1a1a1a' : p.color
+            return (
+              <Link
+                key={p.id}
+                href={buildHref({ platform: p.id })}
+                className={'flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full border transition-all shrink-0 font-medium ' +
+                  (isActive
+                    ? 'text-white border-transparent shadow-sm'
+                    : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:text-white')}
+                style={isActive ? { background: bg, borderColor: bg } : {}}
+              >
+                <span
+                  className="w-3 h-3 rounded-full shrink-0"
+                  style={{ background: bg }}
+                />
+                {p.name}
+                <span className="text-[9px] opacity-60">CB {p.cashbackPct}%</span>
+              </Link>
+            )
+          })}
         </div>
       </div>
 
@@ -139,17 +193,27 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
               <div>
                 <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-3">Platform</div>
-                <div className="space-y-2.5">
-                  {Object.values(PLATFORMS).map(p => (
-                    <label key={p.id} className="flex items-center gap-2.5 cursor-pointer group">
-                      <input type="checkbox" defaultChecked className="w-3.5 h-3.5 rounded accent-amber-500 shrink-0" />
+                <div className="space-y-1.5">
+                  <Link
+                    href={buildHref({ platform: undefined })}
+                    className={'flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-xs transition-colors ' +
+                      (!platform ? 'bg-amber-500/10 text-amber-400 font-semibold' : 'text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-hover)]')}>
+                    <span className="w-5 h-5 rounded-md bg-[var(--bg-hover)] border border-[var(--border-subtle)] flex items-center justify-center text-[9px] font-bold text-white shrink-0">
+                      All
+                    </span>
+                    Semua Platform
+                  </Link>
+                  {platformList.map(p => (
+                    <Link key={p.id} href={buildHref({ platform: p.id })}
+                      className={'flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-xs transition-colors ' +
+                        (platform === p.id ? 'bg-amber-500/10 text-amber-400 font-semibold' : 'text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-hover)]')}>
                       <div className="w-5 h-5 rounded-md flex items-center justify-center text-white text-[9px] font-bold shrink-0"
                         style={{ background: p.id === 'tiktok' ? '#1a1a1a' : p.color }}>
                         {p.shortName.slice(0, 2)}
                       </div>
-                      <span className="text-xs text-[var(--text-secondary)] group-hover:text-white transition-colors flex-1">{p.name}</span>
+                      <span className="flex-1">{p.name}</span>
                       <span className="text-[10px] text-amber-400 font-medium">{p.cashbackPct}%</span>
-                    </label>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -160,7 +224,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   {PRICE_PRESETS.map(preset => (
                     <Link key={preset.label}
                       href={buildHref({ min: String(preset.min), max: String(preset.max) })}
-                      className={"block w-full text-left text-xs px-3 py-2 rounded-xl transition-colors " +
+                      className={'block w-full text-left text-xs px-3 py-2 rounded-xl transition-colors ' +
                         (minPrice === preset.min && maxPrice === preset.max
                           ? 'bg-amber-500/15 text-amber-400 border border-amber-500/25'
                           : 'text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-hover)]')}>
@@ -207,7 +271,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               </div>
 
               <div className="text-[10px] text-[var(--text-muted)] flex items-center gap-1.5 pt-1 border-t border-[var(--border-subtle)]">
-                <span className={"w-1.5 h-1.5 rounded-full shrink-0 " + (source === 'supabase' ? 'bg-green-400' : 'bg-amber-400')} />
+                <span className={'w-1.5 h-1.5 rounded-full shrink-0 ' + (source === 'supabase' ? 'bg-green-400' : 'bg-amber-400')} />
                 {source === 'supabase' ? 'Data live dari Supabase' : 'Mode demo (mock data)'}
               </div>
             </div>
@@ -215,22 +279,59 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
           {/* Results */}
           <div className="flex-1 min-w-0">
+
+            {/* Active filter pills */}
+            {(activePlatform || activeCategory || minPrice !== undefined) && (
+              <div className="flex items-center gap-2 flex-wrap mb-4">
+                <span className="text-xs text-[var(--text-muted)]">Filter aktif:</span>
+                {activePlatform && (
+                  <span
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full text-white"
+                    style={{ background: activePlatform.id === 'tiktok' ? '#1a1a1a' : activePlatform.color }}>
+                    {activePlatform.name}
+                    <Link href={buildHref({ platform: undefined })} className="ml-0.5 opacity-70 hover:opacity-100 leading-none">x</Link>
+                  </span>
+                )}
+                {activeCategory && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25">
+                    {activeCategory.icon} {activeCategory.label}
+                    <Link href={buildHref({ kategori: undefined })} className="ml-0.5 opacity-70 hover:opacity-100 leading-none">x</Link>
+                  </span>
+                )}
+                {minPrice !== undefined && maxPrice !== undefined && maxPrice < 999999999 && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-[var(--bg-hover)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
+                    {formatRupiah(minPrice, true)} - {formatRupiah(maxPrice, true)}
+                    <Link href={buildHref({ min: undefined, max: undefined })} className="ml-0.5 opacity-70 hover:opacity-100 leading-none">x</Link>
+                  </span>
+                )}
+              </div>
+            )}
+
             <div className="flex items-start justify-between mb-4 gap-3 flex-wrap">
               <div>
                 <h1 className="text-lg font-semibold text-white">
-                  {query ? "Hasil untuk \"" + query + "\"" : activeCategory ? activeCategory.icon + ' ' + activeCategory.label : 'Semua Produk'}
+                  {query
+                    ? 'Hasil untuk "' + query + '"'
+                    : activePlatform
+                      ? 'Produk di ' + activePlatform.name
+                      : activeCategory
+                        ? activeCategory.icon + ' ' + activeCategory.label
+                        : 'Semua Produk'}
                 </h1>
                 <p className="text-sm text-[var(--text-muted)]">
                   <span className="text-white font-medium">{total}</span> produk ditemukan
+                  {activePlatform && (
+                    <span> - termurah di <span className="text-white font-medium">{activePlatform.name}</span></span>
+                  )}
                   {minPrice !== undefined && maxPrice !== undefined && maxPrice < 999999999 && (
-                    <span> &#183; {formatRupiah(minPrice, true)} &#8211; {formatRupiah(maxPrice, true)}</span>
+                    <span> - {formatRupiah(minPrice, true)} s/d {formatRupiah(maxPrice, true)}</span>
                   )}
                 </p>
               </div>
               <div className="flex items-center gap-1.5 flex-wrap">
                 {SORT_OPTIONS.slice(0, 4).map(opt => (
                   <Link key={opt.value} href={buildHref({ sort: opt.value })}
-                    className={"flex items-center gap-1 px-3 py-1.5 text-xs rounded-full border font-medium transition-colors " +
+                    className={'flex items-center gap-1 px-3 py-1.5 text-xs rounded-full border font-medium transition-colors ' +
                       (sort === opt.value
                         ? 'bg-amber-500 text-white border-amber-500'
                         : 'bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-white hover:border-amber-500/40')}>
@@ -247,7 +348,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 <span className="text-green-400 font-medium">{priceDropCount} produk turun harga</span>
                 <span className="text-[var(--text-muted)]">dalam 24 jam terakhir</span>
                 <span className="ml-auto text-[10px] text-amber-400 flex items-center gap-1 shrink-0">
-                  <Sparkles size={10} /> Cashback aktif
+                  <Sparkles size={10} />
+                  {activePlatform ? 'CB ' + activePlatform.cashbackPct + '% aktif' : 'Cashback aktif'}
                 </span>
               </div>
             )}
@@ -268,6 +370,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 </button>
               </div>
             )}
+
           </div>
         </div>
       </div>
