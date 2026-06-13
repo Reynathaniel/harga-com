@@ -8,8 +8,6 @@ import { formatRupiah } from '@/lib/utils'
 import { SlidersHorizontal, TrendingDown, Star, Package, Sparkles, Search } from 'lucide-react'
 import Link from 'next/link'
 
-export const revalidate = 300
-
 interface SearchPageProps {
   searchParams: {
     q?: string
