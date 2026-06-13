@@ -1,0 +1,42 @@
+name: Scraper Cron
+
+on:
+  schedule:
+    # Every 4 hours: 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+    inputs:
+      queries:
+        description: 'Comma-separated queries to scrape (default: iphone,samsung,laptop)'
+        required: false
+        default: 'iphone,samsung,laptop'
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Run domestic scraper (trending)
+        run: |
+          echo "Running domestic cron scraper..."
+          curl -s --max-time 60 "https://harga-com.vercel.app/api/scraper/cron" | cat
+          echo ""
+
+      - name: Run international scraper
+        run: |
+          echo "Running international cron scraper..."
+          curl -s --max-time 60 "https://harga-com.vercel.app/api/scraper/cron-intl" | cat
+          echo ""
+
+      - name: Run targeted queries
+        run: |
+          QUERIES="${{ github.event.inputs.queries || 'iphone,samsung,laptop' }}"
+          IFS=',' read -ra QUERY_LIST <<< "$QUERIES"
+          for q in "${QUERY_LIST[@]}"; do
+            q=$(echo "$q" | xargs)  # trim whitespace
+            echo "Scraping: $q"
+            curl -s --max-time 60 "https://harga-com.vercel.app/api/scraper/run?q=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$q'))")&save=true&limit=30" \
+              | python3 -c "import sys,json; d=json.load(sys.stdin); print('  saved:', d.get('saved',{}), '| found:', d.get('totalFound',0), '| errors:', len(d.get('errors',[])))" \
+              || echo "  scraper error for $q"
+            sleep 3
+          done
