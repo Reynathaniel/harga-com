@@ -23,6 +23,9 @@ export interface RawListing {
   affiliateCommissionPct?: number  // e.g. 13.5 (from Shopee Affiliate)
   affiliateOfferType?: 'standard' | 'xtra' | 'sample' // offer badge type
   isAffiliateOffer?: boolean       // true = curated affiliate product
+  // Media — zero-storage: URLs only, files stay on platform CDNs
+  videoUrl?: string    // embed URL for product video (original platform CDN)
+  videoThumb?: string  // thumbnail URL for video (original platform CDN)
   scrapedAt: Date
 }
 

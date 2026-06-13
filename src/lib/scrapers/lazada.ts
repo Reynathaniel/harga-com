@@ -72,6 +72,12 @@ export class LazadaScraper extends BaseScraper {
       const origRaw = this.get<unknown>(raw, 'originalPrice', null) ?? this.get<unknown>(raw, 'priceRemove', null)
       const originalPrice = origRaw ? this.parsePrice(String(origRaw)) : undefined
 
+      // Lazada may include video field in product JSON
+      const videoUrl = this.get<string>(raw, 'video', '')
+        || this.get<string>(raw, 'videoUrl', '')
+        || undefined
+      const videoThumb = videoUrl ? this.get<string>(raw, 'image', '') || undefined : undefined
+
       return {
         platformId: 'lazada',
         productId: id,
@@ -89,6 +95,8 @@ export class LazadaScraper extends BaseScraper {
         freeShipping: this.get<boolean>(raw, 'freeShipping', false),
         url: `https://www.lazada.co.id/products/-i${id}.html`,
         imageUrl: this.get<string>(raw, 'image', ''),
+        videoUrl,
+        videoThumb,
         scrapedAt: new Date(),
       }
     } catch {

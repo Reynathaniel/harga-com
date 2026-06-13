@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 /**
  * GET /api/products/[slug]/prices
  * Returns all current offers, sorted cheapest first.

@@ -84,6 +84,16 @@ export class ShopeeScraper extends BaseScraper {
 
       const affiliateUrl = buildShopeeAffiliateUrl(shopId, id)
 
+      // Extract video — Shopee returns video_info_list; files stay on Shopee CDN
+      const videoList = this.get<unknown[]>(raw, 'video_info_list', [])
+      const videoRaw  = videoList.length > 0 ? videoList[0] : null
+      const videoUrl  = videoRaw
+        ? (this.get<string>(videoRaw, 'default_format.url', '') || this.get<string>(videoRaw, 'url', '')) || undefined
+        : undefined
+      const videoThumb = videoRaw
+        ? this.get<string>(videoRaw, 'thumbnail', '') || undefined
+        : undefined
+
       return {
         platformId: 'shopee',
         productId: id,
@@ -102,6 +112,8 @@ export class ShopeeScraper extends BaseScraper {
         url: `https://shopee.co.id/product/${shopId}/${id}`,
         affiliateUrl: AFFILIATE_ID && AFFILIATE_ID !== 'PENDING' ? affiliateUrl : undefined,
         imageUrl,
+        videoUrl,
+        videoThumb,
         scrapedAt: new Date(),
       }
     } catch {

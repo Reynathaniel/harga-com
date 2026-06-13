@@ -78,6 +78,13 @@ export class TiktokScraper extends BaseScraper {
         || this.get<string>(raw, 'main_image', '')
         || this.get<string>(raw, 'images.0', '')
 
+      // TikTok products are video-native — extract video URL if present
+      const videoUrl = this.get<string>(raw, 'video.play_url', '')
+        || this.get<string>(raw, 'video_url', '')
+        || this.get<string>(raw, 'video.url', '')
+        || undefined
+      const videoThumb = this.get<string>(raw, 'video.cover', '') || cover || undefined
+
       return {
         platformId: 'tiktok',
         productId: id,
@@ -95,6 +102,8 @@ export class TiktokScraper extends BaseScraper {
         freeShipping: this.get<boolean>(raw, 'free_shipping', false),
         url: `https://shop.tiktok.com/view/product/${id}`,
         imageUrl: cover,
+        videoUrl,
+        videoThumb,
         scrapedAt: new Date(),
       }
     } catch {

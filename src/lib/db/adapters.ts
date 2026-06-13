@@ -28,6 +28,10 @@ export function adaptOfferToListing(offer: OfferWithMerchant): PriceListing {
     url:           offer.url ?? '#',
     affiliateUrl:  offer.affiliate_url ?? '#',
     imageUrl:      `https://picsum.photos/seed/${merchant.platform_id}/400/400`,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    videoUrl:      (offer as any).video_url  ?? undefined,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    videoThumb:    (offer as any).video_thumb ?? undefined,
     updatedAt:     new Date(offer.updated_at),
   }
 }

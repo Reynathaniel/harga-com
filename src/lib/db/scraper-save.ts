@@ -110,6 +110,8 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
           url:            listing.url,
           affiliate_url:  listing.affiliateUrl ?? null,
           in_stock:       listing.stock !== 0,
+          video_url:      listing.videoUrl   ?? null,
+          video_thumb:    listing.videoThumb ?? null,
           updated_at:     now,
         }, { onConflict: 'product_id,merchant_id' })
         .select('id')

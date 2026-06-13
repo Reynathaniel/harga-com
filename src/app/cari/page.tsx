@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 import { SearchAutocomplete } from '@/components/SearchAutocomplete'
 import { ProductCard } from '@/components/ProductCard'
