@@ -1,67 +1,49 @@
-/**
- * GET /api/scraper/affiliate
- *
- * Fetches curated affiliate product offers from Shopee Affiliate Program.
- * Requires SHOPEE_AFFILIATE_COOKIE + SHOPEE_AFFILIATE_CSRF env vars.
- *
- * Query params:
- *   page     — page number (default: 1)
- *   size     — results per page (default: 20, max: 100)
- *   sort     — 0=default | 1=commission_rate | 2=sales (default: 1)
- *   offer    — 0=all | 1=standard | 2=xtra | 3=sample (default: 0)
- *   keyword  — search within affiliate offers
- *   all      — if "true", fetches all pages (up to 5) for indexing
- */
-
 import { NextRequest, NextResponse } from 'next/server'
 import {
   fetchShopeeAffiliateOffers,
   fetchAllShopeeAffiliateOffers,
 } from '@/lib/scrapers/shopee-affiliate'
+import { saveScraperResults } from '@/lib/db/scraper-save'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
 
-  const page    = Number(searchParams.get('page')    ?? 1)
-  const size    = Number(searchParams.get('size')    ?? 20)
-  const sortBy  = (Number(searchParams.get('sort')   ?? 1)) as 0 | 1 | 2
-  const offerType = (Number(searchParams.get('offer') ?? 0)) as 0 | 1 | 2 | 3
-  const keyword = searchParams.get('keyword') ?? undefined
-  const fetchAll = searchParams.get('all') === 'true'
+  const page      = Number(searchParams.get('page')    ?? 1)
+  const size      = Number(searchParams.get('size')    ?? 20)
+  const sortBy    = (Number(searchParams.get('sort')   ?? 1)) as 0 | 1 | 2
+  const offerType = (Number(searchParams.get('offer')  ?? 0)) as 0 | 1 | 2 | 3
+  const keyword   = searchParams.get('keyword') ?? undefined
+  const fetchAll  = searchParams.get('all') === 'true'
+  const shouldSave = searchParams.get('save') !== 'false'
 
   try {
     if (fetchAll) {
       const result = await fetchAllShopeeAffiliateOffers({
-        maxPages: 5,
-        size: 50,
-        sortBy,
-        offerType,
-        keyword,
+        maxPages: 5, size: 50, sortBy, offerType, keyword,
       })
-
+      let saved = null
+      if (shouldSave && result.listings.length > 0) {
+        saved = await saveScraperResults(result.listings)
+      }
       return NextResponse.json({
-        ok: !result.error,
-        source: 'shopee_affiliate',
-        totalFound: result.totalFound,
-        returned: result.listings.length,
-        pagesScraped: result.pagesScraped,
-        error: result.error,
-        listings: result.listings.slice(0, 200), // cap response size
+        ok: !result.error, source: 'shopee_affiliate',
+        totalFound: result.totalFound, returned: result.listings.length,
+        pagesScraped: result.pagesScraped, error: result.error, saved,
+        listings: result.listings.slice(0, 200),
       })
     }
 
     const result = await fetchShopeeAffiliateOffers({ page, size, sortBy, offerType, keyword })
-
+    let saved = null
+    if (shouldSave && result.listings.length > 0) {
+      saved = await saveScraperResults(result.listings)
+    }
     return NextResponse.json({
-      ok: !result.error,
-      source: 'shopee_affiliate',
-      totalFound: result.totalFound,
-      page: result.page,
-      hasMore: result.hasMore,
-      returned: result.listings.length,
-      error: result.error,
+      ok: !result.error, source: 'shopee_affiliate',
+      totalFound: result.totalFound, page: result.page, hasMore: result.hasMore,
+      returned: result.listings.length, error: result.error, saved,
       listings: result.listings,
     })
   } catch (err) {
