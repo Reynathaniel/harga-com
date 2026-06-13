@@ -3,9 +3,14 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
-  "regions": ["sin1"],
   "crons": [
     {
       "path": "/api/scraper/cron",
       "schedule": "0 1 * * *"
     },
+    {
+      "path": "/api/scraper/cron-intl",
+      "schedule": "0 3 * * *"
+    }
+  ]
+}
