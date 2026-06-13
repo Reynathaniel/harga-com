@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server'
 import { scrapeAll, PLATFORM_INTL } from '@/lib/scrapers'
 import { saveScraperResults } from '@/lib/db/scraper-save'
 
-// Called by Vercel Cron daily at 03:00 UTC — scrapes international platforms
+export const maxDuration = 60
+
+// Called by GitHub Actions every 4 hours (intl platforms)
 export async function GET() {
   const start = Date.now()
   try {
