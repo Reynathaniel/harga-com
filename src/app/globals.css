@@ -257,4 +257,7 @@ body {
 .platform-bukalapak  { background: var(--platform-bukalapak); }
 .platform-blibli     { background: var(--platform-blibli); }
 .platform-tiktok     { background: var(--platform-tiktok); }
-.platform-amaz
+.platform-amazon      { background: var(--platform-amazon); }
+.platform-alibaba    { background: var(--platform-alibaba); }
+.platform-aliexpress { background: var(--platform-aliexpress); }
+.platform-jd         { background: var(--platform-jd); }
