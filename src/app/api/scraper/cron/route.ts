@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server'
 import { scrapeAll, INDONESIAN_PLATFORMS } from '@/lib/scrapers'
 import { saveScraperResults } from '@/lib/db/scraper-save'
 
-// Called by Vercel Cron every 4 hours
+export const maxDuration = 60
+
+// Called by GitHub Actions every 4 hours (Vercel Hobby cron = once/day only)
 export async function GET() {
   const start = Date.now()
   try {
