@@ -1,9 +1,9 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { Star, TrendingDown, ShoppingCart, Bell, Globe } from 'lucide-react'
 import type { Product } from '@/lib/types'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, priceDiffPercent, lowestListingFirst } from '@/lib/utils'
+import MediaEmbed from './MediaEmbed'
 
 interface ProductCardProps {
   product: Product
@@ -43,14 +43,14 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
     <Link href={"/produk/" + product.id}
       className="group block bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl overflow-hidden hover:border-amber-500/40 hover:shadow-[0_6px_28px_rgba(245,158,11,0.12)] transition-all duration-200">
 
-      {/* Image */}
+      {/* Image / Video */}
       <div className="relative aspect-square bg-[var(--bg-hover)] overflow-hidden">
-        <Image
-          src={product.images[0]}
-          alt={product.name}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
-          sizes="(max-width: 768px) 50vw, 25vw"
+        <MediaEmbed
+          imageUrl={product.images[0]}
+          videoUrl={cheapest.videoUrl}
+          videoThumb={cheapest.videoThumb}
+          title={product.name}
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
 
         {/* Top badges */}

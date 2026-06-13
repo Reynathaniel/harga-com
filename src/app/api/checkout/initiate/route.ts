@@ -93,6 +93,32 @@ export async function POST(request: NextRequest) {
       console.error('[checkout/initiate] DB error:', err)
       // Non-fatal — tetap return checkout URL
     }
+
+    // Affiliate graduation: increment click_count and graduate popular products
+    if (productId) {
+      try {        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (db as any).rpc('increment_product_clicks', { product_uuid: productId })
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: prod } = await (db as any)
+          .from('products')
+          .select('click_count, is_popular')
+          .eq('id', productId)
+          .single()
+
+        const POPULARITY_THRESHOLD = 10
+        if (prod && prod.click_count >= POPULARITY_THRESHOLD && !prod.is_popular) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (db as any)
+            .from('products')
+            .update({ is_popular: true, popular_since: new Date().toISOString() })
+            .eq('id', productId)
+        }
+      } catch (err) {
+        console.error('[checkout/initiate] click tracking error:', err)
+        // Non-fatal
+      }
+    }
   }
 
   return NextResponse.json({

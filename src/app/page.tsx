@@ -5,18 +5,35 @@ import { getProducts, getCategories } from '@/lib/db/products'
 import { STATS, TRENDING_SEARCHES } from '@/lib/mock-data'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
-import { TrendingDown, Bell, Wallet, Shield, Zap, RefreshCw, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { TrendingDown, Bell, Wallet, Shield, Zap, RefreshCw, ArrowRight, CheckCircle2, Flame } from 'lucide-react'
 import Link from 'next/link'
 
 // force-dynamic: prevents build-time Supabase calls that hang the Vercel build.
 // Page is rendered on each request and cached by CDN edge.
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+// Fetch popular (graduation-tracked) products server-side
+async function getTrendingProducts() {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/api/products/popular?limit=8`,
+      { cache: 'no-store' }
+    )
+    if (!res.ok) return []
+    const json = await res.json()
+    return json.products ?? []
+  } catch {
+    return []
+  }
+}
 
 export default async function HomePage() {
   const { products: allProducts } = await getProducts({ sort: 'popular', limit: 16 })
   const featuredProducts = allProducts.slice(0, 8)
   const categories = await getCategories()
   const platformList = Object.values(PLATFORMS)
+  const trendingProducts = await getTrendingProducts()
 
   const hematProducts = [...allProducts]
     .map(p => {
@@ -113,6 +130,47 @@ export default async function HomePage() {
           {featuredProducts.map(p => <ProductCard key={p.id} product={p} />)}
         </div>
       </section>
+
+      {/* PRODUK TRENDING — graduated by real click count */}
+      {trendingProducts.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 py-16">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Flame size={20} className="text-orange-400" />
+                Produk Trending
+              </h2>
+              <p className="text-sm text-[var(--text-muted)]">Paling banyak diklik pengguna Harga.com</p>
+            </div>
+            <Link href="/cari?sort=popular" className="text-sm text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors">
+              Lihat semua <ArrowRight size={14} />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+            {trendingProducts.map((p: { id: string; name: string; image_url: string | null; best_price: number; click_count: number }) => (
+              <Link key={p.id} href={"/produk/" + p.id}
+                className="group bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl overflow-hidden hover:border-orange-500/40 hover:shadow-[0_4px_20px_rgba(249,115,22,0.1)] transition-all">
+                <div className="relative aspect-square bg-[var(--bg-hover)] overflow-hidden">
+                  {p.image_url
+                    ? <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    : <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]"><Flame size={24} /></div>
+                  }
+                  {p.click_count > 0 && (
+                    <div className="absolute top-1.5 right-1.5 bg-orange-500/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                      <Flame size={7} />
+                      {p.click_count}
+                    </div>
+                  )}
+                </div>
+                <div className="p-2">
+                  <p className="text-[11px] font-medium text-white line-clamp-2 leading-snug mb-1">{p.name}</p>
+                  <p className="text-xs font-bold text-amber-400">{formatRupiah(p.best_price, true)}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* HEMAT TERBESAR */}
       {hematProducts.length > 0 && (
@@ -303,7 +361,7 @@ export default async function HomePage() {
                 </div>
               ))}
             </div>
-          </div>
+                </div>
         </div>
       </section>
 

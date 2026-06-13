@@ -4,6 +4,7 @@ import { Bell, ShoppingCart } from 'lucide-react'
 import { PriceAlertModal } from '@/components/PriceAlertModal'
 import { BuyButton } from '@/components/BuyButton'
 import { ShareButton } from '@/components/ShareButton'
+import ProductLink from '@/components/ProductLink'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah } from '@/lib/utils'
 import type { PriceListing } from '@/lib/types'
@@ -67,11 +68,15 @@ export function ProductActions({
           className="w-full"
         />
 
-        <a href={affiliateUrl} target="_blank" rel="noopener noreferrer"
-          className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-white/70 border border-[var(--border-subtle)] hover:border-amber-500/30 hover:text-white rounded-xl transition-all">
+        <ProductLink
+          productId={productId}
+          url={affiliateUrl}
+          platform={cheapestPlatformId}
+          className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-white/70 border border-[var(--border-subtle)] hover:border-amber-500/30 hover:text-white rounded-xl transition-all"
+        >
           <ShoppingCart size={14} />
           Langsung ke {platform?.name ?? 'Platform'}
-        </a>
+        </ProductLink>
 
         <div className="flex gap-2">
           <button onClick={() => setAlertOpen(true)}
@@ -96,7 +101,7 @@ export function ProductActions({
       <PriceAlertModal
         isOpen={alertOpen}
         onClose={() => setAlertOpen(false)}
-        productId={productId}
+            productId={productId}
         productName={productName}
         currentPrice={currentPrice}
       />
