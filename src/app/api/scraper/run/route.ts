@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { scrapeAll, scrapePlatform, getRegisteredPlatforms, INDONESIAN_PLATFORMS } from '@/lib/scrapers'
 import { saveScraperResults } from '@/lib/db/scraper-save'
 
+// Allow up to 60s on Vercel Pro / 10s on Hobby
+export const maxDuration = 60
+
 const SCRAPER_SECRET = process.env.SCRAPER_SECRET
 
 function checkAuth(req: NextRequest): boolean {
@@ -11,7 +14,7 @@ function checkAuth(req: NextRequest): boolean {
   return provided === SCRAPER_SECRET
 }
 
-// ── GET /api/scraper/run?q=...&platforms=tokopedia,shopee&limit=30&save=true
+// GET /api/scraper/run?q=...&platforms=tokopedia,shopee&limit=30&save=true
 export async function GET(req: NextRequest) {
   if (!checkAuth(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -66,7 +69,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ── POST /api/scraper/run
+// POST /api/scraper/run
 export async function POST(req: NextRequest) {
   if (!checkAuth(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
