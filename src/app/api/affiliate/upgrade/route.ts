@@ -60,11 +60,11 @@ export async function GET(req: NextRequest) {
       products: popular ?? [],
       offers_ready_for_affiliate: offersWithoutAffiliate,
       // Convenience: unique merchant IDs that need affiliate setup
-      merchants_needed: [
-        ...new Set(
+      merchants_needed: Array.from(
+        new Set(
           offersWithoutAffiliate.map((o: { merchant_id: string }) => o.merchant_id)
-        ),
-      ],
+        )
+      ),
     })
   } catch (err) {
     console.error('[GET /api/affiliate/upgrade]', err)
