@@ -2,6 +2,20 @@ import { BaseScraper } from './base'
 import type { RawListing, ScrapeRequest } from './types'
 
 // Shopee uses an internal API at shopee.co.id/api/v4/search/search_items
+// Affiliate links require: af_id (partner ID) — set via AFFILIATE_SHOPEE_ID env var
+const AFFILIATE_ID = process.env.AFFILIATE_SHOPEE_ID ?? ''
+
+function buildShopeeAffiliateUrl(shopId: string, itemId: string): string {
+  const base = `https://shopee.co.id/product/${shopId}/${itemId}`
+  if (!AFFILIATE_ID || AFFILIATE_ID === 'PENDING') return base
+  const url = new URL(base)
+  url.searchParams.set('af_id', AFFILIATE_ID)
+  url.searchParams.set('utm_source', 'harga.com')
+  url.searchParams.set('utm_medium', 'affiliate')
+  url.searchParams.set('utm_campaign', 'hargacom')
+  return url.toString()
+}
+
 export class ShopeeScraper extends BaseScraper {
   constructor() {
     super({
@@ -68,6 +82,8 @@ export class ShopeeScraper extends BaseScraper {
       const cover = this.get<string>(raw, 'image', '') || images[0] || ''
       const imageUrl = cover.startsWith('http') ? cover : `https://cf.shopee.co.id/file/${cover}_tn`
 
+      const affiliateUrl = buildShopeeAffiliateUrl(shopId, id)
+
       return {
         platformId: 'shopee',
         productId: id,
@@ -84,6 +100,7 @@ export class ShopeeScraper extends BaseScraper {
         shopVerified: this.get<boolean>(raw, 'is_official_shop', false) || this.get<boolean>(raw, 'shopee_verified', false),
         freeShipping: this.get<boolean>(raw, 'free_shipping', false),
         url: `https://shopee.co.id/product/${shopId}/${id}`,
+        affiliateUrl: AFFILIATE_ID && AFFILIATE_ID !== 'PENDING' ? affiliateUrl : undefined,
         imageUrl,
         scrapedAt: new Date(),
       }
