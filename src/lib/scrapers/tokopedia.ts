@@ -24,7 +24,6 @@ export class TokopediaScraper extends BaseScraper {
     const rows = Math.min(limit, 60)
     const page = req.page ?? 1
 
-    // GraphQL search — same endpoint Tokopedia web uses
     const gqlUrl = 'https://gql.tokopedia.com/'
     const body = JSON.stringify([{
       operationName: 'SearchProductQueryV4',
@@ -53,10 +52,18 @@ export class TokopediaScraper extends BaseScraper {
         body,
       })
 
+      // Detect GQL-level errors returned as HTTP 200 (anti-bot / schema mismatch)
+      const gqlErrors = this.get<unknown[]>(res, '0.errors', [])
+      if (gqlErrors.length > 0) {
+        throw new Error(`Tokopedia GQL error: ${JSON.stringify(gqlErrors[0])}`)
+      }
+
       const products = this.get<unknown[]>(res, '0.data.ace_search_product_v4.data.products', [])
+      if (products.length === 0) {
+        throw new Error('Tokopedia GQL returned empty products — trying HTML fallback')
+      }
       return products.map(p => this.parseProduct(p)).filter(Boolean) as RawListing[]
     } catch {
-      // Fallback: scrape search page
       return this.searchFallback(req)
     }
   }
@@ -72,7 +79,6 @@ export class TokopediaScraper extends BaseScraper {
   }
 
   private parseSearchHtml(html: string): RawListing[] {
-    // Extract __NEXT_DATA__ JSON
     const match = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/)
     if (!match) return []
     try {
