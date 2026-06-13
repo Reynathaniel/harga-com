@@ -58,6 +58,9 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
 
   const now = new Date().toISOString()
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const anyDb = db as any
+
   for (const listing of listings) {
     const merchantId = MERCHANT_ID[listing.platformId]
     if (!merchantId) { skipped++; continue }
@@ -67,7 +70,7 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
       if (!slug) { skipped++; continue }
 
       // 1. Upsert product
-      const { data: product, error: pErr } = await db
+      const { data: product, error: pErr } = await anyDb
         .from('products')
         .upsert({
           slug,
@@ -89,7 +92,7 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
       }
 
       // 2. Upsert offer
-      const { data: offer, error: oErr } = await db
+      const { data: offer, error: oErr } = await anyDb
         .from('offers')
         .upsert({
           product_id:     product.id,
@@ -118,7 +121,7 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
       }
 
       // 3. Price history — only append if price changed
-      const { data: lastH } = await db
+      const { data: lastH } = await anyDb
         .from('price_history')
         .select('price')
         .eq('offer_id', offer.id)
@@ -127,7 +130,7 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
         .single()
 
       if (!lastH || lastH.price !== listing.price) {
-        await db.from('price_history').insert({
+        await anyDb.from('price_history').insert({
           offer_id:    offer.id,
           price:       listing.price,
           recorded_at: now,
