@@ -14,10 +14,15 @@ export interface RawListing {
   shopVerified: boolean
   freeShipping: boolean
   url: string
+  affiliateUrl?: string  // affiliate tracking URL (if program is active)
   imageUrl: string
   brand?: string
   category?: string
   specs?: Record<string, string>
+  // Affiliate data (from affiliate program APIs)
+  affiliateCommissionPct?: number  // e.g. 13.5 (from Shopee Affiliate)
+  affiliateOfferType?: 'standard' | 'xtra' | 'sample' // offer badge type
+  isAffiliateOffer?: boolean       // true = curated affiliate product
   scrapedAt: Date
 }
 
@@ -49,6 +54,7 @@ export interface ScraperConfig {
   headers?: Record<string, string>
   requiresJs?: boolean     // true if needs headless browser
 }
+
 
 // Exchange rates (IDR per 1 unit of currency)
 export const EXCHANGE_RATES: Record<string, number> = {
