@@ -194,6 +194,43 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* PLATFORM KAMI */}
+      <section className="max-w-7xl mx-auto px-4 py-16">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl font-bold text-white mb-2">Platform yang Kami Dukung</h2>
+          <p className="text-sm text-[var(--text-secondary)]">
+            Harga real-time dari <span className="text-white font-medium">{platformList.length} marketplace</span> terpopuler di Indonesia &amp; dunia
+          </p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          {platformList.map(p => (
+            <Link key={p.id} href={'/cari?platform=' + p.id}
+              className="group bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl p-5 hover:border-transparent hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:-translate-y-0.5 transition-all duration-200 flex flex-col">
+              {/* Platform icon */}
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white text-sm font-bold mb-3 shadow-md shrink-0"
+                style={{ background: p.id === 'tiktok' ? '#1a1a1a' : p.color }}>
+                {p.shortName.slice(0, 2)}
+              </div>
+              {/* Name + cashback */}
+              <div className="font-semibold text-white text-sm mb-0.5 group-hover:text-white transition-colors">
+                {p.name}
+              </div>
+              <div className="text-xs text-amber-400 font-medium mb-2">
+                Cashback {p.cashbackPct}%
+              </div>
+              {/* Color accent bar */}
+              <div className="mt-auto h-0.5 rounded-full w-0 group-hover:w-full transition-all duration-300"
+                style={{ background: p.id === 'tiktok' ? '#fe2c55' : p.color }} />
+            </Link>
+          ))}
+        </div>
+        <div className="text-center mt-6">
+          <p className="text-xs text-[var(--text-muted)]">
+            Klik platform untuk melihat produk termurah di sana
+          </p>
+        </div>
+      </section>
+
       {/* CATEGORIES */}
       <section className="max-w-7xl mx-auto px-4 py-16">
         <div className="flex items-center justify-between mb-6">
