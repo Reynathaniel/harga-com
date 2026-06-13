@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { scrapeAll, scrapePlatform, getRegisteredPlatforms, INDONESIAN_PLATFORMS } from '@/lib/scrapers'
+import { saveScraperResults } from '@/lib/db/scraper-save'
 
-// Protect the scraper endpoint with a simple secret
-// Set SCRAPER_SECRET env var in Vercel; omit it locally for easy testing
 const SCRAPER_SECRET = process.env.SCRAPER_SECRET
 
 function checkAuth(req: NextRequest): boolean {
-  if (!SCRAPER_SECRET) return true  // no secret = open for local dev
+  if (!SCRAPER_SECRET) return true
   const provided = req.headers.get('x-scraper-secret')
     || req.nextUrl.searchParams.get('secret')
   return provided === SCRAPER_SECRET
 }
 
-// ── GET /api/scraper/run?q=...&platforms=tokopedia,shopee&limit=30 ──────────
+// ── GET /api/scraper/run?q=...&platforms=tokopedia,shopee&limit=30&save=true
 export async function GET(req: NextRequest) {
   if (!checkAuth(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -32,12 +31,18 @@ export async function GET(req: NextRequest) {
     : INDONESIAN_PLATFORMS
 
   const limit = parseInt(req.nextUrl.searchParams.get('limit') ?? '30') || 30
-  const page  = parseInt(req.nextUrl.searchParams.get('page') ?? '1')   || 1
+  const page  = parseInt(req.nextUrl.searchParams.get('page')  ?? '1')  || 1
+  const shouldSave = req.nextUrl.searchParams.get('save') !== 'false'
 
   const startMs = Date.now()
 
   try {
     const result = await scrapeAll({ query: q, platforms, limit, page, concurrency: 3 })
+
+    let saved = null
+    if (shouldSave && result.merged.length > 0) {
+      saved = await saveScraperResults(result.merged)
+    }
 
     return NextResponse.json({
       ok: true,
@@ -46,6 +51,7 @@ export async function GET(req: NextRequest) {
       totalFound: result.totalFound,
       durationMs: result.durationMs,
       errors: result.errors,
+      saved,
       listings: result.merged,
       byPlatform: Object.fromEntries(
         result.results.map(r => [r.platformId, { count: r.totalFound, error: r.error }])
@@ -60,7 +66,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ── POST /api/scraper/run — same as GET but query in body ───────────────────
+// ── POST /api/scraper/run
 export async function POST(req: NextRequest) {
   if (!checkAuth(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -76,18 +82,26 @@ export async function POST(req: NextRequest) {
   const q = String(body.query ?? body.q ?? '')
   if (!q) return NextResponse.json({ error: 'Missing field: query' }, { status: 400 })
 
-  const platforms = (body.platforms as string[] | undefined) ?? INDONESIAN_PLATFORMS
-  const limit = (body.limit as number | undefined) ?? 30
-  const page  = (body.page  as number | undefined) ?? 1
+  const platforms   = (body.platforms as string[] | undefined) ?? INDONESIAN_PLATFORMS
+  const limit       = (body.limit     as number | undefined)   ?? 30
+  const page        = (body.page      as number | undefined)   ?? 1
+  const shouldSave  = body.save !== false
 
   try {
     const result = await scrapeAll({ query: q, platforms, limit, page, concurrency: 3 })
+
+    let saved = null
+    if (shouldSave && result.merged.length > 0) {
+      saved = await saveScraperResults(result.merged)
+    }
+
     return NextResponse.json({
       ok: true,
       query: q,
       totalFound: result.totalFound,
       durationMs: result.durationMs,
       errors: result.errors,
+      saved,
       listings: result.merged,
     })
   } catch (err) {
