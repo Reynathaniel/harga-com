@@ -5,80 +5,96 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,500;1,700&display=swap');
 
 /* ============================================================
-   Harga.com Design System — Kinetik
+   Harga.com Design System — Classic Premium (Off-White Edition)
    ============================================================ */
 
 :root {
-  /* ---- Brand: amber / orange (Kinetik) ---- */
-  --amber-300: #ffd27a;
-  --amber-400: #ffb020;
-  --amber-500: #ffc24b;
-  --amber-600: #e8920a;
-  --orange-400: #ff7a4d;
-  --orange-500: #ff5a3c;
+  /* ---- Off-white base palette ---- */
+  --cream-50:  #FAF9F6;
+  --cream-100: #F5F0E8;
+  --cream-200: #EDE6D8;
+  --cream-300: #E2DDD5;
+  --cream-400: #D0C9BE;
+  --cream-500: #B5ADA0;
 
-  /* ---- Ink surfaces (blue-black, premium) ---- */
-  --ink-950: #0a0a12;
-  --ink-900: #14141f;
-  --ink-850: #1a1a27;
-  --ink-700: #262633;
-  --ink-600: #383848;
-  --ink-500: #6c6c80;
-  --ink-400: #a8a8b8;
-  --ink-50:  #f4f4f7;
+  /* ---- Charcoal text ---- */
+  --charcoal-950: #1A1613;
+  --charcoal-800: #2E2A26;
+  --charcoal-700: #3D3830;
+  --charcoal-600: #6B6459;
+  --charcoal-400: #9C9589;
+  --charcoal-300: #C0B9AD;
+
+  /* ---- Back-compat ink aliases (keep old TSX working) ---- */
+  --ink-950: var(--charcoal-950);
+  --ink-900: #FFFFFF;
+  --ink-850: var(--cream-100);
+  --ink-700: var(--cream-300);
+  --ink-600: var(--charcoal-600);
+  --ink-500: var(--charcoal-400);
+  --ink-400: var(--charcoal-600);
+  --ink-50:  var(--charcoal-950);
   --white:    #ffffff;
 
   /* Back-compat zinc aliases */
-  --zinc-950: var(--ink-950);
-  --zinc-900: var(--ink-900);
-  --zinc-800: var(--ink-850);
-  --zinc-700: var(--ink-700);
-  --zinc-600: var(--ink-600);
-  --zinc-500: var(--ink-500);
-  --zinc-400: var(--ink-400);
-  --zinc-50:  var(--ink-50);
+  --zinc-950: var(--cream-50);
+  --zinc-900: #FFFFFF;
+  --zinc-800: var(--cream-100);
+  --zinc-700: var(--cream-300);
+  --zinc-600: var(--charcoal-600);
+  --zinc-500: var(--charcoal-400);
+  --zinc-400: var(--charcoal-600);
+  --zinc-50:  var(--charcoal-950);
 
-  /* ---- Mint: savings accent ---- */
-  --mint-400: #1fe089;
-  --mint-300: #39f0a0;
-  --mint-600: #12b86e;
+  /* ---- Brand: warm gold ---- */
+  --amber-300: #E8A820;
+  --amber-400: #D4920A;
+  --amber-500: #C07D00;
+  --amber-600: #A86900;
+  --orange-400: #C5621A;
+  --orange-500: #B05010;
 
-  /* ---- Status raw ---- */
+  /* ---- Savings: deep classic green ---- */
+  --mint-400: #1A6B3C;
+  --mint-300: #228B4F;
+  --mint-600: #145530;
+
+  /* ---- Status ---- */
   --green-400: var(--mint-400);
   --green-500: var(--mint-600);
-  --red-400:   #ff6b5a;
-  --red-500:   #ff4d3d;
-  --blue-400:  #60a5fa;
-  --blue-500:  #2563eb;
-  --violet-400:#8b5cf6;
-  --cyan-400:  #22d3ee;
+  --red-400:   #C0392B;
+  --red-500:   #A93226;
+  --blue-400:  #2471A3;
+  --blue-500:  #1A5276;
+  --violet-400:#7D3C98;
+  --cyan-400:  #117A8B;
 
   /* ---- Semantic: Backgrounds ---- */
-  --bg-primary: var(--ink-950);
-  --bg-card:    var(--ink-900);
-  --bg-hover:   var(--ink-850);
+  --bg-primary: var(--cream-50);
+  --bg-card:    #FFFFFF;
+  --bg-hover:   var(--cream-100);
 
   /* ---- Semantic: Borders ---- */
-  --border:        var(--ink-700);
-  --border-subtle: #1c1c28;
+  --border:        var(--cream-300);
+  --border-subtle: var(--cream-200);
 
   /* ---- Semantic: Text ---- */
-  --text-primary:   var(--ink-50);
-  --text-secondary: var(--ink-400);
-  --text-muted:     var(--ink-500);
-  --text-on-brand:  #160c02;
+  --text-primary:   var(--charcoal-950);
+  --text-secondary: var(--charcoal-600);
+  --text-muted:     var(--charcoal-400);
+  --text-on-brand:  #FFFFFF;
 
   /* ---- Brand semantic ---- */
   --brand:        var(--amber-400);
   --brand-hover:  var(--amber-300);
   --brand-active: var(--amber-600);
-  --brand-soft-bg:     rgba(255, 176, 32, 0.10);
-  --brand-soft-border: rgba(255, 176, 32, 0.22);
+  --brand-soft-bg:     rgba(212, 146, 10, 0.08);
+  --brand-soft-border: rgba(212, 146, 10, 0.20);
 
   /* ---- Win / savings semantic ---- */
   --win:             var(--mint-400);
-  --win-soft-bg:     rgba(31, 224, 137, 0.10);
-  --win-soft-border: rgba(31, 224, 137, 0.25);
+  --win-soft-bg:     rgba(26, 107, 60, 0.08);
+  --win-soft-border: rgba(26, 107, 60, 0.20);
 
   /* ---- Status semantic ---- */
   --success: var(--mint-400);
@@ -86,11 +102,11 @@
   --info:    var(--blue-400);
 
   /* ---- Gradients ---- */
-  --gradient-gold:    linear-gradient(120deg, #ffc24b, #ff5a3c);
-  --gradient-amber:   linear-gradient(120deg, #ffc24b, #ff8a3c, #ff5a3c);
-  --gradient-logo:    linear-gradient(135deg, #ffc24b, #ff5a3c);
-  --gradient-win:     linear-gradient(120deg, #1fe089, #39f0a0);
-  --gradient-kinetik: linear-gradient(120deg, #ffc24b 0%, #ff5a3c 55%, #1fe089 135%);
+  --gradient-gold:    linear-gradient(120deg, #D4920A, #C5621A);
+  --gradient-amber:   linear-gradient(120deg, #E8A820, #D4920A, #C5621A);
+  --gradient-logo:    linear-gradient(135deg, #E8A820, #C5621A);
+  --gradient-win:     linear-gradient(120deg, #1A6B3C, #228B4F);
+  --gradient-kinetik: linear-gradient(120deg, #E8A820 0%, #C5621A 55%, #1A6B3C 135%);
 
   /* ---- Platform colors ---- */
   --platform-tokopedia:  #42b549;
@@ -168,17 +184,17 @@
   --container-max: 1280px;
   --nav-height: 88px;
 
-  /* ---- Shadows ---- */
-  --shadow-sm:          0 1px 2px rgba(0,0,0,0.3);
-  --shadow-card:        0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
-  --shadow-elevated:    0 4px 16px rgba(0,0,0,0.5);
-  --shadow-overlay:     0 8px 32px rgba(0,0,0,0.3);
-  --shadow-amber:       0 4px 24px rgba(255,90,60,0.16);
-  --shadow-amber-hover: 0 8px 30px rgba(255,90,60,0.22);
-  --glow-amber:         0 0 34px rgba(255,176,32,0.20);
-  --shadow-button:      0 6px 22px rgba(255,90,60,0.30);
-  --shadow-green:       0 4px 24px rgba(31,224,137,0.12);
-  --glow-mint:          0 0 28px rgba(31,224,137,0.35);
+  /* ---- Shadows (warm, soft) ---- */
+  --shadow-sm:          0 1px 3px rgba(26,22,19,0.06);
+  --shadow-card:        0 1px 4px rgba(26,22,19,0.06), 0 1px 2px rgba(26,22,19,0.04);
+  --shadow-elevated:    0 4px 20px rgba(26,22,19,0.10);
+  --shadow-overlay:     0 8px 32px rgba(26,22,19,0.12);
+  --shadow-amber:       0 4px 24px rgba(212,146,10,0.14);
+  --shadow-amber-hover: 0 8px 30px rgba(212,146,10,0.20);
+  --glow-amber:         0 0 40px rgba(212,146,10,0.10);
+  --shadow-button:      0 4px 16px rgba(197,98,26,0.25);
+  --shadow-green:       0 4px 20px rgba(26,107,60,0.14);
+  --glow-mint:          0 0 24px rgba(26,107,60,0.20);
 
   /* ---- Transitions ---- */
   --ease-out:        cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -188,13 +204,13 @@
   --transition-slow: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   --transition-tilt: 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 
-  /* ---- Glass ---- */
-  --glass-bg:     rgba(10, 10, 18, 0.62);
-  --glass-border: rgba(255,255,255,0.06);
-  --glass-blur:   blur(18px);
+  /* ---- Glass (light edition) ---- */
+  --glass-bg:     rgba(250, 249, 246, 0.88);
+  --glass-border: rgba(26,22,19,0.08);
+  --glass-blur:   blur(20px);
 
   /* ---- Focus ---- */
-  --ring-brand: 0 0 0 3px rgba(255, 176, 32, 0.15);
+  --ring-brand: 0 0 0 3px rgba(212, 146, 10, 0.15);
 }
 
 /* ============================================================
@@ -215,15 +231,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-::selection { background: rgba(255, 176, 32, 0.25); color: #fff; }
+::selection { background: rgba(212, 146, 10, 0.18); color: var(--charcoal-950); }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-primary); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--ink-600); }
+::-webkit-scrollbar-track { background: var(--cream-100); }
+::-webkit-scrollbar-thumb { background: var(--cream-400); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cream-500); }
 
 /* ============================================================
-   Keyframes — Kinetik Design System
+   Keyframes
    ============================================================ */
 
 @keyframes harga-fade-in {
@@ -240,7 +256,7 @@ body {
 }
 @keyframes harga-price-pulse {
   0%, 100% { opacity: 1; }
-  50%      { opacity: 0.6; }
+  50%      { opacity: 0.5; }
 }
 @keyframes harga-ticker {
   0%   { transform: translateX(0); }
@@ -251,21 +267,21 @@ body {
   to   { transform: translateY(0); }
 }
 @keyframes harga-ping {
-  0%   { box-shadow: 0 0 0 0 rgba(31,224,137,0.5); }
-  70%  { box-shadow: 0 0 0 9px rgba(31,224,137,0); }
-  100% { box-shadow: 0 0 0 0 rgba(31,224,137,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(26,107,60,0.4); }
+  70%  { box-shadow: 0 0 0 8px rgba(26,107,60,0); }
+  100% { box-shadow: 0 0 0 0 rgba(26,107,60,0); }
 }
 @keyframes harga-float-1 {
   0%,100% { transform: translate(0,0) scale(1); }
-  50%     { transform: translate(-60px,50px) scale(1.12); }
+  50%     { transform: translate(-40px,30px) scale(1.06); }
 }
 @keyframes harga-float-2 {
   0%,100% { transform: translate(0,0) scale(1); }
-  50%     { transform: translate(70px,-40px) scale(1.10); }
+  50%     { transform: translate(50px,-30px) scale(1.05); }
 }
 @keyframes harga-float-3 {
   0%,100% { transform: translate(0,0) scale(1); }
-  50%     { transform: translate(-40px,-60px) scale(1.15); }
+  50%     { transform: translate(-30px,-40px) scale(1.07); }
 }
 
 /* Back-compat keyframes */
@@ -294,16 +310,16 @@ body {
   50%       { opacity: 0; }
 }
 @keyframes cashback-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 176, 32, 0.4); }
-  50%       { box-shadow: 0 0 0 6px rgba(255, 176, 32, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 146, 10, 0.3); }
+  50%       { box-shadow: 0 0 0 6px rgba(212, 146, 10, 0); }
 }
 
 /* ============================================================
-   Utility classes — Harga Design System
+   Utility classes
    ============================================================ */
 
 .harga-skeleton {
-  background: linear-gradient(90deg, var(--ink-850) 25%, #20202e 50%, var(--ink-850) 75%);
+  background: linear-gradient(90deg, var(--cream-200) 25%, var(--cream-100) 50%, var(--cream-200) 75%);
   background-size: 800px 100%;
   animation: harga-shimmer 1.5s infinite;
   border-radius: var(--radius-sm);
@@ -342,6 +358,7 @@ body {
   border: 1px solid var(--glass-border);
 }
 
+/* Warm subtle texture blobs — replaces dark mesh */
 .harga-mesh {
   position: fixed;
   inset: 0;
@@ -353,37 +370,37 @@ body {
 .harga-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.5;
+  filter: blur(100px);
+  opacity: 0.30;
   will-change: transform;
 }
 
 .harga-blob.b1 {
-  width: 620px; height: 620px;
-  top: -220px; right: -160px;
-  background: radial-gradient(circle, rgba(255,90,60,0.55), transparent 65%);
-  animation: harga-float-1 18s ease-in-out infinite;
+  width: 700px; height: 700px;
+  top: -250px; right: -180px;
+  background: radial-gradient(circle, rgba(232,168,32,0.30), transparent 65%);
+  animation: harga-float-1 20s ease-in-out infinite;
 }
 
 .harga-blob.b2 {
-  width: 560px; height: 560px;
-  top: 8%; left: -220px;
-  background: radial-gradient(circle, rgba(255,194,75,0.45), transparent 65%);
-  animation: harga-float-2 22s ease-in-out infinite;
+  width: 600px; height: 600px;
+  top: 5%; left: -200px;
+  background: radial-gradient(circle, rgba(212,146,10,0.20), transparent 65%);
+  animation: harga-float-2 26s ease-in-out infinite;
 }
 
 .harga-blob.b3 {
-  width: 520px; height: 520px;
-  top: 120%; left: 30%;
-  background: radial-gradient(circle, rgba(31,224,137,0.30), transparent 65%);
-  animation: harga-float-3 26s ease-in-out infinite;
+  width: 500px; height: 500px;
+  top: 110%; left: 25%;
+  background: radial-gradient(circle, rgba(26,107,60,0.12), transparent 65%);
+  animation: harga-float-3 30s ease-in-out infinite;
 }
 
 .harga-blob.b4 {
-  width: 460px; height: 460px;
-  top: 200%; right: -120px;
-  background: radial-gradient(circle, rgba(139,92,246,0.28), transparent 65%);
-  animation: harga-float-1 24s ease-in-out infinite;
+  width: 450px; height: 450px;
+  top: 190%; right: -100px;
+  background: radial-gradient(circle, rgba(197,98,26,0.10), transparent 65%);
+  animation: harga-float-1 28s ease-in-out infinite;
 }
 
 .harga-tilt {
@@ -404,7 +421,7 @@ body {
 }
 
 /* ============================================================
-   Back-compat utility classes (used in existing TSX)
+   Back-compat utility classes
    ============================================================ */
 
 .text-gradient-gold {
@@ -440,13 +457,12 @@ body {
 }
 
 .skeleton {
-  background: linear-gradient(90deg, var(--border) 25%, #252535 50%, var(--border) 75%);
+  background: linear-gradient(90deg, var(--cream-200) 25%, var(--cream-100) 50%, var(--cream-200) 75%);
   background-size: 800px 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 6px;
 }
 
-/* Ticker — updated to 26s to match design */
 .ticker-track {
   display: flex;
   gap: 2rem;
@@ -484,11 +500,12 @@ body {
 
 .slide-up { animation: slide-up 0.3s ease-out forwards; }
 
+/* Hero gradient — warm parchment */
 .hero-gradient {
   background:
-    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(255, 194, 75, 0.12), transparent),
-    radial-gradient(ellipse 50% 40% at 20% 60%, rgba(255, 90, 60, 0.07), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 30%, rgba(255, 176, 32, 0.07), transparent),
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(232,168,32,0.08), transparent),
+    radial-gradient(ellipse 50% 40% at 20% 60%, rgba(212,146,10,0.05), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 30%, rgba(197,98,26,0.04), transparent),
     var(--bg-primary);
 }
 
