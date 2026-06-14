@@ -393,4 +393,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <div className="text-center mt-10">
                 <button className="group px-8 py-3 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-white hover:border-amber-500/35 hover:bg-[var(--bg-hover)] rounded-2xl text-sm font-medium transition-all flex items-center gap-2 mx-auto">
                   <Package size={16} className="group-hover:animate-bounce" />
-                  
+                  Muat Lebih Banyak
+                </button>
+              </div>
+            )}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
