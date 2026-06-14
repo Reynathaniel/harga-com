@@ -246,7 +246,7 @@ export default async function HomePage() {
         <div className="relative overflow-hidden rounded-2xl"
           style={{
             border: '1px solid var(--border)',
-            background: 'linear-gradient(120deg, rgba(31,224,137,0.08), rgba(255,176,32,0.06))',
+            background: 'linear-gradient(120deg, rgba(26,107,60,0.06), rgba(212,146,10,0.05))',
           }}>
           <div className="flex items-center justify-between gap-6 p-8 flex-wrap">
             <div className="max-w-lg">
@@ -330,7 +330,7 @@ export default async function HomePage() {
           <div className="mt-4 flex items-center gap-2 px-4 py-3 rounded-xl"
             style={{
               fontSize: 'var(--text-xs)', color: 'var(--text-muted)',
-              background: 'rgba(255,122,77,0.05)', border: '1px solid rgba(255,122,77,0.15)',
+              background: 'rgba(197,98,26,0.04)', border: '1px solid rgba(197,98,26,0.12)',
             }}>
             <span style={{ color: 'var(--orange-400)', fontWeight: 'var(--fw-medium)' }}>♻️ Barang Bekas</span>
             <span>·</span>
@@ -365,7 +365,7 @@ export default async function HomePage() {
                     className="group rounded-2xl p-4 transition-all"
                     style={{
                       background: 'var(--bg-hover)',
-                      border: '1px solid rgba(31,224,137,0.15)',
+                      border: '1px solid var(--win-soft-border)',
                     }}>
                     <div className="flex items-center gap-2 mb-3">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0"
@@ -562,7 +562,7 @@ export default async function HomePage() {
             boxShadow: 'var(--glow-amber)',
           }}>
           <div className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse at center, rgba(255,176,32,0.06), transparent)' }} />
+            style={{ background: 'radial-gradient(ellipse at center, rgba(212,146,10,0.06), transparent)' }} />
           <div className="absolute top-0 left-0 right-0 h-px"
             style={{ background: 'linear-gradient(to right, transparent, var(--brand-soft-border), transparent)' }} />
           <div className="relative">
@@ -615,7 +615,7 @@ export default async function HomePage() {
           <div>
             {/* Logo in footer */}
             <div className="flex items-center gap-2 mb-3">
-              <svg width={28} height={28} viewBox="0 0 48 48" fill="none" style={{ flexShrink: 0, filter: 'drop-shadow(0 2px 6px rgba(255,90,60,0.3))' }}>
+              <svg width={28} height={28} viewBox="0 0 48 48" fill="none" style={{ flexShrink: 0, filter: 'drop-shadow(0 2px 6px rgba(212,146,10,0.25))' }}>
                 <defs>
                   <linearGradient id="hg-footer" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0" stopColor="#ffc24b" />
