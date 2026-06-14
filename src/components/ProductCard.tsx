@@ -54,9 +54,9 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
     const r = cardRef.current.getBoundingClientRect()
     const px = (e.clientX - r.left) / r.width
     const py = (e.clientY - r.top) / r.height
-    const rx = (py - 0.5) * -10
-    const ry = (px - 0.5) * 12
-    cardRef.current.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-3px)`
+    const rx = (py - 0.5) * -8
+    const ry = (px - 0.5) * 10
+    cardRef.current.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`
     if (glowRef.current) {
       glowRef.current.style.setProperty('--mx', px * 100 + '%')
       glowRef.current.style.setProperty('--my', py * 100 + '%')
@@ -68,10 +68,6 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
     if (cardRef.current) cardRef.current.style.transform = ''
   }
 
-  const platColor = cheapestPlatform.id === 'tiktok'
-    ? 'var(--platform-tiktok-chip)'
-    : `var(--platform-${cheapestPlatform.id})`
-
   return (
     <Link href={'/produk/' + product.id}
       className="block"
@@ -82,11 +78,13 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
         onMouseMove={onMouseMove}
         onMouseLeave={onMouseLeave}
         style={{
-          background: 'var(--bg-card)',
-          border: `1px solid ${hovered ? 'var(--border)' : 'var(--border-subtle)'}`,
+          background: '#FFFFFF',
+          border: `1px solid ${hovered ? 'var(--cream-300)' : 'var(--border-subtle)'}`,
           borderRadius: 'var(--radius-lg)',
           overflow: 'hidden',
-          boxShadow: hovered ? 'var(--shadow-elevated)' : 'var(--shadow-card)',
+          boxShadow: hovered
+            ? '0 8px 28px rgba(26,22,19,0.10), 0 2px 8px rgba(212,146,10,0.08)'
+            : 'var(--shadow-card)',
           transformStyle: 'preserve-3d',
           willChange: 'transform',
           transition: 'box-shadow var(--transition-base), border-color var(--transition-base), transform var(--transition-tilt)',
@@ -97,26 +95,26 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
 
         {/* ── Image / Video ── */}
         <div className="relative overflow-hidden"
-          style={{ aspectRatio: '1 / 1', background: 'var(--bg-hover)' }}>
+          style={{ aspectRatio: '1 / 1', background: 'var(--cream-100)' }}>
           <MediaEmbed
             imageUrl={product.images[0]}
             videoUrl={cheapest.videoUrl}
             videoThumb={cheapest.videoThumb}
             title={product.name}
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ transform: hovered ? 'scale(1.06)' : 'scale(1)', transition: 'transform var(--transition-slow)' }}
+            style={{ transform: hovered ? 'scale(1.05)' : 'scale(1)', transition: 'transform var(--transition-slow)' }}
           />
 
-          {/* Cursor-follow amber glow */}
+          {/* Subtle warm glow on hover */}
           <div ref={glowRef}
             style={{
               position: 'absolute', inset: 0, pointerEvents: 'none',
-              background: 'radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,176,32,0.22), transparent 45%)',
+              background: 'radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(212,146,10,0.12), transparent 45%)',
               opacity: hovered ? 1 : 0,
               transition: 'opacity var(--transition-base)',
             }} />
 
-          {/* Top-left: discount + condition badges */}
+          {/* Top-left badges */}
           <div className="absolute flex flex-col gap-1.5 items-start"
             style={{ top: 10, left: 10, transform: 'translateZ(40px)' }}>
             {diff > 0 && (
@@ -130,8 +128,8 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
               <span style={{
                 padding: '3px 9px', borderRadius: 'var(--radius-full)',
                 fontSize: 'var(--text-10)', fontWeight: 'var(--fw-bold)',
-                background: 'rgba(96,165,250,0.15)', color: 'var(--info)',
-                border: '1px solid rgba(96,165,250,0.25)', lineHeight: 1,
+                background: 'rgba(36,113,163,0.12)', color: 'var(--info)',
+                border: '1px solid rgba(36,113,163,0.25)', lineHeight: 1,
               }}>Bekas</span>
             ) : product.popular && (
               <span className="flex items-center gap-1" style={{
@@ -146,7 +144,7 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
               <span className="flex items-center gap-0.5 text-white" style={{
                 padding: '3px 8px', borderRadius: 'var(--radius-full)',
                 fontSize: 'var(--text-9)', fontWeight: 'var(--fw-bold)',
-                background: 'rgba(37,99,235,0.85)', lineHeight: 1,
+                background: 'rgba(26,82,118,0.85)', lineHeight: 1,
               }}>
                 <Globe size={8} /> INTL
               </span>
@@ -166,17 +164,17 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
             </span>
           </div>
 
-          {/* Hover overlay — cashback + count */}
+          {/* Hover overlay */}
           <div className="absolute bottom-0 left-0 right-0 px-2 pt-8 pb-2"
             style={{
-              background: 'linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.4), transparent)',
+              background: 'linear-gradient(to top, rgba(26,22,19,0.75), rgba(26,22,19,0.3), transparent)',
               opacity: hovered ? 1 : 0, transition: 'opacity var(--transition-base)',
             }}>
             <div className="flex items-center justify-between">
-              <span style={{ fontSize: 'var(--text-10)', fontWeight: 'var(--fw-bold)', color: 'var(--amber-300)' }}>
+              <span style={{ fontSize: 'var(--text-10)', fontWeight: 'var(--fw-bold)', color: '#E8A820' }}>
                 CB {cashbackPct}% · {formatRupiah(cashbackAmount, true)}
               </span>
-              <span style={{ fontSize: 'var(--text-10)', color: 'rgba(255,255,255,0.7)' }}>
+              <span style={{ fontSize: 'var(--text-10)', color: 'rgba(255,255,255,0.75)' }}>
                 {sortedListings.length} platform
               </span>
             </div>
@@ -206,7 +204,7 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
 
           {/* Rating */}
           <div className="flex items-center gap-1">
-            <Star size={11} fill="#ffb020" style={{ color: 'var(--brand)', flexShrink: 0 }} />
+            <Star size={11} fill="#D4920A" style={{ color: 'var(--brand)', flexShrink: 0 }} />
             <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
               {product.averageRating.toFixed(1)}
             </span>
@@ -247,7 +245,7 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
               </div>
             </div>
 
-            {/* Savings pill — mint "Hemat X" */}
+            {/* Savings pill */}
             {savings > 0 && (
               <span className="inline-flex items-center gap-1" style={{
                 fontFamily: 'var(--font-sans)',
@@ -266,7 +264,7 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
           {/* Price range bar */}
           {!compact && rangePercent > 3 && (
             <div>
-              <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
+              <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--cream-200)' }}>
                 <div className="h-full rounded-full" style={{
                   background: 'var(--gradient-win)',
                   width: `${Math.max(10, 100 - rangePercent)}%`,
@@ -321,7 +319,7 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
             <button
               className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg transition-opacity hover:opacity-90"
               style={{
-                background: 'var(--gradient-gold)', color: 'var(--text-on-brand)',
+                background: 'var(--gradient-gold)', color: '#FFFFFF',
                 boxShadow: 'var(--shadow-button)', border: 'none', cursor: 'pointer',
                 fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-extrabold)',
               }}>
