@@ -26,6 +26,10 @@ export interface RawListing {
   // Media — zero-storage: URLs only, files stay on platform CDNs
   videoUrl?: string    // embed URL for product video (original platform CDN)
   videoThumb?: string  // thumbnail URL for video (original platform CDN)
+  // Second-hand / used goods fields
+  condition?: 'new' | 'used' | 'refurbished'  // product condition
+  location?: string   // seller location (OLX etc.)
+  isUsed?: boolean    // true for second-hand items
   scrapedAt: Date
 }
 
@@ -72,3 +76,4 @@ export function toIDR(amount: number, currency: string): number {
   const rate = EXCHANGE_RATES[currency] ?? EXCHANGE_RATES['USD']
   return Math.round(amount * rate)
 }
+
