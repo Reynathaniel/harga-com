@@ -2,20 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,500;1,700&display=swap');
 
 /* ============================================================
-   Harga.com — Design Tokens (Claude Design System)
-   Dark premium UI · Amber/gold brand · Mint savings accent
+   Harga.com Design System — Kinetik
    ============================================================ */
 
 :root {
-  --amber-300: #ffc24b;
+  /* ---- Brand: amber / orange (Kinetik) ---- */
+  --amber-300: #ffd27a;
   --amber-400: #ffb020;
-  --amber-600: #e08a00;
+  --amber-500: #ffc24b;
+  --amber-600: #e8920a;
   --orange-400: #ff7a4d;
   --orange-500: #ff5a3c;
 
+  /* ---- Ink surfaces (blue-black, premium) ---- */
   --ink-950: #0a0a12;
   --ink-900: #14141f;
   --ink-850: #1a1a27;
@@ -26,6 +28,7 @@
   --ink-50:  #f4f4f7;
   --white:    #ffffff;
 
+  /* Back-compat zinc aliases */
   --zinc-950: var(--ink-950);
   --zinc-900: var(--ink-900);
   --zinc-800: var(--ink-850);
@@ -35,129 +38,194 @@
   --zinc-400: var(--ink-400);
   --zinc-50:  var(--ink-50);
 
+  /* ---- Mint: savings accent ---- */
   --mint-400: #1fe089;
   --mint-300: #39f0a0;
   --mint-600: #12b86e;
+
+  /* ---- Status raw ---- */
   --green-400: var(--mint-400);
   --green-500: var(--mint-600);
+  --red-400:   #ff6b5a;
+  --red-500:   #ff4d3d;
+  --blue-400:  #60a5fa;
+  --blue-500:  #2563eb;
+  --violet-400:#8b5cf6;
+  --cyan-400:  #22d3ee;
 
-  --red-400:    #ff6b5a;
-  --red-500:    #ff4d3d;
-  --blue-400:   #60a5fa;
-  --blue-500:   #2563eb;
-  --violet-400: #8b5cf6;
-  --cyan-400:   #22d3ee;
-
+  /* ---- Semantic: Backgrounds ---- */
   --bg-primary: var(--ink-950);
   --bg-card:    var(--ink-900);
   --bg-hover:   var(--ink-850);
 
+  /* ---- Semantic: Borders ---- */
   --border:        var(--ink-700);
   --border-subtle: #1c1c28;
 
+  /* ---- Semantic: Text ---- */
   --text-primary:   var(--ink-50);
   --text-secondary: var(--ink-400);
   --text-muted:     var(--ink-500);
   --text-on-brand:  #160c02;
 
-  --brand:             var(--amber-400);
-  --brand-hover:       var(--amber-300);
-  --brand-active:      var(--amber-600);
+  /* ---- Brand semantic ---- */
+  --brand:        var(--amber-400);
+  --brand-hover:  var(--amber-300);
+  --brand-active: var(--amber-600);
   --brand-soft-bg:     rgba(255, 176, 32, 0.10);
   --brand-soft-border: rgba(255, 176, 32, 0.22);
 
+  /* ---- Win / savings semantic ---- */
   --win:             var(--mint-400);
   --win-soft-bg:     rgba(31, 224, 137, 0.10);
   --win-soft-border: rgba(31, 224, 137, 0.25);
 
+  /* ---- Status semantic ---- */
   --success: var(--mint-400);
   --danger:  var(--red-400);
   --info:    var(--blue-400);
 
+  /* ---- Gradients ---- */
   --gradient-gold:    linear-gradient(120deg, #ffc24b, #ff5a3c);
   --gradient-amber:   linear-gradient(120deg, #ffc24b, #ff8a3c, #ff5a3c);
   --gradient-logo:    linear-gradient(135deg, #ffc24b, #ff5a3c);
   --gradient-win:     linear-gradient(120deg, #1fe089, #39f0a0);
   --gradient-kinetik: linear-gradient(120deg, #ffc24b 0%, #ff5a3c 55%, #1fe089 135%);
 
+  /* ---- Platform colors ---- */
+  --platform-tokopedia:  #42b549;
+  --platform-shopee:     #ee4d2d;
+  --platform-lazada:     #0f146d;
+  --platform-bukalapak:  #e31e52;
+  --platform-blibli:     #0095da;
+  --platform-tiktok:     #fe2c55;
+  --platform-tiktok-chip:#1a1a1a;
+  --platform-amazon:     #ff9900;
+  --platform-alibaba:    #ff6a00;
+  --platform-aliexpress: #e62e04;
+  --platform-jd:         #c0040e;
+
+  /* ---- Typography ---- */
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --fw-light:     300;
+  --fw-regular:   400;
+  --fw-medium:    500;
+  --fw-semibold:  600;
+  --fw-bold:      700;
+  --fw-extrabold: 800;
+  --fw-black:     900;
 
-  --fw-light: 300; --fw-regular: 400; --fw-medium: 500; --fw-semibold: 600;
-  --fw-bold: 700; --fw-extrabold: 800; --fw-black: 900;
+  --text-9:    9px;
+  --text-10:  10px;
+  --text-11:  11px;
+  --text-xs:  12px;
+  --text-sm:  14px;
+  --text-base:16px;
+  --text-lg:  18px;
+  --text-xl:  20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-4xl: 36px;
+  --text-5xl: 48px;
+  --text-6xl: 60px;
+  --text-7xl: 72px;
 
-  --text-9: 9px; --text-10: 10px; --text-11: 11px; --text-xs: 12px;
-  --text-sm: 14px; --text-base: 16px; --text-lg: 18px; --text-xl: 20px;
-  --text-2xl: 24px; --text-3xl: 30px; --text-4xl: 36px;
+  --leading-none:    1;
+  --leading-tight:   1.1;
+  --leading-snug:    1.3;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.65;
 
-  --tracking-tighter: -0.03em; --tracking-tight: -0.015em;
-  --tracking-normal: 0; --tracking-wide: 0.04em; --tracking-widest: 0.12em;
+  --tracking-tighter: -0.03em;
+  --tracking-tight:   -0.015em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.04em;
+  --tracking-widest:  0.12em;
 
-  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px;
-  --radius-xl: 16px; --radius-2xl: 20px; --radius-full: 9999px;
+  /* ---- Spacing ---- */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
 
-  --container-max: 1280px; --nav-height: 88px;
+  /* ---- Border radius ---- */
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  20px;
+  --radius-full: 9999px;
 
-  --shadow-sm:       0 1px 2px rgba(0,0,0,0.3);
-  --shadow-card:     0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
-  --shadow-elevated: 0 4px 16px rgba(0,0,0,0.5);
-  --shadow-overlay:  0 8px 32px rgba(0,0,0,0.3);
-  --shadow-amber:    0 4px 24px rgba(255,90,60,0.16);
-  --glow-amber:      0 0 34px rgba(255,176,32,0.20);
-  --shadow-button:   0 6px 22px rgba(255,90,60,0.30);
-  --shadow-green:    0 4px 24px rgba(31,224,137,0.12);
-  --glow-mint:       0 0 28px rgba(31,224,137,0.35);
+  /* ---- Layout ---- */
+  --container-max: 1280px;
+  --nav-height: 88px;
 
+  /* ---- Shadows ---- */
+  --shadow-sm:          0 1px 2px rgba(0,0,0,0.3);
+  --shadow-card:        0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-elevated:    0 4px 16px rgba(0,0,0,0.5);
+  --shadow-overlay:     0 8px 32px rgba(0,0,0,0.3);
+  --shadow-amber:       0 4px 24px rgba(255,90,60,0.16);
+  --shadow-amber-hover: 0 8px 30px rgba(255,90,60,0.22);
+  --glow-amber:         0 0 34px rgba(255,176,32,0.20);
+  --shadow-button:      0 6px 22px rgba(255,90,60,0.30);
+  --shadow-green:       0 4px 24px rgba(31,224,137,0.12);
+  --glow-mint:          0 0 28px rgba(31,224,137,0.35);
+
+  /* ---- Transitions ---- */
   --ease-out:        cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
-  --transition-fast: 0.15s var(--ease-out);
-  --transition-base: 0.2s var(--ease-out);
-  --transition-slow: 0.3s var(--ease-out);
-  --transition-tilt: 0.35s var(--ease-out);
-  --ring-brand:      0 0 0 3px rgba(245, 158, 11, 0.10);
+  --transition-fast: 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-base: 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-slow: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-tilt: 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 
-  --glass-bg:     rgba(10, 10, 18, 0.72);
+  /* ---- Glass ---- */
+  --glass-bg:     rgba(10, 10, 18, 0.62);
   --glass-border: rgba(255,255,255,0.06);
   --glass-blur:   blur(18px);
 
-  --platform-tokopedia:   #42b549;
-  --platform-shopee:      #ee4d2d;
-  --platform-lazada:      #0f146d;
-  --platform-bukalapak:   #e31e52;
-  --platform-blibli:      #0095da;
-  --platform-tiktok:      #fe2c55;
-  --platform-tiktok-chip: #1a1a1a;
-  --platform-amazon:      #ff9900;
-  --platform-alibaba:     #ff6a00;
-  --platform-aliexpress:  #e62e04;
-  --platform-jd:          #c0040e;
-  --platform-olx:         #8b2be2;
-  --platform-carousell:   #d9272e;
-
-  /* Legacy aliases */
-  --brand-amber:       var(--brand);
-  --brand-amber-dark:  var(--amber-600);
-  --brand-amber-light: var(--amber-300);
+  /* ---- Focus ---- */
+  --ring-brand: 0 0 0 3px rgba(255, 176, 32, 0.15);
 }
+
+/* ============================================================
+   Base / reset
+   ============================================================ */
 
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+
 body {
+  margin: 0;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-primary); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--ink-600); }
 ::selection { background: rgba(255, 176, 32, 0.25); color: #fff; }
 
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-600); }
+
 /* ============================================================
-   Keyframes
+   Keyframes — Kinetik Design System
    ============================================================ */
+
 @keyframes harga-fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -168,11 +236,19 @@ body {
 }
 @keyframes harga-shimmer {
   0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
+  100% { background-position:  400px 0; }
+}
+@keyframes harga-price-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.6; }
 }
 @keyframes harga-ticker {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
+}
+@keyframes harga-rise {
+  from { transform: translateY(110%); }
+  to   { transform: translateY(0); }
 }
 @keyframes harga-ping {
   0%   { box-shadow: 0 0 0 0 rgba(31,224,137,0.5); }
@@ -187,6 +263,12 @@ body {
   0%,100% { transform: translate(0,0) scale(1); }
   50%     { transform: translate(70px,-40px) scale(1.10); }
 }
+@keyframes harga-float-3 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(-40px,-60px) scale(1.15); }
+}
+
+/* Back-compat keyframes */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -197,7 +279,7 @@ body {
 }
 @keyframes shimmer {
   0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
+  100% { background-position:  400px 0; }
 }
 @keyframes ticker-scroll {
   0%   { transform: translateX(0); }
@@ -207,34 +289,37 @@ body {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.7; }
 }
-@keyframes cashback-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255,176,32,0.4); }
-  50%       { box-shadow: 0 0 0 6px rgba(255,176,32,0); }
-}
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0; }
 }
+@keyframes cashback-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 176, 32, 0.4); }
+  50%       { box-shadow: 0 0 0 6px rgba(255, 176, 32, 0); }
+}
 
 /* ============================================================
-   Utility classes
+   Utility classes — Harga Design System
    ============================================================ */
-.harga-skeleton, .skeleton {
+
+.harga-skeleton {
   background: linear-gradient(90deg, var(--ink-850) 25%, #20202e 50%, var(--ink-850) 75%);
   background-size: 800px 100%;
   animation: harga-shimmer 1.5s infinite;
   border-radius: var(--radius-sm);
 }
 
-.harga-live-dot, .live-dot {
+.harga-live-dot {
   display: inline-block;
-  width: 7px; height: 7px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--mint-400);
   animation: harga-ping 2s ease-in-out infinite;
+  flex-shrink: 0;
 }
 
-.harga-text-gradient, .text-gradient-gold {
+.harga-text-gradient {
   background: var(--gradient-gold);
   -webkit-background-clip: text;
   background-clip: text;
@@ -250,6 +335,85 @@ body {
   color: transparent;
 }
 
+.harga-glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+}
+
+.harga-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.harga-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  will-change: transform;
+}
+
+.harga-blob.b1 {
+  width: 620px; height: 620px;
+  top: -220px; right: -160px;
+  background: radial-gradient(circle, rgba(255,90,60,0.55), transparent 65%);
+  animation: harga-float-1 18s ease-in-out infinite;
+}
+
+.harga-blob.b2 {
+  width: 560px; height: 560px;
+  top: 8%; left: -220px;
+  background: radial-gradient(circle, rgba(255,194,75,0.45), transparent 65%);
+  animation: harga-float-2 22s ease-in-out infinite;
+}
+
+.harga-blob.b3 {
+  width: 520px; height: 520px;
+  top: 120%; left: 30%;
+  background: radial-gradient(circle, rgba(31,224,137,0.30), transparent 65%);
+  animation: harga-float-3 26s ease-in-out infinite;
+}
+
+.harga-blob.b4 {
+  width: 460px; height: 460px;
+  top: 200%; right: -120px;
+  background: radial-gradient(circle, rgba(139,92,246,0.28), transparent 65%);
+  animation: harga-float-1 24s ease-in-out infinite;
+}
+
+.harga-tilt {
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform var(--transition-tilt);
+}
+
+.harga-magnet {
+  will-change: transform;
+  transition: transform 0.2s var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .harga-blob,
+  .harga-live-dot,
+  .harga-skeleton { animation: none; }
+}
+
+/* ============================================================
+   Back-compat utility classes (used in existing TSX)
+   ============================================================ */
+
+.text-gradient-gold {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .text-gradient-amber {
   background: var(--gradient-amber);
   -webkit-background-clip: text;
@@ -257,93 +421,49 @@ body {
   background-clip: text;
 }
 
-.harga-glass, .glass {
+.glass {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
 }
 
-.harga-mesh {
-  position: fixed; inset: 0;
-  z-index: 0; pointer-events: none; overflow: hidden;
-}
-.harga-blob {
-  position: absolute; border-radius: 50%;
-  filter: blur(80px); opacity: 0.45; will-change: transform;
-}
-.harga-blob.b1 {
-  width: 620px; height: 620px; top: -220px; right: -160px;
-  background: radial-gradient(circle, rgba(255,90,60,0.55), transparent 65%);
-  animation: harga-float-1 18s ease-in-out infinite;
-}
-.harga-blob.b2 {
-  width: 560px; height: 560px; top: 8%; left: -220px;
-  background: radial-gradient(circle, rgba(255,194,75,0.45), transparent 65%);
-  animation: harga-float-2 22s ease-in-out infinite;
-}
-.harga-blob.b3 {
-  width: 520px; height: 520px; top: 70%; left: 30%;
-  background: radial-gradient(circle, rgba(31,224,137,0.25), transparent 65%);
-  animation: harga-float-1 26s ease-in-out infinite;
+.glow-amber { box-shadow: var(--glow-amber); }
+.glow-gold  { box-shadow: var(--glow-amber); }
+
+.live-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--mint-400);
+  animation: harga-price-pulse 2s ease-in-out infinite;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .harga-blob { animation: none; }
+.skeleton {
+  background: linear-gradient(90deg, var(--border) 25%, #252535 50%, var(--border) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
 }
 
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
-}
-.card:hover {
-  border-color: var(--brand-soft-border);
-  box-shadow: var(--shadow-elevated);
-  transform: translateY(-2px);
-}
-
-.glow-amber, .glow-gold { box-shadow: var(--glow-amber); }
-.glow-mint { box-shadow: var(--glow-mint); }
-
-.platform-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 8px; border-radius: var(--radius-sm);
-  font-size: var(--text-11); font-weight: 600;
-}
-
-.platform-tokopedia  { background: var(--platform-tokopedia); }
-.platform-shopee     { background: var(--platform-shopee); }
-.platform-lazada     { background: var(--platform-lazada); }
-.platform-bukalapak  { background: var(--platform-bukalapak); }
-.platform-blibli     { background: var(--platform-blibli); }
-.platform-tiktok     { background: var(--platform-tiktok); }
-.platform-amazon     { background: var(--platform-amazon); }
-.platform-alibaba    { background: var(--platform-alibaba); }
-.platform-aliexpress { background: var(--platform-aliexpress); }
-.platform-jd         { background: var(--platform-jd); }
-.platform-olx        { background: var(--platform-olx); }
-.platform-carousell  { background: var(--platform-carousell); }
-
-.hero-gradient {
-  background:
-    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(255,176,32,0.08), transparent),
-    radial-gradient(ellipse 50% 40% at 20% 60%, rgba(255,90,60,0.05), transparent),
-    var(--bg-primary);
-}
-
+/* Ticker — updated to 26s to match design */
 .ticker-track {
-  display: flex; gap: 2rem;
-  animation: ticker-scroll 40s linear infinite;
-  width: max-content; will-change: transform;
+  display: flex;
+  gap: 2rem;
+  animation: harga-ticker 26s linear infinite;
+  width: max-content;
+  will-change: transform;
 }
 .ticker-track:hover { animation-play-state: paused; }
 
-.fade-in { animation: fade-in 0.4s ease-out forwards; }
-.slide-up { animation: slide-up 0.3s ease-out forwards; }
+.cashback-pulse { animation: cashback-pulse 2.5s ease-in-out infinite; }
 
-.stagger-children > * { opacity: 0; animation: fade-in 0.4s ease-out forwards; }
+.fade-in { animation: fade-in 0.4s ease-out forwards; }
+
+.stagger-children > * {
+  opacity: 0;
+  animation: fade-in 0.4s ease-out forwards;
+}
 .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
 .stagger-children > *:nth-child(2) { animation-delay: 60ms; }
 .stagger-children > *:nth-child(3) { animation-delay: 120ms; }
@@ -353,10 +473,56 @@ body {
 .stagger-children > *:nth-child(7) { animation-delay: 360ms; }
 .stagger-children > *:nth-child(8) { animation-delay: 420ms; }
 
-.cashback-pulse { animation: cashback-pulse 2.5s ease-in-out infinite; }
 .typewriter-cursor {
-  display: inline-block; width: 2px; height: 1em;
-  background: currentColor; margin-left: 2px;
+  display: inline-block;
+  width: 2px; height: 1em;
+  background: currentColor;
+  margin-left: 2px;
   vertical-align: text-bottom;
   animation: blink 1s step-end infinite;
 }
+
+.slide-up { animation: slide-up 0.3s ease-out forwards; }
+
+.hero-gradient {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(255, 194, 75, 0.12), transparent),
+    radial-gradient(ellipse 50% 40% at 20% 60%, rgba(255, 90, 60, 0.07), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 30%, rgba(255, 176, 32, 0.07), transparent),
+    var(--bg-primary);
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+.card:hover {
+  border-color: var(--brand-soft-border);
+  box-shadow: var(--shadow-amber);
+}
+
+.platform-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-9);
+  font-weight: var(--fw-bold);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.platform-tokopedia  { background: var(--platform-tokopedia); }
+.platform-shopee     { background: var(--platform-shopee); }
+.platform-lazada     { background: var(--platform-lazada); }
+.platform-bukalapak  { background: var(--platform-bukalapak); }
+.platform-blibli     { background: var(--platform-blibli); }
+.platform-tiktok     { background: var(--platform-tiktok-chip); }
+.platform-amazon     { background: var(--platform-amazon); }
+.platform-alibaba    { background: var(--platform-alibaba); }
+.platform-aliexpress { background: var(--platform-aliexpress); }
+.platform-jd         { background: var(--platform-jd); }
