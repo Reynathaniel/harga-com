@@ -52,29 +52,25 @@ export default async function HomePage() {
 
       {/* HERO */}
       <section className="hero-gradient min-h-[90vh] flex flex-col items-center justify-center px-4 text-center relative overflow-hidden">
-        <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="flex items-center gap-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-full px-4 py-1.5 text-xs text-[var(--text-secondary)] mb-8 fade-in shadow-sm">
-          <span className="live-dot" />
-          <span className="font-medium tracking-wide">HARGA LIVE DARI {STATS.platforms} MARKETPLACE</span>
-          <span className="text-[var(--text-muted)]">&#183;</span>
-          <span>UPDATE TIAP {STATS.updateInterval}</span>
+        {/* Animated mesh blobs */}
+        <div className="harga-mesh">
+          <span className="harga-blob b1" />
+          <span className="harga-blob b2" />
+          <span className="harga-blob b3" />
         </div>
 
-        <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight mb-4 max-w-4xl leading-[1.05] fade-in">
-          Temukan harga<br />
-          <span className="text-gradient-gold italic">termurah</span>{' '}
-          <span className="text-[var(--text-primary)]">di seluruh</span><br />
-          <span className="text-[var(--text-primary)]">Indonesia.</span>
+        <div className="flex items-center gap-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-full px-4 py-1.5 text-xs text-[var(--text-secondary)] mb-8 fade-in shadow-sm">
+          <span className="harga-live-dot" />
+          <span className="font-medium tracking-wide">LIVE · {STATS.platforms} MARKETPLACE · BARU &amp; BEKAS</span>
+        </div>
+
+        <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold mb-4 max-w-4xl leading-[1.0] fade-in" style={{letterSpacing:'var(--tracking-tighter)'}}>
+          Harga terbaik.<br />
+          <span className="harga-text-gradient">Baru atau bekas.</span>
         </h1>
 
         <p className="text-[var(--text-secondary)] text-lg max-w-xl mb-10 leading-relaxed fade-in">
-          Bandingkan harga, lacak riwayat, dan klaim cashback dari{' '}
-          <span className="text-white font-medium">Tokopedia</span>,{' '}
-          <span className="text-white font-medium">Shopee</span>,{' '}
-          <span className="text-white font-medium">Lazada</span>,{' '}
-          <span className="text-white font-medium">TikTok Shop</span>, dan lainnya.
+          Bandingkan harga barang <b className="text-white">baru &amp; bekas</b> dari Shopee, Tokopedia, Lazada &amp; 7 marketplace lain — dalam satu pencarian.
         </p>
 
         <HeroRealSearch />
@@ -173,6 +169,48 @@ export default async function HomePage() {
         </section>
       )}
 
+
+      {/* PRELOVED HIGHLIGHT BANNER */}
+      <section className="max-w-7xl mx-auto px-4 py-8">
+        <div className="relative overflow-hidden rounded-2xl border border-[var(--border)]" style={{background:'linear-gradient(120deg, rgba(31,224,137,0.08), rgba(255,176,32,0.06))'}}>
+          <div className="flex items-center justify-between gap-6 p-8 flex-wrap">
+            <div className="max-w-lg">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-3"
+                style={{background:'var(--win-soft-bg)', border:'1px solid var(--win-soft-border)', color:'var(--win)'}}>
+                Preloved · Barang Bekas
+              </div>
+              <h2 className="text-2xl font-extrabold text-white mb-2" style={{letterSpacing:'var(--tracking-tight)'}}>
+                Bukan cuma baru — yang bekas juga di sini.
+              </h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-4">
+                Hemat lebih jauh dengan barang preloved dari penjual terpercaya OLX &amp; Carousell. Kami bandingkan harga second terbaik untuk Anda.
+              </p>
+              <Link href="/cari?condition=used"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all hover:opacity-90"
+                style={{background:'var(--gradient-win)', color:'#053d24', boxShadow:'var(--shadow-green)'}}>
+                Jelajahi Preloved →
+              </Link>
+            </div>
+            <div className="flex gap-3">
+              {usedProducts.slice(0, 2).map(p => {
+                const cheapest = lowestListingFirst(p.listings)[0]
+                return cheapest ? (
+                  <Link key={p.id} href={"/produk/" + p.id}
+                    className="w-36 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden hover:border-[var(--brand-soft-border)] transition-all group">
+                    <div className="aspect-square bg-[var(--bg-hover)] overflow-hidden">
+                      {p.images[0] && <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />}
+                    </div>
+                    <div className="p-2">
+                      <p className="text-[11px] font-medium text-white line-clamp-2 leading-snug mb-1">{p.name}</p>
+                      <p className="text-xs font-bold" style={{color:'var(--brand)'}}>{formatRupiah(cheapest.price, true)}</p>
+                    </div>
+                  </Link>
+                ) : null
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* BARANG BEKAS */}
       {usedProducts.length > 0 && (
@@ -375,7 +413,8 @@ export default async function HomePage() {
               Daftar gratis, mulai belanja melalui harga.com, dan saldo cashback langsung masuk ke wallet Anda.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-              <button className="px-8 py-3 bg-amber-500 hover:bg-amber-400 text-white font-semibold rounded-xl transition-colors shadow-sm shadow-amber-500/20">
+              <button className="px-8 py-3 text-sm font-bold rounded-xl transition-opacity hover:opacity-90"
+                style={{background:'var(--gradient-gold)', color:'var(--text-on-brand)', boxShadow:'var(--shadow-button)'}}>
                 Daftar Gratis
               </button>
               <button className="px-8 py-3 bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-white font-semibold rounded-xl transition-colors">
