@@ -73,7 +73,8 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
         </div>
 
         {diff > 5 && (
-          <div className="absolute top-2 right-2 bg-green-500/90 backdrop-blur-sm text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm">
+          <div className="absolute top-2 right-2 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm"
+            style={{background:'var(--win)', color:'#053d24'}}>
             Hemat {diff}%
           </div>
         )}
@@ -123,10 +124,10 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
             )}
           </div>
           <div className="flex items-center gap-1 mt-0.5">
-            <TrendingDown size={11} className="text-green-400" />
+            <TrendingDown size={11} style={{color:'var(--win)'}} />
             <span className="text-xs text-[var(--text-muted)]">di {cheapestPlatform.shortName}</span>
             {diff > 0 && (
-              <span className="text-xs text-green-400 ml-auto font-medium">
+              <span className="text-xs ml-auto font-medium" style={{color:'var(--win)'}}>
                 s/d {diff}% lebih hemat
               </span>
             )}
@@ -148,9 +149,10 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
         )}
 
         {/* Cashback badge */}
-        {!compact && (
+        {!compact && cashbackPct > 0 && (
           <div className="mb-2.5">
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
+              style={{color:'var(--brand)', background:'var(--brand-soft-bg)', border:'1px solid var(--brand-soft-border)'}}>
               CB {cashbackPct}% · {formatRupiah(cashbackAmount, true)}
             </span>
           </div>
@@ -179,7 +181,8 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
 
         {/* CTA */}
         <div className="flex gap-2">
-          <button className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-white rounded-lg transition-colors shadow-sm shadow-amber-500/20">
+          <button className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-lg transition-opacity hover:opacity-90"
+            style={{background:'var(--gradient-gold)', color:'var(--text-on-brand)', boxShadow:'var(--shadow-button)'}}>
             <ShoppingCart size={12} />
             Beli Sekarang
           </button>
