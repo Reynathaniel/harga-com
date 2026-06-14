@@ -8,6 +8,8 @@ import { BlibliScraper } from './blibli'
 import { AmazonScraper } from './amazon'
 import { AlibabaScraper } from './alibaba'
 import { AliexpressScraper } from './aliexpress'
+import { OlxScraper } from './olx'
+import { CarousellScraper } from './carousell'
 import { BaseScraper } from './base'
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -28,6 +30,8 @@ function getRegistry(): Map<string, BaseScraper> {
       ['amazon',     new AmazonScraper()],
       ['alibaba',    new AlibabaScraper()],
       ['aliexpress', new AliexpressScraper()],
+      ['olx',        new OlxScraper()],
+      ['carousell',  new CarousellScraper()],
     ]
     _registry = new Map(entries)
   }
@@ -58,7 +62,8 @@ export interface OrchestrateResult {
 
 const INDONESIAN_PLATFORMS = ['tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak']
 const PLATFORM_INTL = ['amazon', 'aliexpress', 'alibaba', 'jd']
-const ALL_PLATFORMS = [...INDONESIAN_PLATFORMS, ...PLATFORM_INTL]
+const PLATFORM_USED = ['olx', 'carousell']
+const ALL_PLATFORMS = [...INDONESIAN_PLATFORMS, ...PLATFORM_INTL, ...PLATFORM_USED]
 
 export async function scrapeAll(opts: OrchestrateOptions): Promise<OrchestrateResult> {
   const start = Date.now()
@@ -131,7 +136,7 @@ export function getRegisteredPlatforms(): string[] {
   return Array.from(getRegistry().keys())
 }
 
-export { INDONESIAN_PLATFORMS, PLATFORM_INTL, ALL_PLATFORMS }
+export { INDONESIAN_PLATFORMS, PLATFORM_INTL, PLATFORM_USED, ALL_PLATFORMS }
 export type { RawListing, ScrapeResult, ScrapeRequest }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -151,3 +156,4 @@ function mergeListings(results: ScrapeResult[]): RawListing[] {
 
   return Array.from(seen.values()).sort((a, b) => a.price - b.price)
 }
+
