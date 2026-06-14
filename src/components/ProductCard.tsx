@@ -317,6 +317,11 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
           {/* CTA */}
           <div className="flex gap-2">
             <button
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                window.open(cheapest.affiliateUrl, '_blank', 'noopener,noreferrer')
+              }}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg transition-opacity hover:opacity-90"
               style={{
                 background: 'var(--gradient-gold)', color: '#FFFFFF',
@@ -340,14 +345,4 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = 'var(--border-subtle)'
-                e.currentTarget.style.background = 'transparent'
-                e.currentTarget.style.color = 'var(--text-muted)'
-              }}>
-              <Bell size={13} />
-            </button>
-          </div>
-        </div>
-      </div>
-    </Link>
-  )
-}
+                e.currentTarget.style.background = 'transparent
