@@ -14,7 +14,7 @@ import { useState, useCallback } from 'react'
 import Image from 'next/image'
 import {
   X, ShoppingCart, Shield, Truck, Star,
-  ExternalLink, ChevronRight, Loader2
+  ExternalLink, ChevronRight
 } from 'lucide-react'
 import type { PriceListing } from '@/lib/types'
 import { PLATFORMS } from '@/lib/platforms'
@@ -40,50 +40,13 @@ export function CheckoutModal({
   referralCode,
 }: CheckoutModalProps) {
   const sorted = [...listings].sort((a, b) => a.price - b.price)
-  const [selected,  setSelected ] = useState<PriceListing>(sorted[0])
-  const [loading,   setLoading  ] = useState(false)
-  const [error,     setError    ] = useState<string | null>(null)
+  const [selected, setSelected] = useState<PriceListing>(sorted[0])
 
-  const handleBuy = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const res = await fetch('/api/checkout/initiate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          productId,
-          platform:     selected.platformId,
-          affiliateUrl: selected.affiliateUrl,
-          referralCode: referralCode ?? null,
-          sessionId:    typeof window !== 'undefined'
-            ? (sessionStorage.getItem('session_id') ?? crypto.randomUUID())
-            : undefined,
-        }),
-      })
-
-      const json = await res.json()
-
-      if (!json.success || !json.data?.checkoutUrl) {
-        setError('Gagal memproses. Coba lagi.')
-        return
-      }
-
-      // Store session id
-      if (typeof window !== 'undefined') {
-        const sid = sessionStorage.getItem('session_id') ?? crypto.randomUUID()
-        sessionStorage.setItem('session_id', sid)
-      }
-
-      window.open(json.data.checkoutUrl, '_blank', 'noopener,noreferrer')
-      onClose()
-    } catch {
-      setError('Koneksi gagal. Periksa internet kamu.')
-    } finally {
-      setLoading(false)
-    }
-  }, [selected, productId, referralCode, onClose])
+  // Checkout via internal API is under development — open affiliate URL directly
+  const handleBuy = useCallback(() => {
+    window.open(selected.affiliateUrl, '_blank', 'noopener,noreferrer')
+    onClose()
+  }, [selected, onClose])
 
   if (!isOpen) return null
 
@@ -107,11 +70,11 @@ export function CheckoutModal({
           <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
               <ShoppingCart size={16} className="text-amber-400" />
-              <span className="text-sm font-bold text-white">Beli di Harga.com</span>
+              <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Beli di Harga.com</span>
             </div>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-xl bg-[var(--bg-hover)] flex items-center justify-center text-[var(--text-muted)] hover:text-white transition-colors"
+              className="w-8 h-8 rounded-xl bg-[var(--bg-hover)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
             >
               <X size={15} />
             </button>
@@ -119,14 +82,31 @@ export function CheckoutModal({
 
           <div className="p-5 space-y-5 max-h-[80vh] overflow-y-auto">
 
+            {/* Under Development Notice */}
+            <div className="flex items-start gap-3 rounded-xl px-4 py-3"
+              style={{
+                background: 'rgba(212,146,10,0.08)',
+                border: '1px solid rgba(212,146,10,0.25)',
+              }}>
+              <span className="text-lg shrink-0">🚧</span>
+              <div>
+                <div className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
+                  Fitur ini sedang dalam pengembangan
+                </div>
+                <div className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                  Untuk sekarang, kami akan arahkan ke platform e-commerce aslinya.
+                </div>
+              </div>
+            </div>
+
             {/* Product summary */}
             <div className="flex gap-3">
               <div className="w-16 h-16 relative bg-[var(--bg-primary)] rounded-xl overflow-hidden shrink-0">
                 <Image src={productImage} alt={productName} fill className="object-cover" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-white line-clamp-2 mb-1">{productName}</div>
-                <div className="text-xl font-bold text-white">{formatRupiah(selected.price)}</div>
+                <div className="text-sm font-medium line-clamp-2 mb-1" style={{ color: 'var(--text-primary)' }}>{productName}</div>
+                <div className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{formatRupiah(selected.price)}</div>
                 {selected.originalPrice && selected.discount && selected.discount > 0 && (
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs text-[var(--text-muted)] line-through">
@@ -165,7 +145,7 @@ export function CheckoutModal({
                         {p.shortName.slice(0, 2)}
                       </div>
                       <div className="flex-1">
-                        <div className="text-sm font-semibold text-white">{p.name}</div>
+                        <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{p.name}</div>
                         <div className="flex items-center gap-2 mt-0.5">
                           {listing.freeShipping && (
                             <span className="text-[9px] text-blue-400 flex items-center gap-0.5">
@@ -185,7 +165,7 @@ export function CheckoutModal({
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-sm font-bold text-white">{formatRupiah(listing.price, true)}</div>
+                        <div className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{formatRupiah(listing.price, true)}</div>
                         <div className="text-[10px] text-amber-400">CB {p.cashbackPct}%</div>
                       </div>
                       {isSelected && (
@@ -232,18 +212,11 @@ export function CheckoutModal({
           <div className="px-5 pb-6 pt-0">
             <button
               onClick={handleBuy}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold text-white rounded-xl transition-opacity hover:opacity-90 active:scale-95 disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold text-white rounded-xl transition-opacity hover:opacity-90 active:scale-95"
               style={{ background: bgColor }}
             >
-              {loading ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <>
-                  <ExternalLink size={15} />
-                  Lanjutkan ke {platform?.name ?? 'Platform'}
-                </>
-              )}
+              <ExternalLink size={15} />
+              Lanjutkan ke {platform?.name ?? 'Platform'}
             </button>
           </div>
         </div>
@@ -251,3 +224,4 @@ export function CheckoutModal({
     </>
   )
 }
+                                                                                                                                                                                                                                                                                                                                                                                                                                       
