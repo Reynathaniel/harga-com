@@ -47,7 +47,7 @@ function EmptyState({ query }: { query: string }) {
         <circle cx="52" cy="50" r="13" fill="#f59e0b20" />
         <path d="M46 50h12M52 44v12" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
       </svg>
-      <h3 className="text-lg font-semibold text-white mb-2">
+      <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
         {query ? 'Produk "' + query + '" tidak ditemukan' : 'Tidak ada produk'}
       </h3>
       <p className="text-[var(--text-secondary)] text-sm mb-6 max-w-sm mx-auto">
@@ -211,7 +211,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <aside className="hidden lg:block lg:w-60 shrink-0">
             <div className="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl p-5 sticky top-24 space-y-5">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 font-semibold text-white text-sm">
+                <div className="flex items-center gap-2 font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
                   <SlidersHorizontal size={14} className="text-amber-400" />
                   Filter
                 </div>
@@ -336,7 +336,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
             <div className="flex items-start justify-between mb-4 gap-3 flex-wrap">
               <div>
-                <h1 className="text-lg font-semibold text-white">
+                <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
                   {query
                     ? 'Hasil untuk "' + query + '"'
                     : activePlatform
@@ -346,9 +346,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                         : 'Semua Produk'}
                 </h1>
                 <p className="text-sm text-[var(--text-muted)]">
-                  <span className="text-white font-medium">{total}</span> produk ditemukan
+                  <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{total}</span> produk ditemukan
                   {activePlatform && (
-                    <span> - termurah di <span className="text-white font-medium">{activePlatform.name}</span></span>
+                    <span> - termurah di <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{activePlatform.name}</span></span>
                   )}
                   {minPrice !== undefined && maxPrice !== undefined && maxPrice < 999999999 && (
                     <span> - {formatRupiah(minPrice, true)} s/d {formatRupiah(maxPrice, true)}</span>
@@ -393,14 +393,4 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <div className="text-center mt-10">
                 <button className="group px-8 py-3 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-white hover:border-amber-500/35 hover:bg-[var(--bg-hover)] rounded-2xl text-sm font-medium transition-all flex items-center gap-2 mx-auto">
                   <Package size={16} className="group-hover:animate-bounce" />
-                  Muat lebih banyak produk
-                </button>
-              </div>
-            )}
-
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+                  
