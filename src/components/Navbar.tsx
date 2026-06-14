@@ -66,7 +66,7 @@ export function Navbar() {
         <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#09090b] to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#09090b] to-transparent z-10 pointer-events-none" />
         <div className="absolute left-3 top-0 bottom-0 flex items-center gap-1.5 z-20">
-          <span className="live-dot" />
+          <span className="harga-live-dot" />
           <span className="text-[10px] font-bold text-green-400 tracking-wider">LIVE</span>
         </div>
         <div className="flex items-center h-full pl-16">
@@ -112,7 +112,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-3">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 shrink-0 group">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25 group-hover:shadow-amber-500/40 transition-shadow">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center transition-shadow" style={{background:"var(--gradient-logo)", boxShadow:"var(--shadow-button)"}}>
             <Zap size={14} className="text-white" fill="white" />
           </div>
           <div className="flex flex-col leading-none">
@@ -198,8 +198,9 @@ export function Navbar() {
             <Wallet size={15} />
             <span className="font-medium">Rp 0</span>
           </button>
-          <button className="hidden md:flex items-center gap-1.5 px-4 py-1.5 text-sm bg-amber-500 hover:bg-amber-400 text-white rounded-lg transition-colors font-semibold shadow-sm shadow-amber-500/20">
-            Masuk
+          <button className="hidden md:flex items-center gap-1.5 px-4 py-2 text-sm font-bold rounded-lg transition-opacity hover:opacity-90"
+            style={{background:'var(--gradient-gold)', color:'var(--text-on-brand)', boxShadow:'var(--shadow-button)'}}>
+            🔔 Pantau Harga
           </button>
           {/* Hamburger */}
           <button onClick={() => setMobileOpen(!mobileOpen)}
