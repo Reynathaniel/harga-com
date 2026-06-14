@@ -345,4 +345,18 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = 'var(--border-subtle)'
-                e.currentTarget.style.background = 'transparent
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.color = 'var(--text-muted)'
+              }}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+              }}>
+              <Bell size={14} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+}
