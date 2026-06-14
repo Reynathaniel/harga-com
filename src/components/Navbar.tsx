@@ -17,15 +17,14 @@ const NAV_LINKS = [
 const PLATFORM_ROW = ['tokopedia','shopee','tiktok','lazada','blibli','bukalapak','amazon','aliexpress','alibaba','jd']
 const INTL_PLATFORMS = new Set(['amazon','alibaba','aliexpress','jd'])
 
-/* Price-tag logo mark — matches Logo.jsx from design system */
 function LogoMark({ size = 36 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none"
-      style={{ flexShrink: 0, filter: 'drop-shadow(0 4px 12px rgba(255,90,60,0.35))' }}>
+      style={{ flexShrink: 0, filter: 'drop-shadow(0 2px 8px rgba(212,146,10,0.30))' }}>
       <defs>
         <linearGradient id="hg-logo" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#ffc24b" />
-          <stop offset="1" stopColor="#ff5a3c" />
+          <stop offset="0" stopColor="#E8A820" />
+          <stop offset="1" stopColor="#C5621A" />
         </linearGradient>
       </defs>
       <rect x="0" y="0" width="48" height="48" rx="12" fill="url(#hg-logo)" />
@@ -75,20 +74,21 @@ export function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{
-        borderBottom: '1px solid var(--glass-border)',
-        boxShadow: scrolled ? 'var(--shadow-elevated)' : 'none',
+        borderBottom: '1px solid var(--border-subtle)',
+        boxShadow: scrolled ? 'var(--shadow-elevated)' : '0 1px 0 var(--border-subtle)',
       }}>
 
       {/* ── Live Ticker ── */}
       <div className="h-8 overflow-hidden relative"
         style={{
-          background: 'linear-gradient(90deg, var(--brand-soft-bg), var(--win-soft-bg))',
+          background: 'var(--cream-100)',
           borderBottom: '1px solid var(--border-subtle)',
         }}>
+        {/* Fade edges */}
         <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
-          style={{ background: 'linear-gradient(to right, var(--ink-950), transparent)' }} />
+          style={{ background: 'linear-gradient(to right, var(--cream-100), transparent)' }} />
         <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
-          style={{ background: 'linear-gradient(to left, var(--ink-950), transparent)' }} />
+          style={{ background: 'linear-gradient(to left, var(--cream-100), transparent)' }} />
         <div className="absolute left-3 top-0 bottom-0 flex items-center gap-1.5 z-20">
           <span className="harga-live-dot" />
           <span style={{ fontSize: 'var(--text-10)', fontWeight: 'var(--fw-black)', color: 'var(--win)', letterSpacing: 'var(--tracking-wide)' }}>LIVE</span>
@@ -105,7 +105,8 @@ export function Navbar() {
                   <span style={{ color: 'var(--text-secondary)' }}>{item.name}</span>
                   <span style={{
                     fontSize: 'var(--text-10)', padding: '1px 6px', borderRadius: 'var(--radius-full)',
-                    fontWeight: 'var(--fw-semibold)', background: platColor + '22', color: platColor,
+                    fontWeight: 'var(--fw-semibold)', background: platColor + '18', color: platColor,
+                    border: `1px solid ${platColor}30`,
                   }}>{item.platform}</span>
                   <span style={{ fontWeight: 'var(--fw-bold)', color: 'var(--text-primary)' }}>{formatRupiah(item.price, true)}</span>
                   {item.change < 0 ? (
@@ -137,7 +138,7 @@ export function Navbar() {
       <div className="harga-glass" style={{ borderBottom: '1px solid var(--glass-border)' }}>
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-3">
 
-          {/* Logo — price-tag SVG mark + wordmark */}
+          {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
             <LogoMark size={32} />
             <div className="flex flex-col leading-none">
@@ -159,7 +160,7 @@ export function Navbar() {
                 : 'opacity-0 pointer-events-none'
             }`}
             style={{
-              background: 'var(--bg-card)',
+              background: 'var(--cream-100)',
               border: '1px solid var(--border)',
             }}>
             <Search size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
@@ -188,7 +189,7 @@ export function Navbar() {
                 const isIntl = INTL_PLATFORMS.has(id)
                 return (
                   <div key={id}
-                    className={`w-4 h-4 rounded-full flex items-center justify-center text-white shadow-sm opacity-60 hover:opacity-100 transition-opacity cursor-pointer ${isIntl ? 'ring-1 ring-blue-400/40' : ''}`}
+                    className={`w-4 h-4 rounded-full flex items-center justify-center text-white shadow-sm opacity-70 hover:opacity-100 transition-opacity cursor-pointer ${isIntl ? 'ring-1 ring-blue-400/40' : ''}`}
                     style={{ background: id === 'tiktok' ? '#1a1a1a' : p.color, fontSize: 8, fontWeight: 800 }}
                     title={p.name}>
                     {p.shortName[0]}
@@ -206,7 +207,7 @@ export function Navbar() {
                 style={{
                   fontSize: 'var(--text-sm)', fontWeight: 'var(--fw-semibold)',
                   color: isActive(l.href) ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  background: isActive(l.href) ? 'var(--bg-hover)' : 'transparent',
+                  background: isActive(l.href) ? 'var(--cream-200)' : 'transparent',
                 }}>
                 {l.label}
                 {isActive(l.href) && (
@@ -225,12 +226,12 @@ export function Navbar() {
               <Search size={16} />
             </Link>
             <Link href="/alert"
-              className="hidden md:flex relative items-center justify-center w-9 h-9 rounded-lg transition-colors"
+              className="hidden md:flex relative items-center justify-center w-9 h-9 rounded-lg transition-colors hover:bg-[var(--cream-200)]"
               style={{ color: 'var(--text-secondary)' }}>
               <Bell size={16} />
               {alertCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full ring-1"
-                  style={{ background: 'var(--brand)', ringColor: 'var(--bg-primary)' }} />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
+                  style={{ background: 'var(--brand)' }} />
               )}
             </Link>
             <button className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all"
@@ -241,11 +242,10 @@ export function Navbar() {
               <Wallet size={15} />
               <span style={{ fontWeight: 'var(--fw-medium)' }}>Rp 0</span>
             </button>
-            {/* Pantau Harga CTA — magnetic on hover */}
             <button
               className="harga-magnet hidden md:flex items-center gap-1.5 px-4 py-2 rounded-lg"
               style={{
-                background: 'var(--gradient-gold)', color: 'var(--text-on-brand)',
+                background: 'var(--gradient-gold)', color: '#FFFFFF',
                 boxShadow: 'var(--shadow-button)', fontSize: 'var(--text-sm)', fontWeight: 'var(--fw-extrabold)',
                 border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
               }}
@@ -276,11 +276,11 @@ export function Navbar() {
 
       {/* ── Mobile Menu ── */}
       <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${mobileOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}
-        style={{ background: 'var(--bg-primary)', borderTop: '1px solid var(--border-subtle)' }}>
+        style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-subtle)' }}>
         <div className="px-4 py-3">
           <form onSubmit={handleSearch}
             className="flex items-center gap-2 rounded-xl px-3 py-2 mb-3 transition-colors"
-            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            style={{ background: 'var(--cream-100)', border: '1px solid var(--border)' }}>
             <Search size={14} style={{ color: 'var(--text-muted)' }} />
             <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
               placeholder="Cari produk di 10 platform..."
@@ -333,7 +333,7 @@ export function Navbar() {
               )}
             </button>
             <button className="flex-1 py-2.5 text-sm font-bold rounded-xl transition-all"
-              style={{ background: 'var(--gradient-gold)', color: 'var(--text-on-brand)', border: 'none' }}>
+              style={{ background: 'var(--gradient-gold)', color: '#FFFFFF', border: 'none' }}>
               Masuk
             </button>
           </div>
