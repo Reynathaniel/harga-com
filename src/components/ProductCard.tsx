@@ -1,5 +1,7 @@
+'use client'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
-import { Star, TrendingDown, ShoppingCart, Bell, Globe } from 'lucide-react'
+import { Star, TrendingDown, ShoppingCart, Bell, Globe, Flame } from 'lucide-react'
 import type { Product } from '@/lib/types'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, priceDiffPercent, lowestListingFirst } from '@/lib/utils'
@@ -8,25 +10,34 @@ import MediaEmbed from './MediaEmbed'
 interface ProductCardProps {
   product: Product
   compact?: boolean
+  tilt?: boolean
 }
 
 const INTL_PLATFORMS = new Set(['amazon', 'alibaba', 'aliexpress', 'jd'])
 
-export function ProductCard({ product, compact = false }: ProductCardProps) {
+export function ProductCard({ product, compact = false, tilt = true }: ProductCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const glowRef = useRef<HTMLDivElement>(null)
+  const [hovered, setHovered] = useState(false)
+
   const sortedListings = lowestListingFirst(product.listings)
   const cheapest = sortedListings[0]
 
   if (!cheapest) {
     return (
-      <div className="block bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl overflow-hidden opacity-40">
-        <div className="relative aspect-square bg-[var(--bg-hover)]" />
-        <div className="p-3"><p className="text-xs text-[var(--text-muted)]">{product.name}</p></div>
+      <div className="block rounded-xl overflow-hidden opacity-40"
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}>
+        <div className="relative aspect-square" style={{ background: 'var(--bg-hover)' }} />
+        <div className="p-3">
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{product.name}</p>
+        </div>
       </div>
     )
   }
 
   const mostExpensive = sortedListings[sortedListings.length - 1]
   const diff = priceDiffPercent(cheapest.price, mostExpensive.price)
+  const savings = mostExpensive.price - cheapest.price
   const cheapestPlatform = PLATFORMS[cheapest.platformId] ?? PLATFORMS['tokopedia']
   const cashbackPct = cheapestPlatform.cashbackPct
   const cashbackAmount = Math.round(cheapest.price * cashbackPct / 100)
@@ -34,161 +45,309 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
   const domesticListings = sortedListings.filter(l => !INTL_PLATFORMS.has(l.platformId))
   const intlListings = sortedListings.filter(l => INTL_PLATFORMS.has(l.platformId))
   const displayListings = compact ? sortedListings.slice(0, 4) : sortedListings.slice(0, 6)
-
-  // Price range bar: cheapest=0%, mostExpensive=100%
   const priceRange = mostExpensive.price - cheapest.price
   const rangePercent = priceRange > 0 ? Math.min(100, Math.round((priceRange / cheapest.price) * 100)) : 0
+  const isUsed = cheapest.condition === 'used'
+
+  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!tilt || !cardRef.current) return
+    const r = cardRef.current.getBoundingClientRect()
+    const px = (e.clientX - r.left) / r.width
+    const py = (e.clientY - r.top) / r.height
+    const rx = (py - 0.5) * -10
+    const ry = (px - 0.5) * 12
+    cardRef.current.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-3px)`
+    if (glowRef.current) {
+      glowRef.current.style.setProperty('--mx', px * 100 + '%')
+      glowRef.current.style.setProperty('--my', py * 100 + '%')
+    }
+  }
+
+  const onMouseLeave = () => {
+    setHovered(false)
+    if (cardRef.current) cardRef.current.style.transform = ''
+  }
+
+  const platColor = cheapestPlatform.id === 'tiktok'
+    ? 'var(--platform-tiktok-chip)'
+    : `var(--platform-${cheapestPlatform.id})`
 
   return (
-    <Link href={"/produk/" + product.id}
-      className="group block bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl overflow-hidden hover:border-amber-500/40 hover:shadow-[0_6px_28px_rgba(245,158,11,0.12)] transition-all duration-200">
+    <Link href={'/produk/' + product.id}
+      className="block"
+      style={{ transformStyle: 'preserve-3d' }}>
+      <div
+        ref={cardRef}
+        onMouseEnter={() => setHovered(true)}
+        onMouseMove={onMouseMove}
+        onMouseLeave={onMouseLeave}
+        style={{
+          background: 'var(--bg-card)',
+          border: `1px solid ${hovered ? 'var(--border)' : 'var(--border-subtle)'}`,
+          borderRadius: 'var(--radius-lg)',
+          overflow: 'hidden',
+          boxShadow: hovered ? 'var(--shadow-elevated)' : 'var(--shadow-card)',
+          transformStyle: 'preserve-3d',
+          willChange: 'transform',
+          transition: 'box-shadow var(--transition-base), border-color var(--transition-base), transform var(--transition-tilt)',
+          cursor: 'pointer',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
 
-      {/* Image / Video */}
-      <div className="relative aspect-square bg-[var(--bg-hover)] overflow-hidden">
-        <MediaEmbed
-          imageUrl={product.images[0]}
-          videoUrl={cheapest.videoUrl}
-          videoThumb={cheapest.videoThumb}
-          title={product.name}
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
+        {/* ── Image / Video ── */}
+        <div className="relative overflow-hidden"
+          style={{ aspectRatio: '1 / 1', background: 'var(--bg-hover)' }}>
+          <MediaEmbed
+            imageUrl={product.images[0]}
+            videoUrl={cheapest.videoUrl}
+            videoThumb={cheapest.videoThumb}
+            title={product.name}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ transform: hovered ? 'scale(1.06)' : 'scale(1)', transition: 'transform var(--transition-slow)' }}
+          />
 
-        {/* Top badges */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1">
-          <span className="platform-badge text-white text-[10px] font-bold shadow-sm"
-                style={{ background: cheapestPlatform.color }}>
-            TERMURAH
-          </span>
-          {isIntl && (
-            <span className="flex items-center gap-0.5 bg-blue-600/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm">
-              <Globe size={8} />
-              INTL
-            </span>
-          )}
-          {cheapest.condition === 'used' && (
-            <span className="bg-orange-100 text-orange-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-orange-200 shadow-sm">
-              BEKAS
-            </span>
-          )}
-        </div>
+          {/* Cursor-follow amber glow */}
+          <div ref={glowRef}
+            style={{
+              position: 'absolute', inset: 0, pointerEvents: 'none',
+              background: 'radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,176,32,0.22), transparent 45%)',
+              opacity: hovered ? 1 : 0,
+              transition: 'opacity var(--transition-base)',
+            }} />
 
-        {diff > 5 && (
-          <div className="absolute top-2 right-2 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm"
-            style={{background:'var(--win)', color:'#053d24'}}>
-            Hemat {diff}%
-          </div>
-        )}
-
-        {/* Hover overlay — cashback + platform count */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-2 pt-8 pb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-amber-300">
-              CB {cashbackPct}% · {formatRupiah(cashbackAmount, true)}
-            </span>
-            <span className="text-[10px] text-white/70">
-              {sortedListings.length} platform
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className={compact ? 'p-2.5' : 'p-3'}>
-        <h3 className={`font-medium text-[var(--text-primary)] line-clamp-2 mb-2 group-hover:text-white transition-colors leading-snug ${compact ? 'text-xs' : 'text-sm'}`}>
-          {product.name}
-        </h3>
-
-        {/* Rating row */}
-        <div className="flex items-center gap-1 mb-2">
-          <Star size={11} fill="#f59e0b" className="text-amber-400" />
-          <span className="text-xs text-[var(--text-secondary)]">{product.averageRating.toFixed(1)}</span>
-          <span className="text-xs text-[var(--text-muted)]">({(product.totalReviews / 1000).toFixed(1)}rb)</span>
-          {!compact && domesticListings.length > 0 && intlListings.length > 0 && (
-            <span className="ml-auto flex items-center gap-0.5 text-[9px] text-blue-400/80 font-medium">
-              <Globe size={8} />
-              +{intlListings.length} intl
-            </span>
-          )}
-        </div>
-
-        {/* Price */}
-        <div className="mb-2">
-          <div className="flex items-baseline gap-1.5">
-            <span className={`font-bold text-white ${compact ? 'text-base' : 'text-lg'}`}>
-              {formatRupiah(cheapest.price, true)}
-            </span>
-            {cheapest.originalPrice && (
-              <span className="text-xs text-[var(--text-muted)] line-through">
-                {formatRupiah(cheapest.originalPrice, true)}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-1 mt-0.5">
-            <TrendingDown size={11} style={{color:'var(--win)'}} />
-            <span className="text-xs text-[var(--text-muted)]">di {cheapestPlatform.shortName}</span>
+          {/* Top-left: discount + condition badges */}
+          <div className="absolute flex flex-col gap-1.5 items-start"
+            style={{ top: 10, left: 10, transform: 'translateZ(40px)' }}>
             {diff > 0 && (
-              <span className="text-xs ml-auto font-medium" style={{color:'var(--win)'}}>
-                s/d {diff}% lebih hemat
+              <span className="text-white" style={{
+                padding: '3px 8px', borderRadius: 'var(--radius-sm)',
+                fontSize: 'var(--text-10)', fontWeight: 'var(--fw-bold)',
+                background: 'var(--red-500)', lineHeight: 1,
+              }}>−{diff}%</span>
+            )}
+            {isUsed ? (
+              <span style={{
+                padding: '3px 9px', borderRadius: 'var(--radius-full)',
+                fontSize: 'var(--text-10)', fontWeight: 'var(--fw-bold)',
+                background: 'rgba(96,165,250,0.15)', color: 'var(--info)',
+                border: '1px solid rgba(96,165,250,0.25)', lineHeight: 1,
+              }}>Bekas</span>
+            ) : product.popular && (
+              <span className="flex items-center gap-1" style={{
+                padding: '3px 9px', borderRadius: 'var(--radius-full)',
+                fontSize: 'var(--text-10)', fontWeight: 'var(--fw-bold)',
+                background: 'var(--gradient-gold)', color: '#fff', lineHeight: 1,
+              }}>
+                <Flame size={8} fill="white" /> Populer
+              </span>
+            )}
+            {isIntl && (
+              <span className="flex items-center gap-0.5 text-white" style={{
+                padding: '3px 8px', borderRadius: 'var(--radius-full)',
+                fontSize: 'var(--text-9)', fontWeight: 'var(--fw-bold)',
+                background: 'rgba(37,99,235,0.85)', lineHeight: 1,
+              }}>
+                <Globe size={8} /> INTL
               </span>
             )}
           </div>
-        </div>
 
-        {/* Price range bar */}
-        {!compact && rangePercent > 3 && (
-          <div className="mb-2.5">
-            <div className="h-1 bg-[var(--bg-hover)] rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-green-500 to-amber-500 rounded-full"
-                style={{ width: `${Math.max(10, 100 - rangePercent)}%` }} />
-            </div>
-            <div className="flex justify-between mt-0.5">
-              <span className="text-[9px] text-green-400">{formatRupiah(cheapest.price, true)}</span>
-              <span className="text-[9px] text-[var(--text-muted)]">{formatRupiah(mostExpensive.price, true)}</span>
+          {/* Top-right: platform badge */}
+          <div className="absolute" style={{ top: 10, right: 10, transform: 'translateZ(30px)' }}>
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', padding: '2px 8px',
+              borderRadius: 'var(--radius-full)', fontSize: 'var(--text-9)',
+              fontWeight: 'var(--fw-bold)', lineHeight: 1, color: '#fff',
+              background: cheapestPlatform.id === 'tiktok' ? '#1a1a1a' : cheapestPlatform.color,
+              whiteSpace: 'nowrap',
+            }}>
+              {cheapestPlatform.shortName}
+            </span>
+          </div>
+
+          {/* Hover overlay — cashback + count */}
+          <div className="absolute bottom-0 left-0 right-0 px-2 pt-8 pb-2"
+            style={{
+              background: 'linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.4), transparent)',
+              opacity: hovered ? 1 : 0, transition: 'opacity var(--transition-base)',
+            }}>
+            <div className="flex items-center justify-between">
+              <span style={{ fontSize: 'var(--text-10)', fontWeight: 'var(--fw-bold)', color: 'var(--amber-300)' }}>
+                CB {cashbackPct}% · {formatRupiah(cashbackAmount, true)}
+              </span>
+              <span style={{ fontSize: 'var(--text-10)', color: 'rgba(255,255,255,0.7)' }}>
+                {sortedListings.length} platform
+              </span>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Cashback badge */}
-        {!compact && cashbackPct > 0 && (
-          <div className="mb-2.5">
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
-              style={{color:'var(--brand)', background:'var(--brand-soft-bg)', border:'1px solid var(--brand-soft-border)'}}>
+        {/* ── Body ── */}
+        <div style={{
+          padding: compact ? '10px' : '12px',
+          display: 'flex', flexDirection: 'column', gap: 8, flex: 1,
+          transform: 'translateZ(24px)',
+        }}>
+          {/* Title */}
+          <h3 style={{
+            margin: 0,
+            fontFamily: 'var(--font-sans)',
+            fontSize: compact ? 'var(--text-xs)' : 'var(--text-sm)',
+            fontWeight: 'var(--fw-medium)',
+            lineHeight: 'var(--leading-snug)',
+            color: 'var(--text-primary)',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical' as const,
+            overflow: 'hidden',
+            minHeight: '2.6em',
+          }}>{product.name}</h3>
+
+          {/* Rating */}
+          <div className="flex items-center gap-1">
+            <Star size={11} fill="#ffb020" style={{ color: 'var(--brand)', flexShrink: 0 }} />
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
+              {product.averageRating.toFixed(1)}
+            </span>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+              ({(product.totalReviews / 1000).toFixed(1)}rb)
+            </span>
+            {!compact && domesticListings.length > 0 && intlListings.length > 0 && (
+              <span className="ml-auto flex items-center gap-0.5"
+                style={{ fontSize: 'var(--text-9)', color: 'var(--info)', fontWeight: 'var(--fw-semibold)', opacity: 0.8 }}>
+                <Globe size={8} />+{intlListings.length}
+              </span>
+            )}
+          </div>
+
+          {/* Price */}
+          <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div>
+              <div className="flex items-baseline gap-1.5">
+                <span style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: compact ? 'var(--text-base)' : 'var(--text-xl)',
+                  fontWeight: 'var(--fw-extrabold)',
+                  letterSpacing: 'var(--tracking-tight)',
+                  color: 'var(--text-primary)',
+                  lineHeight: 1,
+                }}>{formatRupiah(cheapest.price, true)}</span>
+                {cheapest.originalPrice && (
+                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
+                    {formatRupiah(cheapest.originalPrice, true)}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-1 mt-1">
+                <TrendingDown size={11} style={{ color: 'var(--win)' }} />
+                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                  di {cheapestPlatform.shortName}
+                </span>
+              </div>
+            </div>
+
+            {/* Savings pill — mint "Hemat X" */}
+            {savings > 0 && (
+              <span className="inline-flex items-center gap-1" style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: 'var(--text-11)',
+                fontWeight: 'var(--fw-bold)',
+                color: 'var(--win)',
+                background: 'var(--win-soft-bg)',
+                border: '1px solid var(--win-soft-border)',
+                padding: '3px 8px',
+                borderRadius: 'var(--radius-full)',
+                alignSelf: 'flex-start',
+              }}>↓ Hemat {formatRupiah(savings, true)}</span>
+            )}
+          </div>
+
+          {/* Price range bar */}
+          {!compact && rangePercent > 3 && (
+            <div>
+              <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
+                <div className="h-full rounded-full" style={{
+                  background: 'var(--gradient-win)',
+                  width: `${Math.max(10, 100 - rangePercent)}%`,
+                }} />
+              </div>
+              <div className="flex justify-between mt-0.5">
+                <span style={{ fontSize: 'var(--text-9)', color: 'var(--win)' }}>{formatRupiah(cheapest.price, true)}</span>
+                <span style={{ fontSize: 'var(--text-9)', color: 'var(--text-muted)' }}>{formatRupiah(mostExpensive.price, true)}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Cashback badge */}
+          {!compact && cashbackPct > 0 && (
+            <span className="inline-flex items-center gap-1" style={{
+              fontSize: 'var(--text-10)', fontWeight: 'var(--fw-semibold)',
+              padding: '3px 9px', borderRadius: 'var(--radius-full)',
+              color: 'var(--brand)', background: 'var(--brand-soft-bg)',
+              border: '1px solid var(--brand-soft-border)',
+              alignSelf: 'flex-start',
+            }}>
               CB {cashbackPct}% · {formatRupiah(cashbackAmount, true)}
             </span>
-          </div>
-        )}
-
-        {/* Platform dots */}
-        <div className="flex items-center gap-1 mb-3">
-          {displayListings.map(l => {
-            const p = PLATFORMS[l.platformId] ?? PLATFORMS['tokopedia']
-            const isIntlDot = INTL_PLATFORMS.has(l.platformId)
-            return (
-              <div key={l.platformId}
-                className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm transition-transform group-hover:scale-110 ${isIntlDot ? 'ring-1 ring-blue-400/50' : ''}`}
-                style={{ background: p.color }}
-                title={`${p.name}: ${formatRupiah(l.price)}`}>
-                {p.shortName[0]}
-              </div>
-            )
-          })}
-          {sortedListings.length > (compact ? 4 : 6) && (
-            <span className="text-[10px] text-[var(--text-muted)] font-medium">
-              +{sortedListings.length - (compact ? 4 : 6)}
-            </span>
           )}
-        </div>
 
-        {/* CTA */}
-        <div className="flex gap-2">
-          <button className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-lg transition-opacity hover:opacity-90"
-            style={{background:'var(--gradient-gold)', color:'var(--text-on-brand)', boxShadow:'var(--shadow-button)'}}>
-            <ShoppingCart size={12} />
-            Beli Sekarang
-          </button>
-          <button className="flex items-center justify-center w-8 h-8 rounded-lg border border-[var(--border-subtle)] hover:border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-400 text-[var(--text-muted)] transition-all">
-            <Bell size={13} />
-          </button>
+          {/* Platform dots */}
+          <div className="flex items-center gap-1">
+            {displayListings.map(l => {
+              const p = PLATFORMS[l.platformId] ?? PLATFORMS['tokopedia']
+              const isIntlDot = INTL_PLATFORMS.has(l.platformId)
+              return (
+                <div key={l.platformId}
+                  className={`w-5 h-5 rounded-full flex items-center justify-center text-white shadow-sm transition-transform ${hovered ? 'scale-110' : ''} ${isIntlDot ? 'ring-1 ring-blue-400/50' : ''}`}
+                  style={{
+                    background: l.platformId === 'tiktok' ? '#1a1a1a' : p.color,
+                    fontSize: 9, fontWeight: 800,
+                  }}
+                  title={`${p.name}: ${formatRupiah(l.price)}`}>
+                  {p.shortName[0]}
+                </div>
+              )
+            })}
+            {sortedListings.length > (compact ? 4 : 6) && (
+              <span style={{ fontSize: 'var(--text-10)', color: 'var(--text-muted)', fontWeight: 'var(--fw-medium)' }}>
+                +{sortedListings.length - (compact ? 4 : 6)}
+              </span>
+            )}
+          </div>
+
+          {/* CTA */}
+          <div className="flex gap-2">
+            <button
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg transition-opacity hover:opacity-90"
+              style={{
+                background: 'var(--gradient-gold)', color: 'var(--text-on-brand)',
+                boxShadow: 'var(--shadow-button)', border: 'none', cursor: 'pointer',
+                fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-extrabold)',
+              }}>
+              <ShoppingCart size={12} />
+              Beli Sekarang
+            </button>
+            <button
+              className="flex items-center justify-center rounded-lg transition-all"
+              style={{
+                width: 32, height: 32, border: '1px solid var(--border-subtle)',
+                background: 'transparent', cursor: 'pointer',
+                color: 'var(--text-muted)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--brand-soft-border)'
+                e.currentTarget.style.background = 'var(--brand-soft-bg)'
+                e.currentTarget.style.color = 'var(--brand)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border-subtle)'
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.color = 'var(--text-muted)'
+              }}>
+              <Bell size={13} />
+            </button>
+          </div>
         </div>
       </div>
     </Link>
