@@ -21,6 +21,8 @@ const MERCHANT_ID: Record<string, string> = {
   aliexpress: '00000000-0000-0000-0000-000000000008',
   alibaba:    '00000000-0000-0000-0000-000000000009',
   jd:         '00000000-0000-0000-0000-000000000010',
+  olx:        '00000000-0000-0000-0000-000000000011',
+  carousell:  '00000000-0000-0000-0000-000000000012',
 }
 
 function slugify(text: string): string {
@@ -112,6 +114,8 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
           in_stock:       listing.stock !== 0,
           video_url:      listing.videoUrl   ?? null,
           video_thumb:    listing.videoThumb ?? null,
+          condition:      listing.condition  ?? 'used',
+          location:       listing.location   ?? null,
           updated_at:     now,
         }, { onConflict: 'product_id,merchant_id' })
         .select('id')
@@ -148,3 +152,4 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
 
   return { upserted, skipped, errors, durationMs: Date.now() - start }
 }
+
