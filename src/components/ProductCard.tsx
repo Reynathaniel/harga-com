@@ -65,6 +65,11 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
               INTL
             </span>
           )}
+          {cheapest.condition === 'used' && (
+            <span className="bg-orange-100 text-orange-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-orange-200 shadow-sm">
+              BEKAS
+            </span>
+          )}
         </div>
 
         {diff > 5 && (

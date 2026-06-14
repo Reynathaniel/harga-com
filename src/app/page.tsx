@@ -5,7 +5,7 @@ import { getProducts, getCategories } from '@/lib/db/products'
 import { STATS, TRENDING_SEARCHES } from '@/lib/mock-data'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
-import { TrendingDown, Bell, Wallet, Shield, Zap, RefreshCw, ArrowRight, CheckCircle2, Flame } from 'lucide-react'
+import { TrendingDown, Bell, Wallet, Shield, Zap, RefreshCw, ArrowRight, CheckCircle2, Flame, Package } from 'lucide-react'
 import Link from 'next/link'
 
 // force-dynamic: prevents build-time Supabase calls that hang the Vercel build.
@@ -30,6 +30,7 @@ async function getTrendingProducts() {
 
 export default async function HomePage() {
   const { products: allProducts } = await getProducts({ sort: 'popular', limit: 16 })
+  const { products: usedProducts } = await getProducts({ condition: 'used', sort: 'popular', limit: 8 })
   const featuredProducts = allProducts.slice(0, 8)
   const categories = await getCategories()
   const platformList = Object.values(PLATFORMS)
@@ -168,6 +169,33 @@ export default async function HomePage() {
                 </div>
               </Link>
             ))}
+          </div>
+        </section>
+      )}
+
+
+      {/* BARANG BEKAS */}
+      {usedProducts.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 py-16">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Package size={20} className="text-orange-400" />
+                Barang Bekas Berkualitas
+              </h2>
+              <p className="text-sm text-[var(--text-muted)]">Produk second hand terpercaya dari OLX & Carousell</p>
+            </div>
+            <Link href="/cari?condition=used" className="text-sm text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-colors">
+              Lihat semua <ArrowRight size={14} />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 stagger-children">
+            {usedProducts.map(p => <ProductCard key={p.id} product={p} />)}
+          </div>
+          <div className="mt-4 flex items-center gap-2 text-xs text-[var(--text-muted)] bg-orange-500/5 border border-orange-500/15 rounded-xl px-4 py-3">
+            <span className="text-orange-400 font-medium">♻️ Barang Bekas</span>
+            <span>·</span>
+            <span>Harga lebih hemat, kondisi terpilih. Verifikasi penjual sebelum bertransaksi.</span>
           </div>
         </section>
       )}

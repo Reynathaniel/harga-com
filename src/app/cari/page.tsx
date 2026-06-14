@@ -17,6 +17,7 @@ interface SearchPageProps {
     min?: string
     max?: string
     platform?: string
+    condition?: string
   }
 }
 
@@ -73,7 +74,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query    = searchParams.q || ''
   const category = searchParams.kategori || ''
   const sort     = (searchParams.sort || 'lowest') as 'lowest' | 'highest' | 'rating' | 'popular' | 'newest'
-  const platform = searchParams.platform || ''
+  const platform  = searchParams.platform || ''
+  const condition = searchParams.condition || ''
   const minPrice = searchParams.min ? Number(searchParams.min) : undefined
   const maxPrice = searchParams.max ? Number(searchParams.max) : undefined
 
@@ -81,6 +83,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     query,
     category: category || undefined,
     platform: platform || undefined,
+    condition: (condition as 'new' | 'used') || undefined,
     minPrice,
     maxPrice,
     sort,
@@ -98,7 +101,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     const base: Record<string, string | undefined> = {
       q:        query    || undefined,
       kategori: category || undefined,
-      platform: platform || undefined,
+      platform:  platform  || undefined,
+      condition: condition || undefined,
       sort,
       min: searchParams.min,
       max: searchParams.max,
@@ -132,6 +136,30 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 (category === cat.id ? 'bg-amber-500 text-white border-amber-500' : 'text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-amber-500/40 hover:text-white')}>
               <span>{cat.icon}</span>
               {cat.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Condition filter tabs */}
+      <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-primary)] overflow-x-auto">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-1.5 whitespace-nowrap">
+          <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mr-1 shrink-0">
+            Kondisi:
+          </span>
+          {[
+            { value: '',     label: 'Semua' },
+            { value: 'new',  label: '✨ Baru' },
+            { value: 'used', label: '♻️ Bekas' },
+          ].map(opt => (
+            <Link
+              key={opt.value}
+              href={buildHref({ condition: opt.value || undefined })}
+              className={'px-3 py-1 text-xs rounded-full border transition-colors shrink-0 font-medium ' +
+                (condition === opt.value
+                  ? 'bg-orange-500 text-white border-orange-500'
+                  : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:border-orange-400/40 hover:text-white')}>
+              {opt.label}
             </Link>
           ))}
         </div>

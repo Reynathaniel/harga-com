@@ -91,7 +91,7 @@ function generateSyntheticHistory(base: number, days = 30) {
 
   for (let i = days; i >= 0; i--) {
     const v = () => base * (0.87 + Math.random() * 0.22)
-    const prices: Record<PlatformId, number | null> = {
+    const prices: Partial<Record<PlatformId, number | null>> = {
       tokopedia:  i % 7 === 0 ? null : Math.round(v() / 1000) * 1000,
       shopee:     Math.round(v() * 0.94 / 1000) * 1000,
       lazada:     Math.round(v() * 1.02 / 1000) * 1000,
@@ -101,7 +101,9 @@ function generateSyntheticHistory(base: number, days = 30) {
       amazon:     null,
       alibaba:    null,
       aliexpress: null,
-      jd:       null,
+      jd:         null,
+      olx:        null,
+      carousell:  null,
     }
     history.push({ date: subDays(new Date(), i), prices })
   }

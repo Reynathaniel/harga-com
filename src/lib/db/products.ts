@@ -21,8 +21,9 @@ import { adaptDbProductToAppProduct } from './adapters'
 export interface GetProductsOptions {
   query?:    string
   category?: string
-  platform?: string
-  minPrice?: number
+  platform?:  string
+  condition?: 'new' | 'used'
+  minPrice?:  number
   maxPrice?: number
   sort?:     'lowest' | 'highest' | 'rating' | 'popular' | 'newest'
   limit?:    number
@@ -42,6 +43,7 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
     query = '',
     category,
     platform,
+    condition,
     minPrice,
     maxPrice,
     sort = 'lowest',
@@ -67,6 +69,11 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
       }
       if (platform) {
         q = q.eq('best_platform_id', platform)
+      }
+      if (condition === 'used') {
+        q = q.in('best_platform_id', ['olx', 'carousell'])
+      } else if (condition === 'new') {
+        q = q.not('best_platform_id', 'in', '("olx","carousell")')
       }
       if (minPrice != null) q = q.gte('best_price', minPrice)
       if (maxPrice != null) q = q.lte('best_price', maxPrice)
@@ -98,6 +105,11 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
   let results = mockSearch(query, { category, minPrice, maxPrice })
   if (platform) {
     results = results.filter(p => p.listings.some(l => l.platformId === platform))
+  }
+  if (condition === 'used') {
+    results = results.filter(p => p.listings.some(l => l.condition === 'used'))
+  } else if (condition === 'new') {
+    results = results.filter(p => p.listings.some(l => !l.condition || l.condition === 'new'))
   }
   let sorted = [...results]
   if (sort === 'lowest')  sorted.sort((a, b) => a.lowestPrice - b.lowestPrice)

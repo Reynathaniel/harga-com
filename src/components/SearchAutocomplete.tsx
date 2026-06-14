@@ -21,6 +21,7 @@ interface SearchAutocompleteProps {
   initialValue?: string
   onSearch?: (q: string) => void
   className?: string
+  extraParams?: Record<string, string>
 }
 
 export function SearchAutocomplete({
@@ -28,6 +29,7 @@ export function SearchAutocomplete({
   initialValue = '',
   onSearch,
   className,
+  extraParams = {},
 }: SearchAutocompleteProps) {
   const router = useRouter()
   const [query, setQuery] = useState(initialValue)
@@ -84,7 +86,8 @@ export function SearchAutocomplete({
     if (onSearch) {
       onSearch(term)
     } else {
-      router.push(`/cari?q=${encodeURIComponent(term)}`)
+      const params = new URLSearchParams({ q: term, ...extraParams })
+      router.push(`/cari?${params.toString()}`)
     }
   }
 

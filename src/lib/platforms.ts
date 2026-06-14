@@ -101,11 +101,31 @@ export const PLATFORMS: Record<string, Platform> = {
     affiliateBase: 'https://jd.id/product/',
     cashbackPct: 4,
   },
+  olx: {
+    id: 'olx',
+    name: 'OLX',
+    shortName: 'OLX',
+    color: '#6d3ec1',
+    bgColor: '#ede8f8',
+    logo: '/logos/olx.svg',
+    affiliateBase: 'https://olx.co.id/d/',
+    cashbackPct: 2,
+  },
+  carousell: {
+    id: 'carousell',
+    name: 'Carousell',
+    shortName: 'Crsl',
+    color: '#e0174e',
+    bgColor: '#fde8ee',
+    logo: '/logos/carousell.svg',
+    affiliateBase: 'https://carousell.co.id/p/',
+    cashbackPct: 2,
+  },
 }
 
 export const PLATFORM_ORDER: string[] = [
   'tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak',
-  'amazon', 'aliexpress', 'alibaba', 'jd',
+  'amazon', 'aliexpress', 'alibaba', 'jd', 'olx', 'carousell',
 ]
 
 export const PLATFORM_PRIMARY: string[] = [
@@ -113,5 +133,5 @@ export const PLATFORM_PRIMARY: string[] = [
 ]
 
 export const PLATFORM_INTL: string[] = [
-  'amazon', 'aliexpress', 'alibaba', 'jd',
+  'amazon', 'aliexpress', 'alibaba', 'jd', 'olx', 'carousell',
 ]

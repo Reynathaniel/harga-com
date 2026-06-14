@@ -72,9 +72,30 @@ export function HeroSearchSection() {
 }
 
 export function HeroRealSearch() {
+  const [searchMode, setSearchMode] = useState<'new' | 'used'>('new')
+
   return (
     <div className="w-full max-w-2xl mx-auto mb-2">
-      <SearchAutocomplete size="hero" />
+      {/* Mode tabs */}
+      <div className="flex items-center gap-1 mb-3 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl p-1 w-fit mx-auto">
+        <button
+          onClick={() => setSearchMode('new')}
+          className={'px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ' +
+            (searchMode === 'new'
+              ? 'bg-amber-500 text-white shadow-sm'
+              : 'text-[var(--text-secondary)] hover:text-white')}>
+          ✨ Produk Baru
+        </button>
+        <button
+          onClick={() => setSearchMode('used')}
+          className={'px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ' +
+            (searchMode === 'used'
+              ? 'bg-orange-500 text-white shadow-sm'
+              : 'text-[var(--text-secondary)] hover:text-white')}>
+          ♻️ Barang Bekas
+        </button>
+      </div>
+      <SearchAutocomplete size="hero" extraParams={searchMode === 'used' ? { condition: 'used' } : {}} />
     </div>
   )
 }
