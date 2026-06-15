@@ -176,7 +176,7 @@ export function SearchAutocomplete({
                 >
                   <Search size={14} className="text-[var(--text-muted)] shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm text-white truncate">{r.name}</div>
+                    <div className="text-sm text-[var(--text-primary)] truncate">{r.name}</div>
                     <div className="text-[10px] text-[var(--text-muted)]">
                       {r.category} · mulai {formatPrice(r.minPrice)}
                     </div>
