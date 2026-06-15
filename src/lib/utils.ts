@@ -26,7 +26,7 @@ export function formatNumber(n: number): string {
 }
 
 export function priceDiffPercent(a: number, b: number): number {
-  return Math.round(((b - a) / a) * 100)
+  return Math.min(Math.round(((b - a) / b) * 100), 80)
 }
 
 export function lowestListingFirst<T extends { price: number }>(arr: T[]): T[] {
