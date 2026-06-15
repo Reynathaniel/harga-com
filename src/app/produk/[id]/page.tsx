@@ -48,11 +48,11 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] mb-6 flex-wrap">
-          <Link href="/" className="hover:text-white transition-colors">Beranda</Link>
+          <Link href="/" className="hover:text-[var(--text-primary)] transition-colors">Beranda</Link>
           <ChevronRight size={12} className="shrink-0" />
-          <Link href="/cari" className="hover:text-white transition-colors">Cari</Link>
+          <Link href="/cari" className="hover:text-[var(--text-primary)] transition-colors">Cari</Link>
           <ChevronRight size={12} className="shrink-0" />
-          <Link href={"/cari?kategori=" + product.category.toLowerCase()} className="hover:text-white transition-colors">
+          <Link href={"/cari?kategori=" + product.category.toLowerCase()} className="hover:text-[var(--text-primary)] transition-colors">
             {product.category}
           </Link>
           <ChevronRight size={12} className="shrink-0" />
@@ -70,7 +70,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                 <PlatformBadge platformId={cheapest.platformId} size="sm" />
               </div>
               <div className="absolute top-3 right-3 flex flex-col gap-2">
-                <button className="w-9 h-9 bg-[var(--bg-card)]/90 border border-[var(--border-subtle)] rounded-xl flex items-center justify-center text-[var(--text-muted)] hover:text-white transition-colors backdrop-blur-sm">
+                <button className="w-9 h-9 bg-[var(--bg-card)]/90 border border-[var(--border-subtle)] rounded-xl flex items-center justify-center text-[var(--text-muted)] hover:text-amber-500 transition-colors backdrop-blur-sm">
                   <Bookmark size={15} />
                 </button>
                 <ShareButton productId={product.id} productName={product.name} variant="icon" />
@@ -103,7 +103,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
               ].map(t => (
                 <div key={t.label} className="flex flex-col items-center gap-1 p-3 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl text-center hover:border-amber-500/20 transition-colors">
                   {t.icon}
-                  <span className="text-[10px] font-medium text-white">{t.label}</span>
+                  <span className="text-[10px] font-medium text-[var(--text-secondary)]">{t.label}</span>
                   <span className="text-[9px] text-[var(--text-muted)]">{t.sub}</span>
                 </div>
               ))}
@@ -120,7 +120,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
               )}
             </div>
 
-            <h1 className="text-xl font-bold text-white mb-3 leading-tight">{product.name}</h1>
+            <h1 className="text-xl font-bold text-[var(--text-primary)] mb-3 leading-tight">{product.name}</h1>
 
             <div className="flex items-center gap-4 mb-4">
               <div className="flex items-center gap-1.5">
@@ -131,7 +131,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                       className={i < Math.floor(product.averageRating) ? 'text-amber-400' : 'text-[var(--text-muted)]'} />
                   ))}
                 </div>
-                <span className="text-sm font-bold text-white">{product.averageRating.toFixed(1)}</span>
+                <span className="text-sm font-bold text-[var(--text-primary)]">{product.averageRating.toFixed(1)}</span>
               </div>
               <span className="text-sm text-[var(--text-muted)]">{product.totalReviews.toLocaleString('id')} ulasan</span>
               <div className="flex items-center gap-1 text-xs text-[var(--text-muted)] ml-auto">
@@ -184,7 +184,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-sm font-semibold text-white">{platform.name}</span>
+                          <span className="text-sm font-semibold text-[var(--text-primary)]">{platform.name}</span>
                           {listing.shopVerified && <Shield size={10} className="text-blue-400" />}
                           {(listing as any).condition === 'used' && (
                             <span className="text-[9px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-md border border-orange-200 font-bold">BEKAS</span>
@@ -199,7 +199,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="font-bold text-white text-sm">{formatRupiah(listing.price, true)}</div>
+                        <div className="font-bold text-[var(--text-primary)] text-sm">{formatRupiah(listing.price, true)}</div>
                         {listing.originalPrice && listing.discount && listing.discount > 0 && (
                           <div className="text-[10px] text-[var(--text-muted)] line-through">{formatRupiah(listing.originalPrice, true)}</div>
                         )}
@@ -256,7 +256,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
             />
             {Object.keys(product.specifications).length > 0 && (
               <div className="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl p-4">
-                <div className="font-semibold text-white mb-3 flex items-center gap-2 text-sm">
+                <div className="font-semibold text-[var(--text-secondary)] mb-3 flex items-center gap-2 text-sm">
                   <Info size={14} className="text-[var(--text-muted)]" />
                   Spesifikasi
                 </div>
@@ -276,12 +276,12 @@ export default async function ProductPage({ params }: { params: { id: string } }
         {/* Description */}
         {product.description && (
           <div className="mt-8 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl p-6">
-            <h2 className="text-lg font-bold text-white mb-3">Deskripsi Produk</h2>
+            <h2 className="text-lg font-bold text-[var(--text-primary)] mb-3">Deskripsi Produk</h2>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{product.description}</p>
             <div className="flex flex-wrap gap-2 mt-4">
               {product.tags.map(tag => (
                 <Link key={tag} href={"/cari?q=" + encodeURIComponent(tag)}
-                  className="px-2.5 py-1 text-xs bg-[var(--bg-hover)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white hover:border-amber-500/35 rounded-full transition-colors">
+                  className="px-2.5 py-1 text-xs bg-[var(--bg-hover)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-amber-500/35 rounded-full transition-colors">
                   #{tag}
                 </Link>
               ))}
@@ -294,7 +294,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
           <div className="mt-10">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="text-lg font-bold text-white">Produk Serupa</h2>
+                <h2 className="text-lg font-bold text-[var(--text-primary)]">Produk Serupa</h2>
                 <p className="text-sm text-[var(--text-muted)]">Dari kategori {product.category}</p>
               </div>
               <Link href={"/cari?kategori=" + product.category.toLowerCase()}
