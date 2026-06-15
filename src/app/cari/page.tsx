@@ -158,7 +158,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               className={'px-3 py-1 text-xs rounded-full border transition-colors shrink-0 font-medium ' +
                 (condition === opt.value
                   ? 'bg-orange-500 text-white border-orange-500'
-                  : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:border-orange-400/40 hover:text-[var(--text-primary)]')}>
+                  : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:border-orange-400/40 hover:text-[var(--brand)]')}>
               {opt.label}
             </Link>
           ))}
@@ -176,7 +176,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             className={'px-3 py-1 text-xs rounded-full border transition-colors shrink-0 font-medium ' +
               (!platform
                 ? 'bg-[var(--bg-hover)] text-[var(--text-primary)] border-amber-500/50'
-                : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:border-amber-500/30 hover:text-[var(--text-primary)]')}>
+                : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:border-amber-500/30 hover:text-[var(--brand)]')}>
             Semua
           </Link>
           {platformList.map(p => {
@@ -189,7 +189,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 className={'flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full border transition-all shrink-0 font-medium ' +
                   (isActive
                     ? 'text-white border-transparent shadow-sm'
-                    : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:text-[var(--text-primary)]')}
+                    : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:text-[var(--brand)]')}
                 style={isActive ? { background: bg, borderColor: bg } : {}}
               >
                 <span
@@ -225,7 +225,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     href={buildHref({ platform: undefined })}
                     className={'flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-xs transition-colors ' +
                       (!platform ? 'bg-amber-500/10 text-amber-400 font-semibold' : 'text-[var(--text-secondary)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]')}>
-                    <span className="w-5 h-5 rounded-md bg-[var(--bg-hover)] border border-[var(--border-subtle)] flex items-center justify-center text-[9px] font-bold text-[var(--text-secondary)] shrink-0">
+                    <span className="w-5 h-5 rounded-md bg-[var(--bg-hover)] border border-[var(--border-subtle)] flex items-center justify-center text-[9px] font-bold text-[var(--text-primary)] shrink-0">
                       All
                     </span>
                     Semua Platform
@@ -278,7 +278,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                           fill={i < Math.floor(r) ? '#f59e0b' : 'transparent'}
                           className={i < Math.floor(r) ? 'text-amber-400' : 'text-[var(--text-muted)]'} />
                       ))}
-                      <span className="text-xs text-[var(--text-secondary)] ml-1 group-hover:text-[var(--text-primary)] transition-colors">{r}+</span>
+                      <span className="text-xs text-[var(--text-secondary)] ml-1 group-hover:text-[var(--brand)] transition-colors">{r}+</span>
                     </div>
                   </label>
                 ))}
@@ -292,7 +292,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 ].map(({ label, checked }) => (
                   <label key={label} className="flex items-center gap-2.5 cursor-pointer group">
                     <input type="checkbox" className="w-3.5 h-3.5 rounded accent-amber-500 shrink-0" defaultChecked={checked} />
-                    <span className="text-xs text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">{label}</span>
+                    <span className="text-xs text-[var(--text-secondary)] group-hover:text-[var(--brand)] transition-colors">{label}</span>
                   </label>
                 ))}
               </div>
@@ -393,4 +393,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <div className="text-center mt-10">
                 <button className="group px-8 py-3 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-amber-500/35 hover:bg-[var(--bg-hover)] rounded-2xl text-sm font-medium transition-all flex items-center gap-2 mx-auto">
                   <Package size={16} className="group-hover:animate-bounce" />
-                  
+                  Muat Lebih Banyak
+                </button>
+              </div>
+            )}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
