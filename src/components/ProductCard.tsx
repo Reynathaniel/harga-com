@@ -320,7 +320,7 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
               onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
-                window.open(cheapest.affiliateUrl, '_blank', 'noopener,noreferrer')
+                window.open(cheapest.affiliateUrl || (cheapest as any).url || '#', '_blank', 'noopener,noreferrer')
               }}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg transition-opacity hover:opacity-90"
               style={{
