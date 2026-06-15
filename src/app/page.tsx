@@ -140,7 +140,7 @@ export default async function HomePage() {
             <span style={{ fontWeight: 'var(--fw-extrabold)', color: 'var(--text-primary)' }}>22.000+</span>
             <span style={{ color: 'var(--text-muted)' }}>produk</span>
             <span style={{ color: 'var(--border)' }}>|</span>
-            <span style={{ fontWeight: 'var(--fw-extrabold)', color: 'var(--text-primary)' }}>10</span>
+            <span style={{ fontWeight: 'var(--fw-extrabold)', color: 'var(--text-primary)' }}>{STATS.platforms}</span>
             <span style={{ color: 'var(--text-muted)' }}>platform</span>
             <span style={{ color: 'var(--border)' }}>|</span>
             <span style={{ color: 'var(--text-muted)' }}>Update tiap 4 jam</span>
@@ -673,7 +673,7 @@ export default async function HomePage() {
               <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
                 {col.links.map(l => (
                   <li key={l}>
-                    <a href="#" style={{
+                    <a href="#" title="Segera hadir" style={{
                       color: 'var(--text-muted)', fontSize: 'var(--text-xs)', textDecoration: 'none',
                     }}>{l}</a>
                   </li>
