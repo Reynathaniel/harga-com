@@ -52,11 +52,11 @@ export function ProductActions({
     <>
       <div className="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="text-sm font-bold text-white">Beli Sekarang</div>
+          <div className="text-sm font-bold text-[var(--text-secondary)]">Beli Sekarang</div>
           <span className="text-xs text-[var(--text-muted)]">Harga terbaik</span>
         </div>
 
-        <div className="text-2xl font-black text-white">{formatRupiah(currentPrice)}</div>
+        <div className="text-2xl font-black text-[var(--text-primary)]">{formatRupiah(currentPrice)}</div>
 
         <BuyButton
           productId={productId}
@@ -72,7 +72,7 @@ export function ProductActions({
           productId={productId}
           url={affiliateUrl}
           platform={cheapestPlatformId}
-          className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-white/70 border border-[var(--border-subtle)] hover:border-amber-500/30 hover:text-white rounded-xl transition-all"
+          className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-[var(--text-secondary)] border border-[var(--border-subtle)] hover:border-amber-500/30 hover:text-[var(--text-primary)] rounded-xl transition-all"
         >
           <ShoppingCart size={14} />
           Langsung ke {platform?.name ?? 'Platform'}
