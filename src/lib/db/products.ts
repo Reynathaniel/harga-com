@@ -68,7 +68,30 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
         q = q.ilike('category', `%${category}%`)
       }
       if (platform) {
-        q = q.eq('best_platform_id', platform)
+        // Fix: best_platform_id only shows the cheapest-platform product.
+        // Instead look up all product IDs that have ANY offer from this platform.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: merchants } = await (db as any)
+          .from('merchants')
+          .select('id')
+          .eq('platform_id', platform)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const merchantIds = ((merchants as any[]) ?? []).map((m: any) => m.id as string)
+        if (merchantIds.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { data: offerRows } = await (db as any)
+            .from('offers')
+            .select('product_id')
+            .in('merchant_id', merchantIds)
+          const productIds = [
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ...new Set(((offerRows as any[]) ?? []).map((o: any) => o.product_id as string)),
+          ]
+          if (productIds.length === 0) return { products: [], total: 0, source: 'supabase' }
+          q = q.in('id', productIds)
+        } else {
+          return { products: [], total: 0, source: 'supabase' }
+        }
       }
       if (condition === 'used') {
         q = q.or('condition.eq.used,best_platform_id.in.(olx,carousell)')
@@ -190,46 +213,4 @@ export async function getAllProductIds(): Promise<string[]> {
 // getCategories
 
 export async function getCategories() {
-  const db = tryGetServerClient()
-
-  if (db) {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (db as any)
-        .from('products')
-        .select('category')
-        .not('category', 'is', null)
-
-      if (data) {
-        const counts: Record<string, number> = {}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(data as any[]).forEach((r: any) => {
-          if (r.category) counts[r.category] = (counts[r.category] ?? 0) + 1
-        })
-        return CATEGORIES.map(c => ({
-          ...c,
-          count: counts[c.label] ?? c.count,
-        }))
-      }
-    } catch { /* fall through */ }
-  }
-
-  return CATEGORIES
-}
-
-// Internal: enrich ProductRow with its offers
-
-async function enrichProductWithOffers(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  db: any,
-  product: ProductRow
-): Promise<Product> {
-  const { data: offerRows } = await db
-    .from('offers')
-    .select('*, merchant:merchants(*)')
-    .eq('product_id', product.id)
-    .order('price', { ascending: true })
-
-  const offers: OfferWithMerchant[] = offerRows ?? []
-  return adaptDbProductToAppProduct(product, offers)
-}
+  const db = 
