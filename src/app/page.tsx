@@ -181,7 +181,7 @@ export default async function HomePage() {
               <span className="flex items-center gap-2">
                 <Flame size={22} style={{ color: '#EE4D2D' }} />
                 Deal Terpanas Hari Ini
-              </span> as unknown as string
+              </span> as any
             }
             action={
               <Link href="/cari?sort=lowest"
@@ -691,4 +691,4 @@ export default async function HomePage() {
           <div>
             {/* Logo in footer */}
             <div className="flex items-center gap-2 mb-3">
-              <svg width
+              <svg width={28} height={
