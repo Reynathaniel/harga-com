@@ -213,4 +213,75 @@ export async function getAllProductIds(): Promise<string[]> {
 // getCategories
 
 export async function getCategories() {
-  const db = 
+  const db = tryGetServerClient()
+
+  if (db) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (db as any)
+        .from('products')
+        .select('category')
+        .not('category', 'is', null)
+
+      if (data) {
+        const counts: Record<string, number> = {}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(data as any[]).forEach((r: any) => {
+          if (r.category) counts[r.category] = (counts[r.category] ?? 0) + 1
+        })
+        return CATEGORIES.map(c => ({
+          ...c,
+          count: counts[c.label] ?? c.count,
+        }))
+      }
+    } catch { /* fall through */ }
+  }
+
+  return CATEGORIES
+}
+
+// getPromoProducts — products ordered by biggest discount % (uses deals_by_discount view)
+
+export async function getPromoProducts(limit = 8): Promise<Product[]> {
+  const db = tryGetServerClient()
+
+  if (db) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (db as any)
+        .from('deals_by_discount')
+        .select('*')
+        .limit(limit)
+
+      if (error) throw error
+
+      const products = await Promise.all(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (data ?? []).map((row: any) => enrichProductWithOffers(db, row as ProductRow))
+      )
+      return products
+    } catch (err) {
+      console.error('[db/products] getPromoProducts error:', err)
+    }
+  }
+
+  // Fallback: return top products sorted by reviews as placeholder
+  return MOCK_PRODUCTS.slice(0, limit).map(p => p as unknown as Product)
+}
+
+// Internal: enrich ProductRow with its offers
+
+async function enrichProductWithOffers(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  db: any,
+  product: ProductRow
+): Promise<Product> {
+  const { data: offerRows } = await db
+    .from('offers')
+    .select('*, merchant:merchants(*)')
+    .eq('product_id', product.id)
+    .order('price', { ascending: true })
+
+  const offers: OfferWithMerchant[] = offerRows ?? []
+  return adaptDbProductToAppProduct(product, offers)
+}
