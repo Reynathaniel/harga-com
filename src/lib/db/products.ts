@@ -71,7 +71,7 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
         q = q.eq('best_platform_id', platform)
       }
       if (condition === 'used') {
-        q = q.in('best_platform_id', ['olx', 'carousell'])
+        q = q.or('condition.eq.used,best_platform_id.in.(olx,carousell)')
       } else if (condition === 'new') {
         q = q.not('best_platform_id', 'in', '("olx","carousell")')
       }
