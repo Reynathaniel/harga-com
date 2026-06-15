@@ -70,13 +70,13 @@ export function PriceAlertModal({
                 <Bell size={18} className="text-amber-400" />
               </div>
               <div>
-                <h2 className="font-bold text-white text-sm">Pantau Harga</h2>
+                <h2 className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Pantau Harga</h2>
                 <p className="text-xs text-[var(--text-muted)]">Notifikasi saat harga turun</p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)] transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
             >
               <X size={16} />
             </button>
@@ -87,9 +87,9 @@ export function PriceAlertModal({
               <div className="w-14 h-14 bg-green-500/15 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <CheckCircle2 size={28} className="text-green-400" />
               </div>
-              <h3 className="font-bold text-white mb-1">Alert Aktif! 🎉</h3>
+              <h3 className="font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Alert Aktif! 🎉</h3>
               <p className="text-sm text-[var(--text-secondary)] mb-1">
-                Kami akan notifikasi ke <span className="text-white font-medium">{email}</span>
+                Kami akan notifikasi ke <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{email}</span>
               </p>
               <p className="text-xs text-[var(--text-muted)]">
                 saat harga di bawah{' '}
@@ -109,10 +109,10 @@ export function PriceAlertModal({
               {/* Product name */}
               <div className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl p-3">
                 <p className="text-xs text-[var(--text-muted)] mb-0.5">Produk</p>
-                <p className="text-sm text-white font-medium line-clamp-1">{productName}</p>
+                <p className="text-sm font-medium line-clamp-1" style={{ color: 'var(--text-primary)' }}>{productName}</p>
                 <p className="text-xs text-[var(--text-muted)] mt-0.5">
                   Harga saat ini:{' '}
-                  <span className="text-white font-semibold">{formatRupiah(currentPrice, true)}</span>
+                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{formatRupiah(currentPrice, true)}</span>
                 </p>
               </div>
 
@@ -132,7 +132,7 @@ export function PriceAlertModal({
                     required
                     min={1}
                     max={currentPrice}
-                    className="w-full bg-[var(--bg-hover)] border border-[var(--border)] focus:border-amber-500/60 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white outline-none transition-colors"
+                    className="w-full bg-[var(--bg-hover)] border border-[var(--border)] focus:border-amber-500/60 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none transition-colors" style={{ color: 'var(--text-primary)' }}
                   />
                 </div>
                 <p className="text-[10px] text-[var(--text-muted)] mt-1">
@@ -178,7 +178,7 @@ export function PriceAlertModal({
                   onChange={e => setEmail(e.target.value)}
                   required
                   placeholder={notifyType === 'email' ? 'nama@email.com' : '08xxxxxxxxxx'}
-                  className="w-full bg-[var(--bg-hover)] border border-[var(--border)] focus:border-amber-500/50 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[var(--text-muted)] outline-none transition-colors"
+                  className="w-full bg-[var(--bg-hover)] border border-[var(--border)] focus:border-amber-500/50 rounded-xl px-4 py-2.5 text-sm placeholder:text-[var(--text-muted)] outline-none transition-colors" style={{ color: 'var(--text-primary)' }}
                 />
               </div>
 
