@@ -686,4 +686,81 @@ export default async function HomePage() {
           <div>
             {/* Logo in footer */}
             <div className="flex items-center gap-2 mb-3">
-              <svg width={28} height={
+              <svg width={28} height={28} viewBox="0 0 48 48" fill="none" style={{ flexShrink: 0, filter: 'drop-shadow(0 2px 6px rgba(212,146,10,0.25))' }}>
+                <defs>
+                  <linearGradient id="hg-footer" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stopColor="#ffc24b" />
+                    <stop offset="1" stopColor="#ff5a3c" />
+                  </linearGradient>
+                </defs>
+                <rect x="0" y="0" width="48" height="48" rx="12" fill="url(#hg-footer)" />
+                <g transform="translate(7.5 7.5) scale(1.38)" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+                  <circle cx="7.5" cy="7.5" r="1.4" fill="#fff" />
+                </g>
+              </svg>
+              <span style={{ fontFamily: 'var(--font-sans)', fontSize: 18, fontWeight: 'var(--fw-extrabold)', letterSpacing: 'var(--tracking-tight)' }}>
+                <span style={{ color: 'var(--text-primary)' }}>Harga</span>
+                <span style={{ color: 'var(--brand)' }}>.com</span>
+              </span>
+            </div>
+            <p style={{
+              fontSize: 'var(--text-xs)', color: 'var(--text-muted)',
+              lineHeight: 'var(--leading-relaxed)', marginBottom: 16, maxWidth: 220,
+            }}>
+              Platform perbandingan harga terlengkap di Indonesia. Hemat lebih banyak, belanja lebih cerdas.
+            </p>
+            <div className="flex gap-2">
+              {[
+                { label: 'Instagram', icon: 'IG' },
+                { label: 'Twitter',   icon: 'TW' },
+                { label: 'TikTok',   icon: 'TK' },
+                { label: 'YouTube',  icon: 'YT' },
+              ].map(s => (
+                <a key={s.label} href="#" title={s.label}
+                  className="flex items-center justify-center rounded-lg transition-colors"
+                  style={{
+                    width: 28, height: 28, background: 'var(--bg-hover)',
+                    border: '1px solid var(--border-subtle)',
+                    fontSize: 'var(--text-9)', fontWeight: 'var(--fw-extrabold)',
+                    color: 'var(--text-muted)', textDecoration: 'none',
+                  }}>
+                  {s.icon}
+                </a>
+              ))}
+            </div>
+          </div>
+          {[
+            { title: 'Fitur', links: ['Bandingkan Harga', 'Price Alert', 'Cashback', 'Browser Extension', 'Mobile App'] },
+            { title: 'Platform', links: ['Tokopedia', 'Shopee', 'TikTok Shop', 'Amazon', 'AliExpress', 'Lazada'] },
+            { title: 'Perusahaan', links: ['Tentang Kami', 'Blog', 'Karir', 'Hubungi Kami', 'Privasi'] },
+          ].map(col => (
+            <div key={col.title}>
+              <div style={{
+                fontWeight: 'var(--fw-semibold)', color: 'var(--text-primary)',
+                fontSize: 'var(--text-xs)', marginBottom: 12,
+                textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)',
+              }}>{col.title}</div>
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
+                {col.links.map(l => (
+                  <li key={l}>
+                    <a href="#" title="Segera hadir" style={{
+                      color: 'var(--text-muted)', fontSize: 'var(--text-xs)', textDecoration: 'none',
+                    }}>{l}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 24 }}
+          className="flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>
+            © 2026 harga.com — Harga real-time, cashback nyata.
+          </p>
+          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat di Indonesia 🇮🇩</p>
+        </div>
+      </footer>
+    </div>
+  )
+}
