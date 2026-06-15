@@ -26,7 +26,7 @@ export function LiveBar() {
 
       <div className="max-w-7xl mx-auto px-4 flex items-center gap-2 mb-4">
         <Flame size={16} className="text-amber-400" />
-        <span className="text-sm font-bold text-white">Deal Terpanas Hari Ini</span>
+        <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Deal Terpanas Hari Ini</span>
         <span className="text-xs text-[var(--text-muted)]">-- harga termurah dari semua platform</span>
       </div>
 
@@ -42,6 +42,10 @@ export function LiveBar() {
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                   sizes="208px"
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement
+                    target.src = `https://placehold.co/300x300/F5F0E8/D4920A?text=${encodeURIComponent(item.product.name.substring(0, 10))}`
+                  }}
                 />
                 {item.savings > 5 && (
                   <div className="absolute top-2 right-2 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
@@ -50,12 +54,12 @@ export function LiveBar() {
                 )}
               </div>
               <div className="p-2.5">
-                <p className="text-xs text-[var(--text-secondary)] line-clamp-1 mb-1 group-hover:text-white transition-colors">
+                <p className="text-xs text-[var(--text-secondary)] line-clamp-1 mb-1 group-hover:text-[var(--text-primary)] transition-colors">
                   {item.product.name}
                 </p>
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-bold text-white">
+                    <div className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
                       {formatRupiah(item.cheapest.price, true)}
                     </div>
                     <div className="flex items-center gap-1 mt-0.5">
