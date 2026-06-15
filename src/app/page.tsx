@@ -1,7 +1,7 @@
 import { ProductCard } from '@/components/ProductCard'
 import { LiveBar } from '@/components/LiveBar'
 import { HeroRealSearch } from '@/components/HeroSection'
-import { getProducts, getCategories } from '@/lib/db/products'
+import { getProducts, getCategories, getPromoProducts } from '@/lib/db/products'
 import { STATS, TRENDING_SEARCHES } from '@/lib/mock-data'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
@@ -51,6 +51,8 @@ export default async function HomePage() {
   const categories = await getCategories()
   const platformList = Object.values(PLATFORMS)
   const trendingProducts = await getTrendingProducts()
+
+  const promoProducts = await getPromoProducts(8)
 
   const hematProducts = [...allProducts]
     .map(p => {
@@ -169,6 +171,80 @@ export default async function HomePage() {
       </section>
 
       <LiveBar />
+
+      {/* ── DEAL TERPANAS ── */}
+      {promoProducts.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 py-16">
+          <SectionHead
+            eyebrow="Flash Sale · Diskon Gila"
+            title={
+              <span className="flex items-center gap-2">
+                <Flame size={22} style={{ color: '#EE4D2D' }} />
+                Deal Terpanas Hari Ini
+              </span> as unknown as string
+            }
+            action={
+              <Link href="/cari?sort=lowest"
+                className="flex items-center gap-1 transition-colors"
+                style={{ fontSize: 'var(--text-sm)', color: '#EE4D2D' }}>
+                Lihat semua <ArrowRight size={14} />
+              </Link>
+            }
+          />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 stagger-children">
+            {promoProducts.map(p => {
+              const cheapest = lowestListingFirst(p.listings)[0]
+              const discountPct = cheapest?.originalPrice && cheapest.originalPrice > cheapest.price
+                ? Math.round(100 * (cheapest.originalPrice - cheapest.price) / cheapest.originalPrice)
+                : 0
+              return (
+                <Link key={p.id} href={`/produk/${p.id}`}
+                  className="group rounded-2xl overflow-hidden transition-all hover:-translate-y-0.5"
+                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-card)' }}>
+                  {/* Image */}
+                  <div className="relative aspect-square overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
+                    {p.images[0]
+                      ? <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      : <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--text-muted)' }}><Flame size={32} /></div>
+                    }
+                    {discountPct > 0 && (
+                      <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-full text-white"
+                        style={{ background: '#EE4D2D', fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-extrabold)' }}>
+                        -{discountPct}%
+                      </div>
+                    )}
+                    <div className="absolute top-2 right-2 px-2 py-1 rounded-full text-white"
+                      style={{ background: 'rgba(0,0,0,0.55)', fontSize: 'var(--text-9)', fontWeight: 'var(--fw-bold)', letterSpacing: '0.03em' }}>
+                      PROMO
+                    </div>
+                  </div>
+                  {/* Info */}
+                  <div className="p-3">
+                    <p className="line-clamp-2 leading-snug mb-2"
+                      style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-medium)', color: 'var(--text-primary)' }}>
+                      {p.name}
+                    </p>
+                    <div className="flex items-end gap-2 flex-wrap">
+                      <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--fw-extrabold)', color: '#EE4D2D' }}>
+                        {formatRupiah(cheapest?.price ?? p.lowestPrice, true)}
+                      </span>
+                      {cheapest?.originalPrice && cheapest.originalPrice > cheapest.price && (
+                        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
+                          {formatRupiah(cheapest.originalPrice, true)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1.5 flex items-center gap-1" style={{ fontSize: 'var(--text-10)', color: 'var(--text-muted)' }}>
+                      <Flame size={10} style={{ color: '#EE4D2D' }} />
+                      <span>Flash Sale · Stok Terbatas</span>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </section>
+      )}
 
       {/* ── FEATURED PRODUCTS ── */}
       <section className="max-w-7xl mx-auto px-4 py-16">
@@ -615,81 +691,4 @@ export default async function HomePage() {
           <div>
             {/* Logo in footer */}
             <div className="flex items-center gap-2 mb-3">
-              <svg width={28} height={28} viewBox="0 0 48 48" fill="none" style={{ flexShrink: 0, filter: 'drop-shadow(0 2px 6px rgba(212,146,10,0.25))' }}>
-                <defs>
-                  <linearGradient id="hg-footer" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stopColor="#ffc24b" />
-                    <stop offset="1" stopColor="#ff5a3c" />
-                  </linearGradient>
-                </defs>
-                <rect x="0" y="0" width="48" height="48" rx="12" fill="url(#hg-footer)" />
-                <g transform="translate(7.5 7.5) scale(1.38)" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
-                  <circle cx="7.5" cy="7.5" r="1.4" fill="#fff" />
-                </g>
-              </svg>
-              <span style={{ fontFamily: 'var(--font-sans)', fontSize: 18, fontWeight: 'var(--fw-extrabold)', letterSpacing: 'var(--tracking-tight)' }}>
-                <span style={{ color: 'var(--text-primary)' }}>Harga</span>
-                <span style={{ color: 'var(--brand)' }}>.com</span>
-              </span>
-            </div>
-            <p style={{
-              fontSize: 'var(--text-xs)', color: 'var(--text-muted)',
-              lineHeight: 'var(--leading-relaxed)', marginBottom: 16, maxWidth: 220,
-            }}>
-              Platform perbandingan harga terlengkap di Indonesia. Hemat lebih banyak, belanja lebih cerdas.
-            </p>
-            <div className="flex gap-2">
-              {[
-                { label: 'Instagram', icon: 'IG' },
-                { label: 'Twitter',   icon: 'TW' },
-                { label: 'TikTok',   icon: 'TK' },
-                { label: 'YouTube',  icon: 'YT' },
-              ].map(s => (
-                <a key={s.label} href="#" title={s.label}
-                  className="flex items-center justify-center rounded-lg transition-colors"
-                  style={{
-                    width: 28, height: 28, background: 'var(--bg-hover)',
-                    border: '1px solid var(--border-subtle)',
-                    fontSize: 'var(--text-9)', fontWeight: 'var(--fw-extrabold)',
-                    color: 'var(--text-muted)', textDecoration: 'none',
-                  }}>
-                  {s.icon}
-                </a>
-              ))}
-            </div>
-          </div>
-          {[
-            { title: 'Fitur', links: ['Bandingkan Harga', 'Price Alert', 'Cashback', 'Browser Extension', 'Mobile App'] },
-            { title: 'Platform', links: ['Tokopedia', 'Shopee', 'TikTok Shop', 'Amazon', 'AliExpress', 'Lazada'] },
-            { title: 'Perusahaan', links: ['Tentang Kami', 'Blog', 'Karir', 'Hubungi Kami', 'Privasi'] },
-          ].map(col => (
-            <div key={col.title}>
-              <div style={{
-                fontWeight: 'var(--fw-semibold)', color: 'var(--text-primary)',
-                fontSize: 'var(--text-xs)', marginBottom: 12,
-                textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)',
-              }}>{col.title}</div>
-              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
-                {col.links.map(l => (
-                  <li key={l}>
-                    <a href="#" title="Segera hadir" style={{
-                      color: 'var(--text-muted)', fontSize: 'var(--text-xs)', textDecoration: 'none',
-                    }}>{l}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 24 }}
-          className="flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>
-            © 2026 harga.com — Harga real-time, cashback nyata.
-          </p>
-          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat di Indonesia 🇮🇩</p>
-        </div>
-      </footer>
-    </div>
-  )
-}
+              <svg width
