@@ -13,7 +13,11 @@ export function LiveBar() {
     const mostExpensive = sorted[sorted.length - 1]
     const savings = priceDiffPercent(cheapest.price, mostExpensive.price)
     const platform = PLATFORMS[cheapest.platformId]
-    return { product, cheapest, savings, platform }
+    const rawImg = product.images[0] || ''
+    const imageUrl = rawImg.includes('picsum') || rawImg.includes('unsplash') || !rawImg
+      ? `https://placehold.co/400x400/F5F0E8/D4920A?text=${encodeURIComponent(product.name.slice(0, 14))}`
+      : rawImg
+    return { product, cheapest, savings, platform, imageUrl }
   })
 
   const items = [...dealItems, ...dealItems]
@@ -37,7 +41,7 @@ export function LiveBar() {
               className="flex-shrink-0 w-52 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl overflow-hidden hover:border-amber-500/35 hover:shadow-[0_2px_12px_rgba(245,158,11,0.08)] transition-all group">
               <div className="relative h-32 bg-[var(--bg-hover)] overflow-hidden">
                 <Image
-                  src={item.product.images[0]}
+                  src={item.imageUrl}
                   alt={item.product.name}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
