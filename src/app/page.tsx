@@ -177,12 +177,7 @@ export default async function HomePage() {
         <section className="max-w-7xl mx-auto px-4 py-16">
           <SectionHead
             eyebrow="Flash Sale · Diskon Gila"
-            title={
-              <span className="flex items-center gap-2">
-                <Flame size={22} style={{ color: '#EE4D2D' }} />
-                Deal Terpanas Hari Ini
-              </span> as any
-            }
+            title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: '#EE4D2D' }} /> Deal Terpanas Hari Ini</span> as any}
             action={
               <Link href="/cari?sort=lowest"
                 className="flex items-center gap-1 transition-colors"
