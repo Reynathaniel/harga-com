@@ -202,8 +202,8 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
             minHeight: '2.6em',
           }}>{product.name}</h3>
 
-          {/* Rating */}
-          <div className="flex items-center gap-1">
+          {/* Rating — hidden until real data is available */}
+          {/* <div className="flex items-center gap-1">
             <Star size={11} fill="#D4920A" style={{ color: 'var(--brand)', flexShrink: 0 }} />
             <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
               {product.averageRating.toFixed(1)}
@@ -217,7 +217,13 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
                 <Globe size={8} />+{intlListings.length}
               </span>
             )}
-          </div>
+          </div> */}
+          {!compact && domesticListings.length > 0 && intlListings.length > 0 && (
+            <div className="flex items-center gap-0.5"
+              style={{ fontSize: 'var(--text-9)', color: 'var(--info)', fontWeight: 'var(--fw-semibold)', opacity: 0.8 }}>
+              <Globe size={8} />+{intlListings.length} intl
+            </div>
+          )}
 
           {/* Price */}
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -303,7 +309,7 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
                     fontSize: 9, fontWeight: 800,
                   }}
                   title={`${p.name}: ${formatRupiah(l.price)}`}>
-                  {p.shortName[0]}
+                  {p.shortName.slice(0, 2)}
                 </div>
               )
             })}
@@ -320,7 +326,7 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
               onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
-                window.open(cheapest.affiliateUrl || (cheapest as any).url || '#', '_blank', 'noopener,noreferrer')
+                window.open(cheapest.affiliateUrl, '_blank', 'noopener,noreferrer')
               }}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg transition-opacity hover:opacity-90"
               style={{
@@ -345,18 +351,4 @@ export function ProductCard({ product, compact = false, tilt = true }: ProductCa
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = 'var(--border-subtle)'
-                e.currentTarget.style.background = 'transparent'
-                e.currentTarget.style.color = 'var(--text-muted)'
-              }}
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-              }}>
-              <Bell size={14} />
-            </button>
-          </div>
-        </div>
-      </div>
-    </Link>
-  )
-}
+                e.currentTarget.style.background = 'transparent
