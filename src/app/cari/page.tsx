@@ -56,7 +56,7 @@ function EmptyState({ query }: { query: string }) {
       <div className="flex flex-wrap gap-2 justify-center mb-6">
         {['iPhone 15', 'Samsung S24', 'Laptop Gaming', 'Sepatu Nike', 'PS5'].map(s => (
           <Link key={s} href={'/cari?q=' + encodeURIComponent(s)}
-            className="px-3 py-1.5 text-xs bg-[var(--bg-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-white hover:border-amber-500/40 rounded-full transition-colors">
+            className="px-3 py-1.5 text-xs bg-[var(--bg-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--brand)] hover:border-amber-500/40 rounded-full transition-colors">
             {s}
           </Link>
         ))}
@@ -127,13 +127,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-2 whitespace-nowrap">
           <Link href={buildHref({ kategori: undefined })}
             className={'px-3 py-1.5 text-xs rounded-full border transition-colors shrink-0 font-medium ' +
-              (!category ? 'bg-amber-500 text-white border-amber-500' : 'text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-amber-500/40 hover:text-white')}>
+              (!category ? 'bg-amber-500 text-white border-amber-500' : 'text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-amber-500/40 hover:text-[var(--brand)]')}>
             Semua
           </Link>
           {categories.map(cat => (
             <Link key={cat.id} href={buildHref({ kategori: cat.id })}
               className={'flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-colors shrink-0 font-medium ' +
-                (category === cat.id ? 'bg-amber-500 text-white border-amber-500' : 'text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-amber-500/40 hover:text-white')}>
+                (category === cat.id ? 'bg-amber-500 text-white border-amber-500' : 'text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-amber-500/40 hover:text-[var(--brand)]')}>
               <span>{cat.icon}</span>
               {cat.label}
             </Link>
@@ -158,7 +158,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               className={'px-3 py-1 text-xs rounded-full border transition-colors shrink-0 font-medium ' +
                 (condition === opt.value
                   ? 'bg-orange-500 text-white border-orange-500'
-                  : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:border-orange-400/40 hover:text-white')}>
+                  : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:border-orange-400/40 hover:text-[var(--text-primary)]')}>
               {opt.label}
             </Link>
           ))}
@@ -175,8 +175,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             href={buildHref({ platform: undefined })}
             className={'px-3 py-1 text-xs rounded-full border transition-colors shrink-0 font-medium ' +
               (!platform
-                ? 'bg-[var(--bg-hover)] text-white border-amber-500/50'
-                : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:border-amber-500/30 hover:text-white')}>
+                ? 'bg-[var(--bg-hover)] text-[var(--text-primary)] border-amber-500/50'
+                : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:border-amber-500/30 hover:text-[var(--text-primary)]')}>
             Semua
           </Link>
           {platformList.map(p => {
@@ -189,7 +189,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 className={'flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full border transition-all shrink-0 font-medium ' +
                   (isActive
                     ? 'text-white border-transparent shadow-sm'
-                    : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:text-white')}
+                    : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:text-[var(--text-primary)]')}
                 style={isActive ? { background: bg, borderColor: bg } : {}}
               >
                 <span
@@ -215,7 +215,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   <SlidersHorizontal size={14} className="text-amber-400" />
                   Filter
                 </div>
-                <Link href="/cari" className="text-[10px] text-[var(--text-muted)] hover:text-white transition-colors">Reset</Link>
+                <Link href="/cari" className="text-[10px] text-[var(--text-muted)] hover:text-[var(--brand)] transition-colors">Reset</Link>
               </div>
 
               <div>
@@ -224,8 +224,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   <Link
                     href={buildHref({ platform: undefined })}
                     className={'flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-xs transition-colors ' +
-                      (!platform ? 'bg-amber-500/10 text-amber-400 font-semibold' : 'text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-hover)]')}>
-                    <span className="w-5 h-5 rounded-md bg-[var(--bg-hover)] border border-[var(--border-subtle)] flex items-center justify-center text-[9px] font-bold text-white shrink-0">
+                      (!platform ? 'bg-amber-500/10 text-amber-400 font-semibold' : 'text-[var(--text-secondary)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]')}>
+                    <span className="w-5 h-5 rounded-md bg-[var(--bg-hover)] border border-[var(--border-subtle)] flex items-center justify-center text-[9px] font-bold text-[var(--text-secondary)] shrink-0">
                       All
                     </span>
                     Semua Platform
@@ -233,7 +233,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   {platformList.map(p => (
                     <Link key={p.id} href={buildHref({ platform: p.id })}
                       className={'flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-xs transition-colors ' +
-                        (platform === p.id ? 'bg-amber-500/10 text-amber-400 font-semibold' : 'text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-hover)]')}>
+                        (platform === p.id ? 'bg-amber-500/10 text-amber-400 font-semibold' : 'text-[var(--text-secondary)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]')}>
                       <div className="w-5 h-5 rounded-md flex items-center justify-center text-white text-[9px] font-bold shrink-0"
                         style={{ background: p.id === 'tiktok' ? '#1a1a1a' : p.color }}>
                         {p.shortName.slice(0, 2)}
@@ -254,16 +254,16 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                       className={'block w-full text-left text-xs px-3 py-2 rounded-xl transition-colors ' +
                         (minPrice === preset.min && maxPrice === preset.max
                           ? 'bg-amber-500/15 text-amber-400 border border-amber-500/25'
-                          : 'text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-hover)]')}>
+                          : 'text-[var(--text-secondary)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]')}>
                       {preset.label}
                     </Link>
                   ))}
                 </div>
                 <div className="flex gap-2 mt-2">
                   <input type="number" placeholder="Min"
-                    className="flex-1 bg-[var(--bg-hover)] border border-[var(--border-subtle)] rounded-xl px-2 py-1.5 text-xs text-white outline-none focus:border-amber-500/50 w-0 transition-colors" />
+                    className="flex-1 bg-[var(--bg-hover)] border border-[var(--border-subtle)] rounded-xl px-2 py-1.5 text-xs text-[var(--text-primary)] outline-none focus:border-amber-500/50 w-0 transition-colors" />
                   <input type="number" placeholder="Max"
-                    className="flex-1 bg-[var(--bg-hover)] border border-[var(--border-subtle)] rounded-xl px-2 py-1.5 text-xs text-white outline-none focus:border-amber-500/50 w-0 transition-colors" />
+                    className="flex-1 bg-[var(--bg-hover)] border border-[var(--border-subtle)] rounded-xl px-2 py-1.5 text-xs text-[var(--text-primary)] outline-none focus:border-amber-500/50 w-0 transition-colors" />
                 </div>
               </div>
 
@@ -278,7 +278,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                           fill={i < Math.floor(r) ? '#f59e0b' : 'transparent'}
                           className={i < Math.floor(r) ? 'text-amber-400' : 'text-[var(--text-muted)]'} />
                       ))}
-                      <span className="text-xs text-[var(--text-secondary)] ml-1 group-hover:text-white transition-colors">{r}+</span>
+                      <span className="text-xs text-[var(--text-secondary)] ml-1 group-hover:text-[var(--text-primary)] transition-colors">{r}+</span>
                     </div>
                   </label>
                 ))}
@@ -292,7 +292,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 ].map(({ label, checked }) => (
                   <label key={label} className="flex items-center gap-2.5 cursor-pointer group">
                     <input type="checkbox" className="w-3.5 h-3.5 rounded accent-amber-500 shrink-0" defaultChecked={checked} />
-                    <span className="text-xs text-[var(--text-secondary)] group-hover:text-white transition-colors">{label}</span>
+                    <span className="text-xs text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">{label}</span>
                   </label>
                 ))}
               </div>
@@ -361,7 +361,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     className={'flex items-center gap-1 px-3 py-1.5 text-xs rounded-full border font-medium transition-colors ' +
                       (sort === opt.value
                         ? 'bg-amber-500 text-white border-amber-500'
-                        : 'bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-white hover:border-amber-500/40')}>
+                        : 'bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--brand)] hover:border-amber-500/40')}>
                     <span>{opt.icon}</span>
                     {opt.label}
                   </Link>
@@ -391,16 +391,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
             {products.length >= 40 && (
               <div className="text-center mt-10">
-                <button className="group px-8 py-3 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-white hover:border-amber-500/35 hover:bg-[var(--bg-hover)] rounded-2xl text-sm font-medium transition-all flex items-center gap-2 mx-auto">
+                <button className="group px-8 py-3 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-amber-500/35 hover:bg-[var(--bg-hover)] rounded-2xl text-sm font-medium transition-all flex items-center gap-2 mx-auto">
                   <Package size={16} className="group-hover:animate-bounce" />
-                  Muat Lebih Banyak
-                </button>
-              </div>
-            )}
-
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+                  
