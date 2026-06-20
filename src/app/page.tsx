@@ -75,15 +75,7 @@ export default async function HomePage() {
           <span className="harga-blob b3" />
         </div>
         <div className="relative max-w-4xl mx-auto px-4 py-[72px] text-center" style={{ zIndex: 1 }}>
-          <p className="hero-enter-1" style={{
-            fontSize: 11, letterSpacing: '0.14em',
-            color: 'var(--text-secondary)', textTransform: 'uppercase',
-            marginBottom: 28, fontFamily: 'var(--font-ui)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          }}>
-            <span className="harga-live-dot" />
-            HARGA LIVE DARI {STATS.platforms} MARKETPLACE ÃÂ· UPDATE TIAP 4 JAM
-          </p>
+          
                     {/* Green pill badge */}
           <div className="hero-enter-1 inline-flex items-center gap-2 mb-8" style={{
             padding: '6px 16px', borderRadius: 100,
