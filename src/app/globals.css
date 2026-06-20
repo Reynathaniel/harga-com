@@ -246,3 +246,74 @@ body {
 .platform-alibaba    { background: var(--platform-alibaba); }
 .platform-aliexpress { background: var(--platform-aliexpress); }
 .platform-jd         { background: var(--platform-jd); }
+
+
+/* ============================================================
+   Motion System v2 — Smooth Scroll Reveal + Entrance
+   ============================================================ */
+
+/* Hero entrance — staggered, fires on page load */
+@keyframes harga-hero-enter {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-enter-1 { animation: harga-hero-enter 0.72s cubic-bezier(0.22,1,0.36,1) 0.04s both; }
+.hero-enter-2 { animation: harga-hero-enter 0.72s cubic-bezier(0.22,1,0.36,1) 0.18s both; }
+.hero-enter-3 { animation: harga-hero-enter 0.72s cubic-bezier(0.22,1,0.36,1) 0.34s both; }
+.hero-enter-4 { animation: harga-hero-enter 0.72s cubic-bezier(0.22,1,0.36,1) 0.50s both; }
+.hero-enter-5 { animation: harga-hero-enter 0.72s cubic-bezier(0.22,1,0.36,1) 0.66s both; }
+
+/* Scroll reveal — JS adds .in-view via IntersectionObserver */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.65s cubic-bezier(0.22,1,0.36,1),
+    transform 0.65s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Grid reveal — children stagger in when parent gets .in-view */
+.reveal-grid > * {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.55s cubic-bezier(0.22,1,0.36,1),
+    transform 0.55s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal-grid.in-view > *:nth-child(1)   { opacity: 1; transform: none; transition-delay:   0ms; }
+.reveal-grid.in-view > *:nth-child(2)   { opacity: 1; transform: none; transition-delay:  70ms; }
+.reveal-grid.in-view > *:nth-child(3)   { opacity: 1; transform: none; transition-delay: 140ms; }
+.reveal-grid.in-view > *:nth-child(4)   { opacity: 1; transform: none; transition-delay: 210ms; }
+.reveal-grid.in-view > *:nth-child(5)   { opacity: 1; transform: none; transition-delay: 280ms; }
+.reveal-grid.in-view > *:nth-child(6)   { opacity: 1; transform: none; transition-delay: 350ms; }
+.reveal-grid.in-view > *:nth-child(7)   { opacity: 1; transform: none; transition-delay: 420ms; }
+.reveal-grid.in-view > *:nth-child(8)   { opacity: 1; transform: none; transition-delay: 490ms; }
+.reveal-grid.in-view > *:nth-child(n+9) { opacity: 1; transform: none; transition-delay: 490ms; }
+
+/* Stat pop — numbers bounce in */
+@keyframes harga-stat-pop {
+  from { opacity: 0; transform: translateY(14px) scale(0.93); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.stat-pop { opacity: 0; }
+.stat-pop.in-view { animation: harga-stat-pop 0.52s cubic-bezier(0.22,1,0.36,1) both; }
+.stat-pop.in-view:nth-child(1) { animation-delay:   0ms; }
+.stat-pop.in-view:nth-child(2) { animation-delay:  90ms; }
+.stat-pop.in-view:nth-child(3) { animation-delay: 180ms; }
+.stat-pop.in-view:nth-child(4) { animation-delay: 270ms; }
+
+/* Reduced motion — respect user preference */
+@media (prefers-reduced-motion: reduce) {
+  .hero-enter-1,.hero-enter-2,.hero-enter-3,.hero-enter-4,.hero-enter-5 {
+    animation: none !important; opacity: 1 !important; transform: none !important;
+  }
+  .reveal,.reveal-grid > *,.stat-pop {
+    opacity: 1 !important; transform: none !important;
+    transition: none !important; animation: none !important;
+  }
+}
