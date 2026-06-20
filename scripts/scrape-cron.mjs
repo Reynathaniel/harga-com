@@ -1,0 +1,120 @@
+/**
+ * scrape-cron.mjs — Standalone scraper for GitHub Actions
+ * Runs from GitHub Azure IPs (different from Vercel AWS — less blocked)
+ * Saves results to Supabase via REST API
+ */
+
+import { createClient } from '@supabase/supabase-js'
+
+const SUPABASE_URL = process.env.SUPABASE_URL
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
+  process.exit(1)
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+const MERCHANT_ID = {
+  tokopedia: '00000000-0000-0000-0000-000000000001',
+  shopee:    '00000000-0000-0000-0000-000000000002',
+  lazada:    '00000000-0000-0000-0000-000000000003',
+  bukalapak: '00000000-0000-0000-0000-000000000004',
+  blibli:    '00000000-0000-0000-0000-000000000005',
+  tiktok:    '00000000-0000-0000-0000-000000000006',
+}
+
+const ALL_QUERIES = [
+  'iPhone 15', 'Samsung Galaxy', 'laptop gaming', 'AirPods',
+  'sepatu Nike', 'baju batik', 'kamera mirrorless', 'headphone',
+  'Nintendo Switch', 'Dyson vacuum', 'smartwatch', 'skincare',
+]
+
+const HOUR = new Date().getUTCHours()
+const QUERY_BATCH = ALL_QUERIES.slice((HOUR % 3) * 4, ((HOUR % 3) * 4) + 4)
+const CUSTOM_QUERY = process.env.SCRAPE_QUERY
+const QUERIES = CUSTOM_QUERY ? [CUSTOM_QUERY] : QUERY_BATCH
+
+const UA = [
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+]
+const randUA = () => UA[Math.floor(Math.random() * UA.length)]
+
+async function scrapeTokopedia(query, limit = 30) {
+  try {
+    const res = await fetch('https://gql.tokopedia.com/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': randUA(),
+        'Origin': 'https://www.tokopedia.com',
+        'Referer': 'https://www.tokopedia.com/search?q=' + encodeURIComponent(query),
+        'X-Source': 'tokopedia-lite',
+        'Accept': 'application/json',
+        'Accept-Language': 'id-ID,id;q=0.9',
+      },
+      body: JSON.stringify([{ operationName: 'SearchProductQueryV4', variables: { params: `q=${encodeURIComponent(query)}&rows=${Math.min(limit,60)}&start=0&ob=23&page=1&user_id=0&device=desktop` }, query: `query SearchProductQueryV4($params: String) { ace_search_product_v4(params: $params) { data { products { id name url imageUrl price { value } originalPrice discountPercentage shop { name } } } } }` }]),
+      signal: AbortSignal.timeout(20000),
+    })
+    if (!res.ok) { console.log('Tokopedia HTTP ' + res.status); return [] }
+    const json = await res.json()
+    const products = json?.[0]?.data?.ace_search_product_v4?.data?.products ?? []
+    return products.map(p => ({ platformId: 'tokopedia', productId: String(p.id), title: p.name, price: p.price?.value ?? 0, originalPrice: p.originalPrice || null, discountPct: p.discountPercentage || null, imageUrl: p.imageUrl, productUrl: p.url, shopName: p.shop?.name ?? null, condition: 'new' })).filter(p => p.price > 0)
+  } catch (e) { console.log('Tokopedia error:', e.message); return [] }
+}
+
+async function scrapeShopee(query, limit = 30) {
+  try {
+    const url = `https://shopee.co.id/api/v4/search/search_items?by=relevancy&keyword=${encodeURIComponent(query)}&limit=${Math.min(limit,50)}&newest=0&order=desc&page_type=search&scenario=PAGE_GLOBAL_SEARCH&version=2`
+    const res = await fetch(url, { headers: { 'User-Agent': randUA(), 'Referer': 'https://shopee.co.id/search?keyword=' + encodeURIComponent(query), 'Accept': 'application/json', 'x-api-source': 'pc' }, signal: AbortSignal.timeout(20000) })
+    if (!res.ok) { console.log('Shopee HTTP ' + res.status); return [] }
+    const json = await res.json()
+    return (json?.items ?? []).map(item => { const d = item.item_basic; if (!d) return null; const price = Math.round((d.price ?? 0) / 100000); return { platformId: 'shopee', productId: String(d.itemid), title: d.name, price, originalPrice: d.price_before_discount ? Math.round(d.price_before_discount/100000) : null, discountPct: d.discount ? parseInt(d.discount) : null, imageUrl: d.image ? `https://cf.shopee.co.id/file/${d.image}_tn` : null, productUrl: `https://shopee.co.id/-i.${d.shopid}.${d.itemid}`, shopName: d.shop_name ?? null, condition: 'new' } }).filter(Boolean).filter(p => p.price > 0)
+  } catch (e) { console.log('Shopee error:', e.message); return [] }
+}
+
+async function scrapeBukalapak(query, limit = 20) {
+  try {
+    const res = await fetch(`https://api.bukalapak.com/products/search?q=${encodeURIComponent(query)}&limit=${limit}&offset=0&sort_by=relevance`, { headers: { 'User-Agent': randUA(), 'Accept': 'application/json' }, signal: AbortSignal.timeout(15000) })
+    if (!res.ok) { console.log('Bukalapak HTTP ' + res.status); return [] }
+    const json = await res.json()
+    return (json?.data ?? []).map(p => ({ platformId: 'bukalapak', productId: String(p.id), title: p.name, price: p.price ?? 0, originalPrice: p.original_price ?? null, discountPct: p.discount_percentage ?? null, imageUrl: p.images?.small_urls?.[0] ?? null, productUrl: p.url ?? null, shopName: p.store?.name ?? null, condition: p.condition === 'used' ? 'used' : 'new' })).filter(p => p.price > 0)
+  } catch (e) { console.log('Bukalapak error:', e.message); return [] }
+}
+
+function slugify(text) { return text.toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').trim().slice(0,100) }
+
+async function saveListings(listings) {
+  let saved = 0
+  for (const l of listings) {
+    try {
+      const slug = slugify(l.title) + '-' + l.platformId + '-' + l.productId.slice(-6)
+      const merchantId = MERCHANT_ID[l.platformId]
+      if (!merchantId) continue
+      const { data: product, error } = await supabase.from('products').upsert({ slug, name: l.title, image_url: l.imageUrl, condition: l.condition ?? 'new' }, { onConflict: 'slug' }).select('id').single()
+      if (error || !product) continue
+      await supabase.from('listings').upsert({ product_id: product.id, merchant_id: merchantId, price: l.price, original_price: l.originalPrice, discount_pct: l.discountPct, product_url: l.productUrl, shop_name: l.shopName, scraped_at: new Date().toISOString() }, { onConflict: 'product_id,merchant_id' })
+      saved++
+    } catch (_) {}
+  }
+  return saved
+}
+
+async function main() {
+  console.log('[' + new Date().toISOString() + '] Starting scraper')
+  console.log('Queries this run: ' + QUERIES.join(', '))
+  let totalSaved = 0
+  for (const query of QUERIES) {
+    console.log('\nScraping: "' + query + '"')
+    const [toko, shopee, buka] = await Promise.all([scrapeTokopedia(query,30), scrapeShopee(query,30), scrapeBukalapak(query,20)])
+    const all = [...toko, ...shopee, ...buka]
+    console.log('  tokopedia: ' + toko.length + ' | shopee: ' + shopee.length + ' | bukalapak: ' + buka.length)
+    if (all.length > 0) { const saved = await saveListings(all); totalSaved += saved; console.log('  Saved: ' + saved + '/' + all.length) }
+    await new Promise(r => setTimeout(r, 2000))
+  }
+  console.log('\nDone. Total saved: ' + totalSaved)
+}
+
+main().catch(err => { console.error('Fatal:', err); process.exit(1) })
