@@ -16,6 +16,19 @@ import type { Product } from '../types'
 import type { ProductRow, OfferWithMerchant } from '../database.types'
 import { adaptDbProductToAppProduct } from './adapters'
 
+// Map category URL id → DB label
+const CATEGORY_ID_TO_LABEL: Record<string, string> = {
+  'elektronik':   'Elektronik',
+  'fashion':      'Fashion',
+  'rumah-tangga': 'Rumah Tangga',
+  'gaming':       'Gaming',
+  'kecantikan':   'Kecantikan',
+  'otomotif':     'Otomotif',
+  'olahraga':     'Olahraga',
+  'lainnya':      'Lainnya',
+  'buku':         'Buku',
+}
+
 // Types
 
 export interface GetProductsOptions {
@@ -65,7 +78,9 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
         q = q.or(`name.ilike.%${query}%,brand.ilike.%${query}%`)
       }
       if (category) {
-        q = q.ilike('category', `%${category}%`)
+        // Map URL id (e.g. 'rumah-tangga') to DB label ('Rumah Tangga')
+        const dbCategory = CATEGORY_ID_TO_LABEL[category] ?? category
+        q = q.ilike('category', dbCategory)
       }
       if (platform) {
         // Fix: best_platform_id only shows the cheapest-platform product.
@@ -240,13 +255,70 @@ export async function getCategories() {
   return CATEGORIES
 }
 
-// getPromoProducts — products ordered by biggest discount % (uses deals_by_discount view)
+// getPromoProducts — prioritises is_promo=true offers, then falls back to deals_by_discount view
 
 export async function getPromoProducts(limit = 8): Promise<Product[]> {
   const db = tryGetServerClient()
 
   if (db) {
     try {
+      // First: find product_ids that have at least one is_promo=true offer
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: promoOffers, error: poErr } = await (db as any)
+        .from('offers')
+        .select('product_id, price, original_price')
+        .eq('is_promo', true)
+        .eq('in_stock', true)
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const promoOfferRows: any[] = promoOffers ?? []
+
+      // Sort by discount % descending and deduplicate product_ids
+      const sorted = promoOfferRows
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((o: any) => ({
+          product_id:    o.product_id as string,
+          discountPct:   o.original_price && o.original_price > o.price
+            ? ((o.original_price - o.price) / o.original_price)
+            : 0,
+        }))
+        .sort((a: { discountPct: number }, b: { discountPct: number }) => b.discountPct - a.discountPct)
+
+      const seenIds = new Set<string>()
+      const productIds: string[] = []
+      for (const row of sorted) {
+        if (!seenIds.has(row.product_id)) {
+          seenIds.add(row.product_id)
+          productIds.push(row.product_id)
+        }
+        if (productIds.length >= limit) break
+      }
+
+      if (!poErr && productIds.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: productRows, error: prErr } = await (db as any)
+          .from('products_with_best_offer')
+          .select('*')
+          .in('id', productIds)
+
+        if (!prErr && productRows && (productRows as unknown[]).length > 0) {
+          // Preserve the discount-sorted order
+          const rowMap = new Map<string, unknown>()
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ;(productRows as any[]).forEach((r: any) => rowMap.set(r.id, r))
+          const orderedRows = productIds
+            .map(id => rowMap.get(id))
+            .filter(Boolean)
+
+          const products = await Promise.all(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            orderedRows.map((row: any) => enrichProductWithOffers(db, row as ProductRow))
+          )
+          return products
+        }
+      }
+
+      // Fallback: deals_by_discount view (products with any discount)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (db as any)
         .from('deals_by_discount')
