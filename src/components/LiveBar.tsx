@@ -15,7 +15,7 @@ export function LiveBar() {
   const items = [...LIVE_DROPS, ...LIVE_DROPS]
 
   return (
-    <div className="ticker-dark" style={{ zIndex: 40, position: 'relative' }}>
+    <div className="ticker-dark" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 51 }}>
       <div style={{
         display: 'flex', alignItems: 'center', gap: 6,
         padding: '0 14px',
