@@ -30,7 +30,7 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [pathname])
 
-  const showInlineSearch = showSearch || pathname !== '/'
+  const showInlineSearch = true
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -58,7 +58,7 @@ export function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4" style={{ height: 56, display: 'flex', alignItems: 'center', gap: 8 }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', flexShrink: 0, marginRight: 8 }}>
-          <span style={{ color: 'var(--brand)', fontSize: 18, lineHeight: 1, flexShrink: 0 }}>●</span>
+          <span style={{ color: 'var(--brand)', fontSize: 18, lineHeight: 1, flexShrink: 0 }}>â</span>
           <span style={{ fontFamily: 'var(--font-ui)', fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.5px', lineHeight: 1 }}>harga</span>
           <span style={{ fontFamily: 'var(--font-ui)', fontSize: 17, fontWeight: 300, color: 'var(--text-secondary)', letterSpacing: '-0.5px', lineHeight: 1, marginLeft: -2 }}>.com</span>
         </Link>
@@ -74,7 +74,7 @@ export function Navbar() {
         }}>
           <Search size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
           <input ref={searchInputRef} type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Cari produk di 12 platform..."
+            placeholder="Cari produk..."
             style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', fontFamily: 'var(--font-ui)', minWidth: 0 }}
           />
           {searchQuery && (
