@@ -1,5 +1,4 @@
 import { ProductCard } from '@/components/ProductCard'
-import { LiveBar } from '@/components/LiveBar'
 import { HeroRealSearch } from '@/components/HeroSection'
 import { getProducts, getCategories, getPromoProducts } from '@/lib/db/products'
 import { STATS, TRENDING_SEARCHES } from '@/lib/mock-data'
@@ -83,7 +82,7 @@ export default async function HomePage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           }}>
             <span className="harga-live-dot" />
-            HARGA LIVE DARI {STATS.platforms} MARKETPLACE · UPDATE TIAP 4 JAM
+            HARGA LIVE DARI {STATS.platforms} MARKETPLACE Â· UPDATE TIAP 4 JAM
           </p>
           <h1 className="hero-enter-2" style={{
             margin: '0 0 20px',
@@ -141,11 +140,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <LiveBar />
-
       {promoProducts.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 py-16">
-          <SectionHead eyebrow="Flash Sale · Diskon Gila"
+          <SectionHead eyebrow="Flash Sale Â· Diskon Gila"
             title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--brand)' }} /> Deal Terpanas Hari Ini</span> as any}
             action={<Link href="/cari?sort=lowest" className="flex items-center gap-1 transition-colors" style={{ fontSize: 'var(--text-sm)', color: 'var(--brand)' }}>Lihat semua <ArrowRight size={14} /></Link>}
           />
@@ -184,7 +181,7 @@ export default async function HomePage() {
                     </div>
                     <div className="mt-1.5 flex items-center gap-1" style={{ fontSize: 'var(--text-10)', color: 'var(--text-muted)' }}>
                       <Flame size={10} style={{ color: 'var(--brand)' }} />
-                      <span>Flash Sale · Stok Terbatas</span>
+                      <span>Flash Sale Â· Stok Terbatas</span>
                     </div>
                   </div>
                 </Link>
@@ -240,17 +237,17 @@ export default async function HomePage() {
           <div className="flex items-center justify-between gap-6 p-8 flex-wrap">
             <div className="max-w-lg">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-3" style={{ background: 'var(--win-soft-bg)', border: '1px solid var(--win-soft-border)', color: 'var(--win)', fontSize: 'var(--text-10)', fontWeight: 'var(--fw-black)', letterSpacing: 'var(--tracking-widest)', textTransform: 'uppercase' }}>
-                Preloved · Barang Bekas
+                Preloved Â· Barang Bekas
               </div>
               <h2 style={{ margin: 0, marginBottom: 8, fontSize: 'var(--text-2xl)', fontWeight: 400, color: 'var(--text-primary)', fontFamily: 'var(--font-editorial)' }}>
-                Bukan cuma baru — <em>yang bekas juga di sini.</em>
+                Bukan cuma baru â <em>yang bekas juga di sini.</em>
               </h2>
               <p style={{ margin: 0, marginBottom: 18, fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 'var(--leading-relaxed)' }}>
                 Hemat lebih jauh dengan barang preloved dari penjual terpercaya OLX &amp; Carousell. Kami bandingkan harga second terbaik untuk Anda.
               </p>
               <Link href="/cari?condition=used" className="inline-flex items-center gap-2 transition-opacity hover:opacity-90"
                 style={{ padding: '11px 20px', borderRadius: 'var(--radius-md)', background: 'var(--gradient-win)', color: '#053d24', fontSize: 'var(--text-sm)', fontWeight: 'var(--fw-extrabold)', boxShadow: 'var(--shadow-green)' }}>
-                Jelajahi Preloved →
+                Jelajahi Preloved â
               </Link>
             </div>
             <div className="flex gap-3">
@@ -284,7 +281,7 @@ export default async function HomePage() {
           </div>
           <div className="mt-4 flex items-center gap-2 px-4 py-3 rounded-xl" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', background: 'rgba(197,98,26,0.04)', border: '1px solid rgba(197,98,26,0.12)' }}>
             <span style={{ color: 'var(--orange-400)', fontWeight: 'var(--fw-medium)' }}>Barang Bekas</span>
-            <span>·</span>
+            <span>Â·</span>
             <span>Harga lebih hemat, kondisi terpilih. Verifikasi penjual sebelum bertransaksi.</span>
           </div>
         </section>
@@ -403,9 +400,9 @@ export default async function HomePage() {
           <p style={{ color: 'var(--text-secondary)', marginBottom: 48 }}>Hemat uang dalam 3 langkah mudah</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
-              { step: '01', icon: '🔍', title: 'Cari Produk', desc: 'Ketik nama produk atau paste link dari marketplace manapun' },
-              { step: '02', icon: '💡', title: 'Bandingkan Harga', desc: 'Lihat harga dari semua marketplace sekaligus + grafik historis' },
-              { step: '03', icon: '💰', title: 'Beli & Dapat Cashback', desc: 'Beli melalui kami, cashback masuk otomatis ke wallet Anda' },
+              { step: '01', icon: 'ð', title: 'Cari Produk', desc: 'Ketik nama produk atau paste link dari marketplace manapun' },
+              { step: '02', icon: 'ð¡', title: 'Bandingkan Harga', desc: 'Lihat harga dari semua marketplace sekaligus + grafik historis' },
+              { step: '03', icon: 'ð°', title: 'Beli & Dapat Cashback', desc: 'Beli melalui kami, cashback masuk otomatis ke wallet Anda' },
             ].map(s => (
               <div key={s.step} className="flex flex-col items-center">
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-4"
@@ -427,7 +424,7 @@ export default async function HomePage() {
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(212,146,10,0.06), transparent)' }} />
           <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--brand-soft-border), transparent)' }} />
           <div className="relative">
-            <div className="text-5xl mb-4">💰</div>
+            <div className="text-5xl mb-4">ð°</div>
             <h2 style={{ margin: 0, marginBottom: 12, fontSize: 'var(--text-3xl)', fontWeight: 400, color: 'var(--text-primary)', fontFamily: 'var(--font-editorial)' }}>
               Dapatkan cashback hingga <span className="harga-text-gradient">8%</span>
             </h2>
@@ -500,8 +497,8 @@ export default async function HomePage() {
           ))}
         </div>
         <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 24 }} className="flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>© 2026 harga.com — Harga real-time, cashback nyata.</p>
-          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat di Indonesia 🇮🇩</p>
+          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Â© 2026 harga.com â Harga real-time, cashback nyata.</p>
+          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat di Indonesia ð®ð©</p>
         </div>
       </footer>
 
