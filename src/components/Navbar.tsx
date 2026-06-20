@@ -174,11 +174,6 @@ export function Navbar() {
             background: 'var(--bg-dark)', color: '#FFF', border: 'none', cursor: 'pointer',
             fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-ui)',
           }}>Pantau Harga</button>
-        </div>
-      </div>
-    </nav>
-  )
-}
 
           <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden" style={{
             width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
