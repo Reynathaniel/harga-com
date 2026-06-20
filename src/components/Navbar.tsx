@@ -2,40 +2,15 @@
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { Bell, Wallet, Search, TrendingDown, TrendingUp, Minus, X, Globe } from 'lucide-react'
-import { LIVE_TICKER_ITEMS } from '@/lib/mock-data'
+import { Bell, Search, X, Menu } from 'lucide-react'
 import { PLATFORMS } from '@/lib/platforms'
-import { formatRupiah } from '@/lib/utils'
 
 const NAV_LINKS = [
   { href: '/',         label: 'Beranda' },
-  { href: '/cari',     label: 'Cari' },
+  { href: '/cari',     label: 'Scan' },
   { href: '/alert',    label: 'Alert' },
   { href: '/cashback', label: 'Cashback' },
 ]
-
-const PLATFORM_ROW = ['tokopedia','shopee','tiktok','lazada','blibli','bukalapak','amazon','aliexpress','alibaba','jd']
-const INTL_PLATFORMS = new Set(['amazon','alibaba','aliexpress','jd'])
-
-function LogoMark({ size = 36 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none"
-      style={{ flexShrink: 0, filter: 'drop-shadow(0 2px 8px rgba(212,146,10,0.30))' }}>
-      <defs>
-        <linearGradient id="hg-logo" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#E8A820" />
-          <stop offset="1" stopColor="#C5621A" />
-        </linearGradient>
-      </defs>
-      <rect x="0" y="0" width="48" height="48" rx="12" fill="url(#hg-logo)" />
-      <g transform="translate(7.5 7.5) scale(1.38)" fill="none"
-        stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
-        <circle cx="7.5" cy="7.5" r="1.4" fill="#fff" />
-      </g>
-    </svg>
-  )
-}
 
 export function Navbar() {
   const pathname = usePathname()
@@ -44,9 +19,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [alertCount] = useState(3)
   const searchInputRef = useRef<HTMLInputElement>(null)
-  const tickerItems = [...LIVE_TICKER_ITEMS, ...LIVE_TICKER_ITEMS]
 
   useEffect(() => {
     const onScroll = () => {
@@ -72,271 +45,135 @@ export function Navbar() {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+    <nav
       style={{
-        borderBottom: '1px solid var(--border-subtle)',
-        boxShadow: scrolled ? 'var(--shadow-elevated)' : '0 1px 0 var(--border-subtle)',
-      }}>
+        position: 'fixed', top: 36, left: 0, right: 0, zIndex: 50,
+        background: scrolled ? 'rgba(250,248,242,0.95)' : 'rgba(250,248,242,0.85)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: '1px solid var(--border)',
+        transition: 'background 0.2s ease, box-shadow 0.2s ease',
+        boxShadow: scrolled ? '0 2px 16px rgba(26,24,20,0.08)' : 'none',
+      }}
+    >
+      <div className="max-w-7xl mx-auto px-4" style={{ height: 56, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', flexShrink: 0, marginRight: 8 }}>
+          <span style={{ color: 'var(--brand)', fontSize: 18, lineHeight: 1, flexShrink: 0 }}>●</span>
+          <span style={{ fontFamily: 'var(--font-ui)', fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.5px', lineHeight: 1 }}>harga</span>
+          <span style={{ fontFamily: 'var(--font-ui)', fontSize: 17, fontWeight: 300, color: 'var(--text-secondary)', letterSpacing: '-0.5px', lineHeight: 1, marginLeft: -2 }}>.com</span>
+        </Link>
 
-      {/* ── Live Ticker ── */}
-      <div className="h-8 overflow-hidden relative"
-        style={{
-          background: 'var(--cream-100)',
-          borderBottom: '1px solid var(--border-subtle)',
+        <form onSubmit={handleSearch} className="hidden md:flex" style={{
+          flex: 1, maxWidth: 420, alignItems: 'center', gap: 8,
+          background: 'var(--bg-card)', border: '1px solid var(--border)',
+          borderRadius: 100, padding: '6px 6px 6px 14px',
+          opacity: showInlineSearch ? 1 : 0,
+          pointerEvents: showInlineSearch ? 'auto' : 'none',
+          transition: 'opacity 0.2s ease',
+          boxShadow: '0 1px 4px rgba(26,24,20,0.06)',
         }}>
-        {/* Fade edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
-          style={{ background: 'linear-gradient(to right, var(--cream-100), transparent)' }} />
-        <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
-          style={{ background: 'linear-gradient(to left, var(--cream-100), transparent)' }} />
-        <div className="absolute left-3 top-0 bottom-0 flex items-center gap-1.5 z-20">
-          <span className="harga-live-dot" />
-          <span style={{ fontSize: 'var(--text-10)', fontWeight: 'var(--fw-black)', color: 'var(--win)', letterSpacing: 'var(--tracking-wide)' }}>LIVE</span>
-        </div>
-        <div className="flex items-center h-full pl-16">
-          <div className="ticker-track">
-            {tickerItems.map((item, i) => {
-              const plat = PLATFORMS[item.platform.toLowerCase().replace(' ', '') as keyof typeof PLATFORMS]
-              const platColor = plat?.color ?? '#888'
-              return (
-                <span key={i} className="flex items-center gap-1.5 whitespace-nowrap"
-                  style={{ fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>
-                  <span>{item.icon}</span>
-                  <span style={{ color: 'var(--text-secondary)' }}>{item.name}</span>
-                  <span style={{
-                    fontSize: 'var(--text-10)', padding: '1px 6px', borderRadius: 'var(--radius-full)',
-                    fontWeight: 'var(--fw-semibold)', background: platColor + '18', color: platColor,
-                    border: `1px solid ${platColor}30`,
-                  }}>{item.platform}</span>
-                  <span style={{ fontWeight: 'var(--fw-bold)', color: 'var(--text-primary)' }}>{formatRupiah(item.price, true)}</span>
-                  {item.change < 0 ? (
-                    <span className="flex items-center gap-0.5" style={{ fontSize: 'var(--text-10)', color: 'var(--win)', fontWeight: 'var(--fw-semibold)' }}>
-                      <TrendingDown size={10} />{Math.abs(item.change)}%
-                    </span>
-                  ) : item.change > 0 ? (
-                    <span className="flex items-center gap-0.5" style={{ fontSize: 'var(--text-10)', color: 'var(--danger)', fontWeight: 'var(--fw-semibold)' }}>
-                      <TrendingUp size={10} />{item.change}%
-                    </span>
-                  ) : (
-                    <span style={{ color: 'var(--text-muted)' }}><Minus size={10} /></span>
-                  )}
-                  <span style={{ color: 'var(--border)', margin: '0 8px' }}>·</span>
-                </span>
-              )
-            })}
-          </div>
-        </div>
-        <div className="absolute right-3 top-0 bottom-0 flex items-center z-20 gap-2">
-          <span className="flex items-center gap-0.5" style={{ fontSize: 'var(--text-9)', color: 'var(--info)', fontWeight: 'var(--fw-semibold)', opacity: 0.7 }}>
-            <Globe size={8} />intl
-          </span>
-          <span style={{ fontSize: 'var(--text-10)', color: 'var(--text-muted)' }}>4 jam</span>
-        </div>
-      </div>
-
-      {/* ── Main Nav ── */}
-      <div className="harga-glass" style={{ borderBottom: '1px solid var(--glass-border)' }}>
-        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-3">
-
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-            <LogoMark size={32} />
-            <div className="flex flex-col leading-none">
-              <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 'var(--fw-extrabold)', fontSize: 18, letterSpacing: 'var(--tracking-tight)', lineHeight: 1 }}>
-                <span style={{ color: 'var(--text-primary)' }}>Harga</span>
-                <span style={{ color: 'var(--brand)' }}>.com</span>
-              </span>
-              <span style={{ fontSize: 'var(--text-9)', color: 'var(--text-muted)', lineHeight: 1, letterSpacing: 'var(--tracking-wide)', marginTop: 2 }}>
-                {PLATFORM_ROW.length} platform
-              </span>
-            </div>
-          </Link>
-
-          {/* Inline search */}
-          <form onSubmit={handleSearch}
-            className={`hidden md:flex flex-1 max-w-lg items-center gap-2 rounded-xl px-3 py-1.5 transition-all duration-300 ${
-              showInlineSearch
-                ? 'opacity-100 pointer-events-auto'
-                : 'opacity-0 pointer-events-none'
-            }`}
-            style={{
-              background: 'var(--cream-100)',
-              border: '1px solid var(--border)',
-            }}>
-            <Search size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-            <input ref={searchInputRef} type="text" value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Cari produk di 10 platform..."
-              style={{
-                flex: 1, background: 'transparent', border: 'none', outline: 'none',
-                fontSize: 'var(--text-sm)', color: 'var(--text-primary)', fontFamily: 'var(--font-sans)',
-                minWidth: 0,
-              }} />
-            {searchQuery && (
-              <button type="button" onClick={() => setSearchQuery('')}
-                style={{ color: 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}>
-                <X size={13} />
-              </button>
-            )}
-          </form>
-
-          {/* Platform mini-dots */}
-          {!showInlineSearch && (
-            <div className="hidden lg:flex items-center gap-1 ml-2">
-              {PLATFORM_ROW.map(id => {
-                const p = PLATFORMS[id as keyof typeof PLATFORMS]
-                if (!p) return null
-                const isIntl = INTL_PLATFORMS.has(id)
-                return (
-                  <div key={id}
-                    className={`w-4 h-4 rounded-full flex items-center justify-center text-white shadow-sm opacity-70 hover:opacity-100 transition-opacity cursor-pointer ${isIntl ? 'ring-1 ring-blue-400/40' : ''}`}
-                    style={{ background: id === 'tiktok' ? '#1a1a1a' : p.color, fontSize: 8, fontWeight: 800 }}
-                    title={p.name}>
-                    {p.shortName[0]}
-                  </div>
-                )
-              })}
-            </div>
+          <Search size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+          <input ref={searchInputRef} type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Cari produk di 12 platform..."
+            style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', fontFamily: 'var(--font-ui)', minWidth: 0 }}
+          />
+          {searchQuery && (
+            <button type="button" onClick={() => setSearchQuery('')}
+              style={{ color: 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none', padding: 0, display: 'flex' }}>
+              <X size={12} />
+            </button>
           )}
+        </form>
 
-          {/* Nav links */}
-          <div className="hidden md:flex items-center gap-0.5 ml-auto">
-            {NAV_LINKS.map(l => (
-              <Link key={l.href} href={l.href}
-                className="relative px-3 py-1.5 rounded-lg transition-colors"
-                style={{
-                  fontSize: 'var(--text-sm)', fontWeight: 'var(--fw-semibold)',
-                  color: isActive(l.href) ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  background: isActive(l.href) ? 'var(--cream-200)' : 'transparent',
-                }}>
-                {l.label}
-                {isActive(l.href) && (
-                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
-                    style={{ background: 'var(--brand)' }} />
-                )}
-              </Link>
-            ))}
-          </div>
-
-          {/* Right actions */}
-          <div className="flex items-center gap-1.5 ml-2">
-            <Link href="/cari"
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-colors"
-              style={{ color: 'var(--text-secondary)' }}>
-              <Search size={16} />
-            </Link>
-            <Link href="/alert"
-              className="hidden md:flex relative items-center justify-center w-9 h-9 rounded-lg transition-colors hover:bg-[var(--cream-200)]"
-              style={{ color: 'var(--text-secondary)' }}>
-              <Bell size={16} />
-              {alertCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
-                  style={{ background: 'var(--brand)' }} />
+        <div className="hidden md:flex" style={{ alignItems: 'center', gap: 2, marginLeft: 'auto' }}>
+          {NAV_LINKS.map(l => (
+            <Link key={l.href} href={l.href} style={{
+              padding: '6px 12px', borderRadius: 8, fontSize: 13,
+              fontWeight: isActive(l.href) ? 600 : 400,
+              color: isActive(l.href) ? 'var(--text-primary)' : 'var(--text-secondary)',
+              background: isActive(l.href) ? 'var(--cream-200)' : 'transparent',
+              textDecoration: 'none', fontFamily: 'var(--font-ui)',
+              transition: 'background 0.15s ease, color 0.15s ease',
+              position: 'relative' as const,
+            }}>
+              {l.label}
+              {isActive(l.href) && (
+                <span style={{
+                  position: 'absolute', bottom: 2, left: '50%', transform: 'translateX(-50%)',
+                  width: 4, height: 4, borderRadius: '50%', background: 'var(--brand)', display: 'block',
+                }} />
               )}
             </Link>
-            <button className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all"
-              style={{
-                fontSize: 'var(--text-sm)', color: 'var(--brand)',
-                background: 'var(--brand-soft-bg)', border: '1px solid var(--brand-soft-border)',
-              }}>
-              <Wallet size={15} />
-              <span style={{ fontWeight: 'var(--fw-medium)' }}>Rp 0</span>
-            </button>
-            <button
-              className="harga-magnet hidden md:flex items-center gap-1.5 px-4 py-2 rounded-lg"
-              style={{
-                background: 'var(--gradient-gold)', color: '#FFFFFF',
-                boxShadow: 'var(--shadow-button)', fontSize: 'var(--text-sm)', fontWeight: 'var(--fw-extrabold)',
-                border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
-              }}
-              onMouseMove={(e) => {
-                const r = e.currentTarget.getBoundingClientRect()
-                const x = e.clientX - r.left - r.width / 2
-                const y = e.clientY - r.top - r.height / 2
-                e.currentTarget.style.transform = `translate(${x * 0.3}px, ${y * 0.4}px)`
-              }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = '' }}>
-              🔔 Pantau Harga
-            </button>
-            {/* Hamburger */}
-            <button onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg transition-colors"
-              style={{ color: 'var(--text-secondary)' }}
-              aria-label="Toggle menu">
-              <span className="block w-5 h-0.5 bg-current rounded-full transition-transform duration-300 origin-center"
-                style={mobileOpen ? { transform: 'translateY(4px) rotate(45deg)' } : {}} />
-              <span className="block w-5 h-0.5 bg-current rounded-full transition-opacity duration-300"
-                style={mobileOpen ? { opacity: 0 } : {}} />
-              <span className="block w-5 h-0.5 bg-current rounded-full transition-transform duration-300 origin-center"
-                style={mobileOpen ? { transform: 'translateY(-8px) rotate(-45deg)' } : {}} />
-            </button>
-          </div>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 8 }}>
+          <Link href="/cari" className="md:hidden" style={{
+            width: 36, height: 36, borderRadius: 8,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'var(--text-secondary)', textDecoration: 'none',
+          }}><Search size={16} /></Link>
+
+          <Link href="/alert" className="hidden md:flex" style={{
+            width: 36, height: 36, borderRadius: 8,
+            alignItems: 'center', justifyContent: 'center',
+            color: 'var(--text-secondary)', textDecoration: 'none',
+            position: 'relative' as const,
+          }}><Bell size={16} /></Link>
+
+          <button className="hidden md:flex" style={{
+            alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 100,
+            background: 'var(--bg-dark)', color: '#FFFFFF', border: 'none', cursor: 'pointer',
+            fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-ui)', whiteSpace: 'nowrap' as const,
+            transition: 'opacity 0.15s ease',
+          }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}>
+            Pantau Harga
+          </button>
+
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden" style={{
+            width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)',
+          }} aria-label="Toggle menu">
+            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
       </div>
 
-      {/* ── Mobile Menu ── */}
-      <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${mobileOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}
-        style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-subtle)' }}>
-        <div className="px-4 py-3">
-          <form onSubmit={handleSearch}
-            className="flex items-center gap-2 rounded-xl px-3 py-2 mb-3 transition-colors"
-            style={{ background: 'var(--cream-100)', border: '1px solid var(--border)' }}>
+      <div className="md:hidden" style={{
+        overflow: 'hidden', maxHeight: mobileOpen ? 400 : 0,
+        transition: 'max-height 0.3s ease',
+        background: 'rgba(250,248,242,0.97)', borderTop: '1px solid var(--border)',
+      }}>
+        <div style={{ padding: '12px 16px 20px' }}>
+          <form onSubmit={handleSearch} style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            background: 'var(--bg-card)', border: '1px solid var(--border)',
+            borderRadius: 12, padding: '8px 12px', marginBottom: 12,
+          }}>
             <Search size={14} style={{ color: 'var(--text-muted)' }} />
             <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Cari produk di 10 platform..."
-              style={{
-                flex: 1, background: 'transparent', border: 'none', outline: 'none',
-                fontSize: 'var(--text-sm)', color: 'var(--text-primary)', fontFamily: 'var(--font-sans)',
-              }} />
+              placeholder="Cari produk..."
+              style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 14, color: 'var(--text-primary)', fontFamily: 'var(--font-ui)' }}
+            />
           </form>
-          <div className="flex flex-wrap gap-1.5 mb-3 px-0.5">
-            {PLATFORM_ROW.map(id => {
-              const p = PLATFORMS[id as keyof typeof PLATFORMS]
-              if (!p) return null
-              const isIntl = INTL_PLATFORMS.has(id)
-              return (
-                <div key={id}
-                  className={`flex items-center gap-1 text-white ${isIntl ? 'ring-1 ring-blue-400/40' : ''}`}
-                  style={{
-                    fontSize: 'var(--text-10)', padding: '2px 8px', borderRadius: 'var(--radius-full)',
-                    fontWeight: 'var(--fw-semibold)', background: (id === 'tiktok' ? '#1a1a1a' : p.color) + 'CC',
-                  }}>
-                  {isIntl && <Globe size={8} />}
-                  {p.shortName}
-                </div>
-              )
-            })}
-          </div>
           {NAV_LINKS.map(l => (
-            <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)}
-              className="flex items-center py-3 border-b last:border-0 transition-colors"
-              style={{
-                fontSize: 'var(--text-sm)', borderColor: 'var(--border-subtle)',
-                color: isActive(l.href) ? 'var(--text-primary)' : 'var(--text-secondary)',
-                fontWeight: isActive(l.href) ? 'var(--fw-semibold)' : 'var(--fw-regular)',
-              }}>
-              {isActive(l.href) && (
-                <span className="w-1.5 h-1.5 rounded-full mr-2 flex-shrink-0" style={{ background: 'var(--brand)' }} />
-              )}
+            <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)} style={{
+              display: 'flex', alignItems: 'center', padding: '12px 0',
+              borderBottom: '1px solid var(--border)', fontSize: 14, fontFamily: 'var(--font-ui)',
+              color: isActive(l.href) ? 'var(--text-primary)' : 'var(--text-secondary)',
+              fontWeight: isActive(l.href) ? 600 : 400, textDecoration: 'none',
+            }}>
+              {isActive(l.href) && <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--brand)', marginRight: 8, flexShrink: 0 }} />}
               {l.label}
             </Link>
           ))}
-          <div className="flex gap-2 pt-3">
-            <button className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl"
-              style={{
-                fontSize: 'var(--text-sm)', color: 'var(--brand)',
-                background: 'var(--brand-soft-bg)', border: '1px solid var(--brand-soft-border)',
-              }}>
-              <Bell size={14} />
-              Alert {alertCount > 0 && (
-                <span className="text-white font-bold px-1 rounded-full" style={{ fontSize: 'var(--text-9)', background: 'var(--brand)' }}>{alertCount}</span>
-              )}
-            </button>
-            <button className="flex-1 py-2.5 text-sm font-bold rounded-xl transition-all"
-              style={{ background: 'var(--gradient-gold)', color: '#FFFFFF', border: 'none' }}>
-              Masuk
-            </button>
-          </div>
+          <button style={{
+            width: '100%', marginTop: 16, padding: '12px', borderRadius: 12,
+            background: 'var(--bg-dark)', color: '#FFF', border: 'none', cursor: 'pointer',
+            fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-ui)',
+          }}>Pantau Harga</button>
         </div>
       </div>
     </nav>
