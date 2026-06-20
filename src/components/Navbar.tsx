@@ -58,7 +58,7 @@ export function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4" style={{ height: 56, display: 'flex', alignItems: 'center', gap: 8 }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', flexShrink: 0, marginRight: 8 }}>
-          <span style={{ color: 'var(--brand)', fontSize: 18, lineHeight: 1, flexShrink: 0 }}>â</span>
+          <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)', flexShrink: 0 }} />
           <span style={{ fontFamily: 'var(--font-ui)', fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.5px', lineHeight: 1 }}>harga</span>
           <span style={{ fontFamily: 'var(--font-ui)', fontSize: 17, fontWeight: 300, color: 'var(--text-secondary)', letterSpacing: '-0.5px', lineHeight: 1, marginLeft: -2 }}>.com</span>
         </Link>
@@ -131,6 +131,54 @@ export function Navbar() {
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}>
             Pantau Harga
           </button>
+
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden" style={{
+            width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)',
+          }} aria-label="Toggle menu">
+            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
+      </div>
+
+      <div className="md:hidden" style={{
+        overflow: 'hidden', maxHeight: mobileOpen ? 400 : 0,
+        transition: 'max-height 0.3s ease',
+        background: 'rgba(250,248,242,0.97)', borderTop: '1px solid var(--border)',
+      }}>
+        <div style={{ padding: '12px 16px 20px' }}>
+          <form onSubmit={handleSearch} style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            background: 'var(--bg-card)', border: '1px solid var(--border)',
+            borderRadius: 12, padding: '8px 12px', marginBottom: 12,
+          }}>
+            <Search size={14} style={{ color: 'var(--text-muted)' }} />
+            <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Cari produk..."
+              style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 14, color: 'var(--text-primary)', fontFamily: 'var(--font-ui)' }}
+            />
+          </form>
+          {NAV_LINKS.map(l => (
+            <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)} style={{
+              display: 'flex', alignItems: 'center', padding: '12px 0',
+              borderBottom: '1px solid var(--border)', fontSize: 14, fontFamily: 'var(--font-ui)',
+              color: isActive(l.href) ? 'var(--text-primary)' : 'var(--text-secondary)',
+              fontWeight: isActive(l.href) ? 600 : 400, textDecoration: 'none',
+            }}>
+              {isActive(l.href) && <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--brand)', marginRight: 8, flexShrink: 0 }} />}
+              {l.label}
+            </Link>
+          ))}
+          <button style={{
+            width: '100%', marginTop: 16, padding: '12px', borderRadius: 12,
+            background: 'var(--bg-dark)', color: '#FFF', border: 'none', cursor: 'pointer',
+            fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-ui)',
+          }}>Pantau Harga</button>
+        </div>
+      </div>
+    </nav>
+  )
+}
 
           <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden" style={{
             width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
