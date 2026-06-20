@@ -11,6 +11,10 @@
     {
       "path": "/api/scraper/cron-intl",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/scrape",
+      "schedule": "0 23 * * *"
     }
   ]
 }
