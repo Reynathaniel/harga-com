@@ -1,77 +1,95 @@
 'use client'
-import Link from 'next/link'
-import { TrendingDown, Flame } from 'lucide-react'
-import { MOCK_PRODUCTS } from '@/lib/mock-data'
-import { PLATFORMS } from '@/lib/platforms'
-import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
-import Image from 'next/image'
+
+const LIVE_DROPS = [
+  { name: 'Sony WH-1000XM5', drop: '-12.5%', platform: 'Shopee', price: 'Rp 3.990.000' },
+  { name: 'iPhone 15 128GB', drop: '-8.2%', platform: 'Tokopedia', price: 'Rp 12.499.000' },
+  { name: 'Dyson V15 Detect', drop: '-15.3%', platform: 'Lazada', price: 'Rp 6.999.000' },
+  { name: 'Samsung Galaxy S24', drop: '-6.8%', platform: 'Blibli', price: 'Rp 11.999.000' },
+  { name: 'Nintendo Switch OLED', drop: '-9.1%', platform: 'TikTok Shop', price: 'Rp 3.899.000' },
+  { name: 'MacBook Air M2', drop: '-5.4%', platform: 'Tokopedia', price: 'Rp 14.999.000' },
+  { name: 'ASUS ROG Zephyrus G14', drop: '-11.2%', platform: 'Shopee', price: 'Rp 18.499.000' },
+  { name: 'Xiaomi 14 Ultra', drop: '-7.6%', platform: 'Lazada', price: 'Rp 9.799.000' },
+]
 
 export function LiveBar() {
-  const dealItems = MOCK_PRODUCTS.map(product => {
-    const sorted = lowestListingFirst(product.listings)
-    const cheapest = sorted[0]
-    const mostExpensive = sorted[sorted.length - 1]
-    const savings = priceDiffPercent(cheapest.price, mostExpensive.price)
-    const platform = PLATFORMS[cheapest.platformId]
-    return { product, cheapest, savings, platform }
-  })
-
-  const items = [...dealItems, ...dealItems]
+  const items = [...LIVE_DROPS, ...LIVE_DROPS]
 
   return (
-    <section className="py-8 overflow-hidden relative border-y border-[var(--border-subtle)]"
-             style={{ background: 'linear-gradient(to right, rgba(245,158,11,0.02), rgba(251,146,60,0.02))' }}>
-      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[var(--bg-primary)] to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[var(--bg-primary)] to-transparent z-10 pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-4 flex items-center gap-2 mb-4">
-        <Flame size={16} className="text-amber-400" />
-        <span className="text-sm font-bold text-white">Deal Terpanas Hari Ini</span>
-        <span className="text-xs text-[var(--text-muted)]">-- harga termurah dari semua platform</span>
+    <div className="ticker-dark" style={{ zIndex: 40, position: 'relative' }}>
+      {/* LIVE label */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '0 14px',
+        borderRight: '1px solid rgba(255,255,255,0.12)',
+        height: '100%',
+        flexShrink: 0,
+        zIndex: 1,
+        background: 'var(--bg-dark)',
+      }}>
+        <span style={{
+          width: 6, height: 6, borderRadius: '50%',
+          background: 'var(--brand)',
+          display: 'inline-block',
+          flexShrink: 0,
+          animation: 'harga-price-pulse 2s ease-in-out infinite',
+        }} />
+        <span style={{
+          fontSize: 10,
+          fontWeight: 800,
+          letterSpacing: '0.12em',
+          color: 'var(--brand)',
+          whiteSpace: 'nowrap',
+          fontFamily: 'var(--font-ui)',
+        }}>LIVE DROPS</span>
       </div>
 
-      <div className="flex" style={{ animation: 'ticker-scroll 60s linear infinite' }}>
-        <div className="flex gap-4 px-4" style={{ width: 'max-content' }}>
+      {/* Scrolling content */}
+      <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+        {/* Fade edges */}
+        <div style={{
+          position: 'absolute', left: 0, top: 0, bottom: 0, width: 40, zIndex: 1, pointerEvents: 'none',
+          background: 'linear-gradient(to right, var(--bg-dark), transparent)',
+        }} />
+        <div style={{
+          position: 'absolute', right: 0, top: 0, bottom: 0, width: 40, zIndex: 1, pointerEvents: 'none',
+          background: 'linear-gradient(to left, var(--bg-dark), transparent)',
+        }} />
+
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0,
+          animation: 'ticker-scroll 36s linear infinite',
+          width: 'max-content',
+          height: '100%',
+          willChange: 'transform',
+        }}>
           {items.map((item, i) => (
-            <Link key={i} href={"/produk/" + item.product.id}
-              className="flex-shrink-0 w-52 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl overflow-hidden hover:border-amber-500/35 hover:shadow-[0_2px_12px_rgba(245,158,11,0.08)] transition-all group">
-              <div className="relative h-32 bg-[var(--bg-hover)] overflow-hidden">
-                <Image
-                  src={item.product.images[0]}
-                  alt={item.product.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  sizes="208px"
-                />
-                {item.savings > 5 && (
-                  <div className="absolute top-2 right-2 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                    -{item.savings}%
-                  </div>
-                )}
-              </div>
-              <div className="p-2.5">
-                <p className="text-xs text-[var(--text-secondary)] line-clamp-1 mb-1 group-hover:text-white transition-colors">
-                  {item.product.name}
-                </p>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm font-bold text-white">
-                      {formatRupiah(item.cheapest.price, true)}
-                    </div>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <TrendingDown size={10} className="text-green-400" />
-                      <span className="text-[10px] font-semibold text-white px-1.5 py-0.5 rounded"
-                            style={{ background: item.platform.color + '30', color: item.platform.color }}>
-                        {item.platform.shortName}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Link>
+            <span key={i} style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '0 24px',
+              whiteSpace: 'nowrap',
+              fontSize: 12,
+              fontFamily: 'var(--font-ui)',
+              borderRight: '1px solid rgba(255,255,255,0.07)',
+            }}>
+              <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>{item.name}</span>
+              <span style={{
+                color: '#4ADE80',
+                fontWeight: 700,
+                fontSize: 11,
+              }}>{item.drop}</span>
+              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10 }}>@</span>
+              <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 10 }}>{item.platform}</span>
+              <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>{item.price}</span>
+            </span>
           ))}
         </div>
       </div>
-    </section>
+    </div>
   )
 }
