@@ -123,7 +123,7 @@ export function Navbar() {
 
           <button className="hidden md:flex" style={{
             alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 100,
-            background: 'var(--bg-dark)', color: '#FFFFFF', border: 'none', cursor: 'pointer',
+            background: 'var(--brand)', color: '#FFFFFF', border: 'none', cursor: 'pointer',
             fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-ui)', whiteSpace: 'nowrap' as const,
             transition: 'opacity 0.15s ease',
           }}
