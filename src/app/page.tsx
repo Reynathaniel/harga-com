@@ -7,6 +7,7 @@ import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
 import { TrendingDown, Bell, Wallet, Shield, Zap, RefreshCw, ArrowRight, CheckCircle2, Flame, Package } from 'lucide-react'
 import Link from 'next/link'
+import Script from 'next/script'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -26,7 +27,7 @@ async function getTrendingProducts() {
 
 function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: string; action?: React.ReactNode }) {
   return (
-    <div className="flex justify-between items-end flex-wrap gap-4 mb-6">
+    <div className="reveal flex justify-between items-end flex-wrap gap-4 mb-6">
       <div>
         <div style={{
           fontSize: 10, fontWeight: 700,
@@ -75,7 +76,7 @@ export default async function HomePage() {
           <span className="harga-blob b3" />
         </div>
         <div className="relative max-w-4xl mx-auto px-4 py-[72px] text-center" style={{ zIndex: 1 }}>
-          <p className="fade-in" style={{
+          <p className="hero-enter-1" style={{
             fontSize: 11, letterSpacing: '0.14em',
             color: 'var(--text-secondary)', textTransform: 'uppercase',
             marginBottom: 28, fontFamily: 'var(--font-ui)',
@@ -84,7 +85,7 @@ export default async function HomePage() {
             <span className="harga-live-dot" />
             HARGA LIVE DARI {STATS.platforms} MARKETPLACE · UPDATE TIAP 4 JAM
           </p>
-          <h1 className="fade-in" style={{
+          <h1 className="hero-enter-2" style={{
             margin: '0 0 20px',
             fontFamily: 'var(--font-editorial)',
             fontSize: 'clamp(44px, 7.5vw, 76px)',
@@ -94,7 +95,7 @@ export default async function HomePage() {
             Temukan harga<br />
             <em style={{ fontStyle: 'italic', color: 'var(--text-secondary)' }}>terbaik di Indonesia.</em>
           </h1>
-          <p className="fade-in" style={{
+          <p className="hero-enter-3" style={{
             margin: '0 auto 40px', maxWidth: 540,
             fontSize: 'var(--text-lg)', color: 'var(--text-secondary)',
             lineHeight: 'var(--leading-relaxed)', fontFamily: 'var(--font-ui)',
@@ -102,7 +103,7 @@ export default async function HomePage() {
             Bandingkan harga dari Tokopedia, Shopee, Lazada, Blibli, TikTok Shop, dan {STATS.platforms - 5} marketplace lainnya.
           </p>
           <div className="max-w-2xl mx-auto"><HeroRealSearch /></div>
-          <div className="flex flex-wrap gap-2 justify-center mt-5 mb-12">
+          <div className="hero-enter-5 flex flex-wrap gap-2 justify-center mt-5 mb-12">
             <span style={{ fontSize: 13, color: 'var(--text-muted)', alignSelf: 'center', fontFamily: 'var(--font-ui)' }}>Populer:</span>
             {TRENDING_SEARCHES.slice(0, 7).map(t => (
               <Link key={t} href={'/cari?q=' + encodeURIComponent(t)} style={{
@@ -125,14 +126,14 @@ export default async function HomePage() {
       </section>
 
       <section style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div className="max-w-3xl mx-auto" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1px', background: 'var(--border)' }}>
+        <div className="reveal-grid max-w-3xl mx-auto" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1px', background: 'var(--border)' }}>
           {[
             { num: '1.400+', label: 'Produk dilacak' },
             { num: String(STATS.platforms), label: 'Marketplace' },
             { num: '4 jam', label: 'Update harga' },
             { num: 'Rp 18M', label: 'Hemat bulan ini' },
           ].map(s => (
-            <div key={s.label} style={{ padding: '32px 28px', background: 'var(--bg-primary)' }}>
+            <div key={s.label} className="stat-pop" style={{ padding: '32px 28px', background: 'var(--bg-primary)' }}>
               <p style={{ fontFamily: 'var(--font-editorial)', fontSize: 40, fontWeight: 400, color: 'var(--text-primary)', margin: '0 0 4px', lineHeight: 1 }}>{s.num}</p>
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0, fontFamily: 'var(--font-ui)' }}>{s.label}</p>
             </div>
@@ -148,7 +149,7 @@ export default async function HomePage() {
             title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--brand)' }} /> Deal Terpanas Hari Ini</span> as any}
             action={<Link href="/cari?sort=lowest" className="flex items-center gap-1 transition-colors" style={{ fontSize: 'var(--text-sm)', color: 'var(--brand)' }}>Lihat semua <ArrowRight size={14} /></Link>}
           />
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 stagger-children">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 reveal-grid">
             {promoProducts.map(p => {
               const cheapest = lowestListingFirst(p.listings)[0]
               const discountPct = cheapest?.originalPrice && cheapest.originalPrice > cheapest.price
@@ -197,7 +198,7 @@ export default async function HomePage() {
         <SectionHead eyebrow="Pilihan Hari Ini" title="Produk Terpopuler"
           action={<Link href="/cari?sort=popular" className="flex items-center gap-1 transition-colors" style={{ fontSize: 'var(--text-sm)', color: 'var(--brand)' }}>Lihat semua <ArrowRight size={14} /></Link>}
         />
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 stagger-children">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 reveal-grid">
           {featuredProducts.map(p => <ProductCard key={p.id} product={p} />)}
         </div>
       </section>
@@ -278,7 +279,7 @@ export default async function HomePage() {
             title={<span className="flex items-center gap-2"><Package size={20} style={{ color: 'var(--orange-400)' }} /> Barang Bekas Berkualitas</span> as any}
             action={<Link href="/cari?condition=used" className="flex items-center gap-1 transition-colors" style={{ fontSize: 'var(--text-sm)', color: 'var(--orange-400)' }}>Lihat semua <ArrowRight size={14} /></Link>}
           />
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 stagger-children">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 reveal-grid">
             {usedProducts.map(p => <ProductCard key={p.id} product={p} />)}
           </div>
           <div className="mt-4 flex items-center gap-2 px-4 py-3 rounded-xl" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', background: 'rgba(197,98,26,0.04)', border: '1px solid rgba(197,98,26,0.12)' }}>
@@ -503,6 +504,8 @@ export default async function HomePage() {
           <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat di Indonesia 🇮🇩</p>
         </div>
       </footer>
+
+      <Script id="harga-scroll-reveal" strategy="afterInteractive">{"(function(){if(typeof IntersectionObserver==='undefined')return;var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('in-view');});},{threshold:0.07,rootMargin:'0px 0px -40px 0px'});document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){io.observe(el);});})();"}</Script>
     </div>
   )
 }
