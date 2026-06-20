@@ -102,7 +102,7 @@ export default async function HomePage() {
           }}>
             Bandingkan harga dari Tokopedia, Shopee, Lazada, Blibli, TikTok Shop, dan {STATS.platforms - 5} marketplace lainnya.
           </p>
-          <div className="max-w-2xl mx-auto"><HeroRealSearch /></div>
+          <div className="hero-enter-4 max-w-2xl mx-auto"><HeroRealSearch /></div>
           <div className="hero-enter-5 flex flex-wrap gap-2 justify-center mt-5 mb-12">
             <span style={{ fontSize: 13, color: 'var(--text-muted)', alignSelf: 'center', fontFamily: 'var(--font-ui)' }}>Populer:</span>
             {TRENDING_SEARCHES.slice(0, 7).map(t => (
