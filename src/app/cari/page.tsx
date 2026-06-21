@@ -6,7 +6,8 @@ import { ProductCard } from '@/components/ProductCard'
 import { getProducts, getCategories } from '@/lib/db/products'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah } from '@/lib/utils'
-import { SlidersHorizontal, TrendingDown, Star, Package, Sparkles, Search } from 'lucide-react'
+import { tryGetServerClient } from '@/lib/supabase'
+import { SlidersHorizontal, TrendingDown, Package, Sparkles, Search, Clock } from 'lucide-react'
 import Link from 'next/link'
 
 interface SearchPageProps {
@@ -18,6 +19,22 @@ interface SearchPageProps {
     max?: string
     platform?: string
     condition?: string
+    offset?: string
+  }
+}
+
+async function getRealPriceDropCount(): Promise<number> {
+  const db = tryGetServerClient()
+  if (!db) return 0
+  try {
+    const since = new Date(Date.now() - 7 * 86_400_000).toISOString()
+    const { count } = await db
+      .from('price_history')
+      .select('offer_id', { count: 'exact', head: true })
+      .gte('recorded_at', since)
+    return count ?? 0
+  } catch {
+    return 0
   }
 }
 
@@ -78,20 +95,24 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const condition = searchParams.condition || ''
   const minPrice = searchParams.min ? Number(searchParams.min) : undefined
   const maxPrice = searchParams.max ? Number(searchParams.max) : undefined
+  const offset   = searchParams.offset ? Number(searchParams.offset) : 0
+  const PAGE_SIZE = 40
 
-  const { products, total, source } = await getProducts({
-    query,
-    category: category || undefined,
-    platform: platform || undefined,
-    condition: (condition as 'new' | 'used') || undefined,
-    minPrice,
-    maxPrice,
-    sort,
-    limit: 40,
-  })
-
-  const categories = await getCategories()
-  const priceDropCount = Math.max(1, Math.ceil(products.length * 0.3))
+  const [{ products, total, source }, categories, priceDropCount] = await Promise.all([
+    getProducts({
+      query,
+      category: category || undefined,
+      platform: platform || undefined,
+      condition: (condition as 'new' | 'used') || undefined,
+      minPrice,
+      maxPrice,
+      sort,
+      limit: PAGE_SIZE,
+      offset,
+    }),
+    getCategories(),
+    getRealPriceDropCount(),
+  ])
   const activeCategory = categories.find(c => c.id === category)
   const activePlatform = platform ? PLATFORMS[platform] : null
   const platformList = Object.values(PLATFORMS)
@@ -106,6 +127,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       sort,
       min: searchParams.min,
       max: searchParams.max,
+      offset: offset > 0 ? String(offset) : undefined,
       ...overrides,
     }
     Object.entries(base).forEach(([k, v]) => { if (v) params.set(k, v) })
@@ -250,7 +272,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 <div className="space-y-1">
                   {PRICE_PRESETS.map(preset => (
                     <Link key={preset.label}
-                      href={buildHref({ min: String(preset.min), max: String(preset.max) })}
+                      href={buildHref({ min: String(preset.min), max: String(preset.max), offset: undefined })}
                       className={'block w-full text-left text-xs px-3 py-2 rounded-xl transition-colors ' +
                         (minPrice === preset.min && maxPrice === preset.max
                           ? 'bg-amber-500/15 text-amber-400 border border-amber-500/25'
@@ -259,41 +281,34 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     </Link>
                   ))}
                 </div>
-                <div className="flex gap-2 mt-2">
-                  <input type="number" placeholder="Min"
+                {/* Custom price range — uses native form GET to push params into URL */}
+                <form action="/cari" method="get" className="flex gap-2 mt-2 items-center">
+                  {query     && <input type="hidden" name="q"        value={query} />}
+                  {category  && <input type="hidden" name="kategori" value={category} />}
+                  {platform  && <input type="hidden" name="platform" value={platform} />}
+                  {condition && <input type="hidden" name="condition" value={condition} />}
+                  {sort !== 'lowest' && <input type="hidden" name="sort" value={sort} />}
+                  <input type="number" name="min" defaultValue={searchParams.min} placeholder="Min"
                     className="flex-1 bg-[var(--bg-hover)] border border-[var(--border-subtle)] rounded-xl px-2 py-1.5 text-xs text-[var(--text-primary)] outline-none focus:border-amber-500/50 w-0 transition-colors" />
-                  <input type="number" placeholder="Max"
+                  <input type="number" name="max" defaultValue={searchParams.max} placeholder="Max"
                     className="flex-1 bg-[var(--bg-hover)] border border-[var(--border-subtle)] rounded-xl px-2 py-1.5 text-xs text-[var(--text-primary)] outline-none focus:border-amber-500/50 w-0 transition-colors" />
+                  <button type="submit"
+                    className="shrink-0 px-2 py-1.5 text-[10px] font-bold rounded-xl bg-amber-500 text-white border-none cursor-pointer">
+                    OK
+                  </button>
+                </form>
+              </div>
+
+              {/* Rating & quick-filters — coming soon */}
+              <div className="rounded-xl border border-[var(--border-subtle)] px-3 py-3 space-y-2">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
+                  <Clock size={10} /> Segera hadir
                 </div>
-              </div>
-
-              <div>
-                <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-3">Rating Minimal</div>
-                {[4.5, 4, 3].map(r => (
-                  <label key={r} className="flex items-center gap-2 mb-2 cursor-pointer group">
-                    <input type="radio" name="rating" className="accent-amber-500 shrink-0" />
-                    <div className="flex items-center gap-0.5">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} size={10}
-                          fill={i < Math.floor(r) ? '#f59e0b' : 'transparent'}
-                          className={i < Math.floor(r) ? 'text-amber-400' : 'text-[var(--text-muted)]'} />
-                      ))}
-                      <span className="text-xs text-[var(--text-secondary)] ml-1 group-hover:text-[var(--brand)] transition-colors">{r}+</span>
-                    </div>
-                  </label>
-                ))}
-              </div>
-
-              <div className="space-y-2.5">
-                {[
-                  { label: 'Gratis Ongkir', checked: false },
-                  { label: 'Toko Resmi',    checked: false },
-                  { label: 'Ada Cashback',  checked: true },
-                ].map(({ label, checked }) => (
-                  <label key={label} className="flex items-center gap-2.5 cursor-pointer group">
-                    <input type="checkbox" className="w-3.5 h-3.5 rounded accent-amber-500 shrink-0" defaultChecked={checked} />
-                    <span className="text-xs text-[var(--text-secondary)] group-hover:text-[var(--brand)] transition-colors">{label}</span>
-                  </label>
+                {['Rating Minimal', 'Gratis Ongkir', 'Toko Resmi'].map(label => (
+                  <div key={label} className="flex items-center gap-2 opacity-40 select-none">
+                    <div className="w-3 h-3 rounded border border-[var(--border)] bg-[var(--bg-hover)]" />
+                    <span className="text-xs text-[var(--text-muted)]">{label}</span>
+                  </div>
                 ))}
               </div>
 
@@ -369,11 +384,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               </div>
             </div>
 
-            {products.length > 0 && (
+            {priceDropCount > 0 && (
               <div className="flex items-center gap-3 bg-green-500/5 border border-green-500/15 rounded-xl px-4 py-3 mb-5 text-sm">
                 <TrendingDown size={16} className="text-green-400 shrink-0" />
-                <span className="text-green-400 font-medium">{priceDropCount} produk turun harga</span>
-                <span className="text-[var(--text-muted)]">dalam 24 jam terakhir</span>
+                <span className="text-green-400 font-medium">{priceDropCount} update harga</span>
+                <span className="text-[var(--text-muted)]">dalam 7 hari terakhir</span>
                 <span className="ml-auto text-[10px] text-amber-400 flex items-center gap-1 shrink-0">
                   <Sparkles size={10} />
                   {activePlatform ? 'CB ' + activePlatform.cashbackPct + '% aktif' : 'Cashback aktif'}
@@ -389,14 +404,22 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <EmptyState query={query} />
             )}
 
-            {products.length >= 40 && (
-              <div className="text-center mt-10">
-                <button className="group px-8 py-3 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-amber-500/35 hover:bg-[var(--bg-hover)] rounded-2xl text-sm font-medium transition-all flex items-center gap-2 mx-auto">
+            {/* Pagination */}
+            <div className="flex items-center justify-between mt-10 gap-4 flex-wrap">
+              {offset > 0 && (
+                <Link href={buildHref({ offset: offset > PAGE_SIZE ? String(offset - PAGE_SIZE) : undefined })}
+                  className="px-6 py-2.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-amber-500/35 hover:bg-[var(--bg-hover)] rounded-2xl text-sm font-medium transition-all flex items-center gap-2">
+                  ← Sebelumnya
+                </Link>
+              )}
+              {products.length >= PAGE_SIZE && offset + PAGE_SIZE < total && (
+                <Link href={buildHref({ offset: String(offset + PAGE_SIZE) })}
+                  className="group ml-auto px-8 py-2.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-amber-500/35 hover:bg-[var(--bg-hover)] rounded-2xl text-sm font-medium transition-all flex items-center gap-2">
                   <Package size={16} className="group-hover:animate-bounce" />
                   Muat Lebih Banyak
-                </button>
-              </div>
-            )}
+                </Link>
+              )}
+            </div>
 
           </div>
         </div>
