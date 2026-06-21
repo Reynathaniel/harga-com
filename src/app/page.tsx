@@ -1,10 +1,11 @@
 import { ProductCard } from '@/components/ProductCard'
 import { HeroRealSearch } from '@/components/HeroSection'
+import { DealTerbaikSection } from '@/components/DealTerbaikSection'
 import { getProducts, getCategories, getPromoProducts } from '@/lib/db/products'
-import { STATS, TRENDING_SEARCHES } from '@/lib/mock-data'
+import { STATS } from '@/lib/mock-data'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
-import { TrendingDown, Bell, Wallet, Shield, Zap, RefreshCw, ArrowRight, CheckCircle2, Flame, Package } from 'lucide-react'
+import { TrendingDown, Bell, Wallet, Shield, Zap, RefreshCw, ArrowRight, CheckCircle2, Flame } from 'lucide-react'
 import Link from 'next/link'
 import Script from 'next/script'
 
@@ -13,7 +14,8 @@ export const revalidate = 0
 
 async function getTrendingProducts() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/api/products/popular?limit=8`,
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/api/products/popular?limit=8`,
       { cache: 'no-store' }
     )
     if (!res.ok) return []
@@ -24,6 +26,7 @@ async function getTrendingProducts() {
   }
 }
 
+/* Eyebrow + title section head — matches design system SectionHead */
 function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: string; action?: React.ReactNode }) {
   return (
     <div className="reveal flex justify-between items-end flex-wrap gap-4 mb-6">
@@ -49,10 +52,10 @@ function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: strin
 export default async function HomePage() {
   const { products: allProducts } = await getProducts({ sort: 'popular', limit: 16 })
   const { products: usedProducts } = await getProducts({ condition: 'used', sort: 'popular', limit: 8 })
-  const featuredProducts = allProducts.slice(0, 8)
   const categories = await getCategories()
   const platformList = Object.values(PLATFORMS)
   const trendingProducts = await getTrendingProducts()
+
   const promoProducts = await getPromoProducts(8)
 
   const hematProducts = [...allProducts]
@@ -68,68 +71,85 @@ export default async function HomePage() {
 
   return (
     <div className="pt-[92px]">
+
+      {/* ── HERO ── */}
       <section className="hero-gradient relative overflow-hidden">
+        {/* Animated mesh blobs */}
         <div className="harga-mesh">
           <span className="harga-blob b1" />
           <span className="harga-blob b2" />
           <span className="harga-blob b3" />
         </div>
+
         <div className="relative max-w-4xl mx-auto px-4 py-[72px] text-center" style={{ zIndex: 1 }}>
-          
-                    {/* Green pill badge */}
+          {/* Green pill badge */}
           <div className="hero-enter-1 inline-flex items-center gap-2 mb-8" style={{
             padding: '6px 16px', borderRadius: 100,
             background: 'rgba(74,222,128,0.12)',
             border: '1px solid rgba(74,222,128,0.3)',
             fontSize: 12, fontWeight: 600,
             color: '#16a34a', fontFamily: 'var(--font-ui)',
+            letterSpacing: '0.01em',
           }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ADE80', display: 'inline-block', flexShrink: 0 }} />
-            10+ Marketplace · Barang Baru & Bekas
+            {STATS.platforms}+ Marketplace · Barang Baru &amp; Bekas
           </div>
 
+          {/* Instrument Serif headline */}
           <h1 className="hero-enter-2" style={{
             margin: '0 0 20px',
             fontFamily: 'var(--font-editorial)',
             fontSize: 'clamp(44px, 7.5vw, 76px)',
-            fontWeight: 400, lineHeight: 1.05,
-            color: 'var(--text-primary)', letterSpacing: '-0.01em',
+            fontWeight: 400,
+            lineHeight: 1.05,
+            color: 'var(--text-primary)',
+            letterSpacing: '-0.01em',
           }}>
             Harga terbaik.<br />
             <span style={{ color: 'var(--brand)' }}>Baru atau bekas.</span>
           </h1>
+
           <p className="hero-enter-3" style={{
-            margin: '0 auto 40px', maxWidth: 540,
+            margin: '0 auto 40px', maxWidth: 560,
             fontSize: 'var(--text-lg)', color: 'var(--text-secondary)',
-            lineHeight: 'var(--leading-relaxed)', fontFamily: 'var(--font-ui)',
+            lineHeight: 'var(--leading-relaxed)',
+            fontFamily: 'var(--font-ui)',
           }}>
-            Bandingkan harga barang <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>baru &amp; bekas</strong> dari Shopee, Tokopedia, Lazada &amp; {STATS.platforms - 3} marketplace lain — dalam satu pencarian.
+            Bandingkan harga barang <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>baru &amp; bekas</strong> dari Shopee, Tokopedia,
+            Lazada &amp; {STATS.platforms - 3} marketplace lain — dalam satu pencarian.
           </p>
-          <div className="hero-enter-4 max-w-2xl mx-auto"><HeroRealSearch /></div>
+
+          {/* Search bar */}
+          <div className="hero-enter-4 max-w-2xl mx-auto">
+            <HeroRealSearch />
+          </div>
+
+          {/* Quick chips */}
           <div className="hero-enter-5 flex flex-wrap gap-2 justify-center mt-5 mb-12">
             <span style={{ fontSize: 13, color: 'var(--text-muted)', alignSelf: 'center', fontFamily: 'var(--font-ui)' }}>Coba:</span>
             {['iPhone 15 Pro', 'Sepatu Preloved', 'Kamera Bekas', 'Skincare', 'PS5'].map(t => (
-              <Link key={t} href={'/cari?q=' + encodeURIComponent(t)} style={{
-                padding: '4px 14px', borderRadius: 100, fontSize: 13, fontFamily: 'var(--font-ui)',
-                background: 'var(--bg-card)', border: '1px solid var(--border)',
-                color: 'var(--text-secondary)', textDecoration: 'none',
-                boxShadow: 'var(--shadow-card)', transition: 'border-color 0.15s',
-              }}>{t}</Link>
-            ))}
-          </div>
-          <div className="flex items-center gap-3 flex-wrap justify-center">
-            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontFamily: 'var(--font-ui)' }}>Harga dari:</span>
-            {platformList.map(p => (
-              <div key={p.id} className="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-md hover:scale-110 transition-transform cursor-default"
-                style={{ background: p.id === 'tiktok' ? '#1a1a1a' : p.color, fontSize: 'var(--text-10)', fontWeight: 'var(--fw-extrabold)', boxShadow: 'var(--shadow-card)' }}
-                title={p.name}>{p.shortName.slice(0, 2)}</div>
+              <Link key={t} href={'/cari?q=' + encodeURIComponent(t)}
+                style={{
+                  padding: '4px 14px', borderRadius: 100,
+                  fontSize: 13, fontFamily: 'var(--font-ui)',
+                  background: 'var(--bg-card)', border: '1px solid var(--border)',
+                  color: 'var(--text-secondary)', textDecoration: 'none',
+                  boxShadow: 'var(--shadow-card)',
+                  transition: 'border-color 0.15s',
+                }}>
+                {t}
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
+      {/* ── STATS GRID ── */}
       <section style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div className="reveal-grid max-w-3xl mx-auto" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1px', background: 'var(--border)' }}>
+        <div className="reveal-grid max-w-3xl mx-auto" style={{
+          display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '1px', background: 'var(--border)',
+        }}>
           {[
             { num: '1.400+', label: 'Produk dilacak' },
             { num: String(STATS.platforms), label: 'Marketplace' },
@@ -137,28 +157,47 @@ export default async function HomePage() {
             { num: 'Rp 18M', label: 'Hemat bulan ini' },
           ].map(s => (
             <div key={s.label} className="stat-pop" style={{ padding: '32px 28px', background: 'var(--bg-primary)' }}>
-              <p style={{ fontFamily: 'var(--font-editorial)', fontSize: 40, fontWeight: 400, color: 'var(--text-primary)', margin: '0 0 4px', lineHeight: 1 }}>{s.num}</p>
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0, fontFamily: 'var(--font-ui)' }}>{s.label}</p>
+              <p style={{
+                fontFamily: 'var(--font-editorial)',
+                fontSize: 40, fontWeight: 400,
+                color: 'var(--text-primary)',
+                margin: '0 0 4px',
+                lineHeight: 1,
+              }}>{s.num}</p>
+              <p style={{
+                fontSize: 13, color: 'var(--text-secondary)',
+                margin: 0, fontFamily: 'var(--font-ui)',
+              }}>{s.label}</p>
             </div>
           ))}
         </div>
       </section>
 
+      {/* ── DEAL TERPANAS ── */}
       {promoProducts.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 py-16">
-          <SectionHead eyebrow="Flash Sale ÃÂ· Diskon Gila"
+          <SectionHead
+            eyebrow="Flash Sale · Diskon Gila"
             title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--brand)' }} /> Deal Terpanas Hari Ini</span> as any}
-            action={<Link href="/cari?sort=lowest" className="flex items-center gap-1 transition-colors" style={{ fontSize: 'var(--text-sm)', color: 'var(--brand)' }}>Lihat semua <ArrowRight size={14} /></Link>}
+            action={
+              <Link href="/cari?sort=lowest"
+                className="flex items-center gap-1 transition-colors"
+                style={{ fontSize: 'var(--text-sm)', color: 'var(--brand)' }}>
+                Lihat semua <ArrowRight size={14} />
+              </Link>
+            }
           />
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 reveal-grid">
             {promoProducts.map(p => {
               const cheapest = lowestListingFirst(p.listings)[0]
               const discountPct = cheapest?.originalPrice && cheapest.originalPrice > cheapest.price
-                ? Math.round(100 * (cheapest.originalPrice - cheapest.price) / cheapest.originalPrice) : 0
+                ? Math.round(100 * (cheapest.originalPrice - cheapest.price) / cheapest.originalPrice)
+                : 0
               return (
                 <Link key={p.id} href={`/produk/${p.id}`}
                   className="group rounded-2xl overflow-hidden transition-all hover:-translate-y-0.5"
                   style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-card)' }}>
+                  {/* Image */}
                   <div className="relative aspect-square overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
                     {p.images[0]
                       ? <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -175,17 +214,25 @@ export default async function HomePage() {
                       PROMO
                     </div>
                   </div>
+                  {/* Info */}
                   <div className="p-3">
-                    <p className="line-clamp-2 leading-snug mb-2" style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-medium)', color: 'var(--text-primary)' }}>{p.name}</p>
+                    <p className="line-clamp-2 leading-snug mb-2"
+                      style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-medium)', color: 'var(--text-primary)' }}>
+                      {p.name}
+                    </p>
                     <div className="flex items-end gap-2 flex-wrap">
-                      <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--fw-extrabold)', color: 'var(--brand)' }}>{formatRupiah(cheapest?.price ?? p.lowestPrice, true)}</span>
+                      <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--fw-extrabold)', color: 'var(--brand)' }}>
+                        {formatRupiah(cheapest?.price ?? p.lowestPrice, true)}
+                      </span>
                       {cheapest?.originalPrice && cheapest.originalPrice > cheapest.price && (
-                        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textDecoration: 'line-through' }}>{formatRupiah(cheapest.originalPrice, true)}</span>
+                        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
+                          {formatRupiah(cheapest.originalPrice, true)}
+                        </span>
                       )}
                     </div>
                     <div className="mt-1.5 flex items-center gap-1" style={{ fontSize: 'var(--text-10)', color: 'var(--text-muted)' }}>
                       <Flame size={10} style={{ color: 'var(--brand)' }} />
-                      <span>Flash Sale ÃÂ· Stok Terbatas</span>
+                      <span>Flash Sale · Stok Terbatas</span>
                     </div>
                   </div>
                 </Link>
@@ -195,25 +242,30 @@ export default async function HomePage() {
         </section>
       )}
 
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHead eyebrow="Pilihan Hari Ini" title="Produk Terpopuler"
-          action={<Link href="/cari?sort=popular" className="flex items-center gap-1 transition-colors" style={{ fontSize: 'var(--text-sm)', color: 'var(--brand)' }}>Lihat semua <ArrowRight size={14} /></Link>}
-        />
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 reveal-grid">
-          {featuredProducts.map(p => <ProductCard key={p.id} product={p} />)}
-        </div>
-      </section>
+      {/* ── DEAL TERBAIK (with Semua / Baru / Bekas tabs) ── */}
+      <DealTerbaikSection allProducts={allProducts.slice(0, 8)} usedProducts={usedProducts} />
 
+      {/* ── TRENDING ── */}
       {trendingProducts.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 py-16">
-          <SectionHead eyebrow="Real-Time"
+          <SectionHead
+            eyebrow="Real-Time"
             title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--orange-500)' }} /> Produk Trending</span> as any}
-            action={<Link href="/cari?sort=popular" className="flex items-center gap-1 transition-colors" style={{ fontSize: 'var(--text-sm)', color: 'var(--brand)' }}>Lihat semua <ArrowRight size={14} /></Link>}
+            action={
+              <Link href="/cari?sort=popular"
+                className="flex items-center gap-1 transition-colors"
+                style={{ fontSize: 'var(--text-sm)', color: 'var(--brand)' }}>
+                Lihat semua <ArrowRight size={14} />
+              </Link>
+            }
           />
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
             {trendingProducts.map((p: { id: string; name: string; image_url: string | null; best_price: number; click_count: number }) => (
-              <Link key={p.id} href={'/produk/' + p.id} className="group rounded-xl overflow-hidden transition-all"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}>
+              <Link key={p.id} href={'/produk/' + p.id}
+                className="group rounded-xl overflow-hidden transition-all"
+                style={{
+                  background: 'var(--bg-card)', border: '1px solid var(--border-subtle)',
+                }}>
                 <div className="relative aspect-square overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
                   {p.image_url
                     ? <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -221,14 +273,24 @@ export default async function HomePage() {
                   }
                   {p.click_count > 0 && (
                     <div className="absolute top-1.5 right-1.5 text-white flex items-center gap-0.5"
-                      style={{ background: 'var(--orange-500)', fontSize: 'var(--text-9)', fontWeight: 'var(--fw-extrabold)', padding: '2px 6px', borderRadius: 'var(--radius-full)' }}>
-                      <Flame size={7} />{p.click_count}
+                      style={{
+                        background: 'var(--orange-500)', fontSize: 'var(--text-9)',
+                        fontWeight: 'var(--fw-extrabold)', padding: '2px 6px',
+                        borderRadius: 'var(--radius-full)',
+                      }}>
+                      <Flame size={7} />
+                      {p.click_count}
                     </div>
                   )}
                 </div>
                 <div className="p-2">
-                  <p className="line-clamp-2 leading-snug mb-1" style={{ fontSize: 'var(--text-11)', fontWeight: 'var(--fw-medium)', color: 'var(--text-primary)' }}>{p.name}</p>
-                  <p style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-extrabold)', color: 'var(--brand)' }}>{formatRupiah(p.best_price, true)}</p>
+                  <p className="line-clamp-2 leading-snug mb-1"
+                    style={{ fontSize: 'var(--text-11)', fontWeight: 'var(--fw-medium)', color: 'var(--text-primary)' }}>
+                    {p.name}
+                  </p>
+                  <p style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-extrabold)', color: 'var(--brand)' }}>
+                    {formatRupiah(p.best_price, true)}
+                  </p>
                 </div>
               </Link>
             ))}
@@ -236,35 +298,67 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ── PRELOVED HIGHLIGHT BANNER ── */}
       <section className="max-w-7xl mx-auto px-4 py-8">
-        <div className="relative overflow-hidden rounded-2xl" style={{ border: '1px solid var(--border)', background: 'linear-gradient(120deg, rgba(26,107,60,0.06), rgba(212,146,10,0.05))' }}>
+        <div className="relative overflow-hidden rounded-2xl"
+          style={{
+            border: '1px solid var(--border)',
+            background: 'linear-gradient(120deg, rgba(26,107,60,0.06), rgba(212,146,10,0.05))',
+          }}>
           <div className="flex items-center justify-between gap-6 p-8 flex-wrap">
             <div className="max-w-lg">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-3" style={{ background: 'var(--win-soft-bg)', border: '1px solid var(--win-soft-border)', color: 'var(--win)', fontSize: 'var(--text-10)', fontWeight: 'var(--fw-black)', letterSpacing: 'var(--tracking-widest)', textTransform: 'uppercase' }}>
-                Preloved ÃÂ· Barang Bekas
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-3"
+                style={{
+                  background: 'var(--win-soft-bg)', border: '1px solid var(--win-soft-border)',
+                  color: 'var(--win)', fontSize: 'var(--text-10)', fontWeight: 'var(--fw-black)',
+                  letterSpacing: 'var(--tracking-widest)', textTransform: 'uppercase',
+                }}>
+                Preloved · Barang Bekas
               </div>
-              <h2 style={{ margin: 0, marginBottom: 8, fontSize: 'var(--text-2xl)', fontWeight: 400, color: 'var(--text-primary)', fontFamily: 'var(--font-editorial)' }}>
-                Bukan cuma baru Ã¢ÂÂ <em>yang bekas juga di sini.</em>
+              <h2 style={{
+                margin: 0, marginBottom: 8,
+                fontSize: 'var(--text-2xl)', fontWeight: 400,
+                color: 'var(--text-primary)',
+                fontFamily: 'var(--font-editorial)',
+              }}>
+                Bukan cuma baru — <em>yang bekas juga di sini.</em>
               </h2>
-              <p style={{ margin: 0, marginBottom: 18, fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 'var(--leading-relaxed)' }}>
-                Hemat lebih jauh dengan barang preloved dari penjual terpercaya OLX &amp; Carousell. Kami bandingkan harga second terbaik untuk Anda.
+              <p style={{
+                margin: 0, marginBottom: 18,
+                fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 'var(--leading-relaxed)',
+              }}>
+                Hemat lebih jauh dengan barang preloved dari penjual terpercaya OLX &amp; Carousell.
+                Kami bandingkan harga second terbaik untuk Anda.
               </p>
-              <Link href="/cari?condition=used" className="inline-flex items-center gap-2 transition-opacity hover:opacity-90"
-                style={{ padding: '11px 20px', borderRadius: 'var(--radius-md)', background: 'var(--gradient-win)', color: '#053d24', fontSize: 'var(--text-sm)', fontWeight: 'var(--fw-extrabold)', boxShadow: 'var(--shadow-green)' }}>
-                Jelajahi Preloved Ã¢ÂÂ
+              <Link href="/cari?condition=used"
+                className="inline-flex items-center gap-2 transition-opacity hover:opacity-90"
+                style={{
+                  padding: '11px 20px', borderRadius: 'var(--radius-md)',
+                  background: 'var(--gradient-win)', color: '#053d24',
+                  fontSize: 'var(--text-sm)', fontWeight: 'var(--fw-extrabold)',
+                  boxShadow: 'var(--shadow-green)',
+                }}>
+                Jelajahi Preloved →
               </Link>
             </div>
             <div className="flex gap-3">
               {usedProducts.slice(0, 2).map(p => {
                 const cheapest = lowestListingFirst(p.listings)[0]
                 return cheapest ? (
-                  <Link key={p.id} href={'/produk/' + p.id} className="w-36 rounded-xl overflow-hidden group transition-all" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                  <Link key={p.id} href={'/produk/' + p.id}
+                    className="w-36 rounded-xl overflow-hidden group transition-all"
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
                     <div className="aspect-square overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
                       {p.images[0] && <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />}
                     </div>
                     <div className="p-2">
-                      <p className="line-clamp-2 leading-snug mb-1" style={{ fontSize: 'var(--text-11)', fontWeight: 'var(--fw-medium)', color: 'var(--text-primary)' }}>{p.name}</p>
-                      <p style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-extrabold)', color: 'var(--brand)' }}>{formatRupiah(cheapest.price, true)}</p>
+                      <p className="line-clamp-2 leading-snug mb-1"
+                        style={{ fontSize: 'var(--text-11)', fontWeight: 'var(--fw-medium)', color: 'var(--text-primary)' }}>
+                        {p.name}
+                      </p>
+                      <p style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-extrabold)', color: 'var(--brand)' }}>
+                        {formatRupiah(cheapest.price, true)}
+                      </p>
                     </div>
                   </Link>
                 ) : null
@@ -274,29 +368,22 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {usedProducts.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 py-16">
-          <SectionHead eyebrow="Second Hand"
-            title={<span className="flex items-center gap-2"><Package size={20} style={{ color: 'var(--orange-400)' }} /> Barang Bekas Berkualitas</span> as any}
-            action={<Link href="/cari?condition=used" className="flex items-center gap-1 transition-colors" style={{ fontSize: 'var(--text-sm)', color: 'var(--orange-400)' }}>Lihat semua <ArrowRight size={14} /></Link>}
-          />
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 reveal-grid">
-            {usedProducts.map(p => <ProductCard key={p.id} product={p} />)}
-          </div>
-          <div className="mt-4 flex items-center gap-2 px-4 py-3 rounded-xl" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', background: 'rgba(197,98,26,0.04)', border: '1px solid rgba(197,98,26,0.12)' }}>
-            <span style={{ color: 'var(--orange-400)', fontWeight: 'var(--fw-medium)' }}>Barang Bekas</span>
-            <span>ÃÂ·</span>
-            <span>Harga lebih hemat, kondisi terpilih. Verifikasi penjual sebelum bertransaksi.</span>
-          </div>
-        </section>
-      )}
 
+      {/* ── HEMAT TERBESAR ── */}
       {hematProducts.length > 0 && (
-        <section style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }} className="py-16 px-4">
+        <section style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}
+          className="py-16 px-4">
           <div className="max-w-7xl mx-auto">
-            <SectionHead eyebrow="Selisih Terbesar"
+            <SectionHead
+              eyebrow="Selisih Terbesar"
               title={<span className="flex items-center gap-2"><TrendingDown size={20} style={{ color: 'var(--win)' }} /> Hemat Terbesar Hari Ini</span> as any}
-              action={<Link href="/cari?sort=hemat" className="flex items-center gap-1 transition-colors" style={{ fontSize: 'var(--text-sm)', color: 'var(--win)' }}>Lihat semua <ArrowRight size={14} /></Link>}
+              action={
+                <Link href="/cari?sort=hemat"
+                  className="flex items-center gap-1 transition-colors"
+                  style={{ fontSize: 'var(--text-sm)', color: 'var(--win)' }}>
+                  Lihat semua <ArrowRight size={14} />
+                </Link>
+              }
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {hematProducts.map(({ product, diff, savings }) => {
@@ -304,11 +391,18 @@ export default async function HomePage() {
                 const cheapest = sorted[0]
                 const platform = PLATFORMS[cheapest.platformId]
                 return (
-                  <Link key={product.id} href={'/produk/' + product.id} className="group rounded-2xl p-4 transition-all"
-                    style={{ background: 'var(--bg-hover)', border: '1px solid var(--win-soft-border)' }}>
+                  <Link key={product.id} href={'/produk/' + product.id}
+                    className="group rounded-2xl p-4 transition-all"
+                    style={{
+                      background: 'var(--bg-hover)',
+                      border: '1px solid var(--win-soft-border)',
+                    }}>
                     <div className="flex items-center gap-2 mb-3">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0"
-                        style={{ background: platform.id === 'tiktok' ? '#1a1a1a' : platform.color, fontSize: 'var(--text-10)', fontWeight: 'var(--fw-extrabold)' }}>
+                        style={{
+                          background: platform.id === 'tiktok' ? '#1a1a1a' : platform.color,
+                          fontSize: 'var(--text-10)', fontWeight: 'var(--fw-extrabold)',
+                        }}>
                         {platform.shortName.slice(0, 2)}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -316,10 +410,20 @@ export default async function HomePage() {
                         <p style={{ fontSize: 'var(--text-10)', color: 'var(--text-muted)' }}>{platform.name}</p>
                       </div>
                     </div>
-                    <div style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--fw-extrabold)', color: 'var(--text-primary)', marginBottom: 6 }}>{formatRupiah(cheapest.price, true)}</div>
+                    <div style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--fw-extrabold)', color: 'var(--text-primary)', marginBottom: 6 }}>
+                      {formatRupiah(cheapest.price, true)}
+                    </div>
                     <div className="flex items-center gap-1.5">
-                      <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-semibold)', padding: '2px 8px', borderRadius: 'var(--radius-full)', color: 'var(--win)', background: 'var(--win-soft-bg)', border: '1px solid var(--win-soft-border)' }}>Hemat {diff}%</span>
-                      <span className="truncate" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>vs {formatRupiah(savings, true)} lebih mahal</span>
+                      <span style={{
+                        fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-semibold)',
+                        padding: '2px 8px', borderRadius: 'var(--radius-full)',
+                        color: 'var(--win)', background: 'var(--win-soft-bg)', border: '1px solid var(--win-soft-border)',
+                      }}>
+                        Hemat {diff}%
+                      </span>
+                      <span className="truncate" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                        vs {formatRupiah(savings, true)} lebih mahal
+                      </span>
                     </div>
                   </Link>
                 )
@@ -329,11 +433,22 @@ export default async function HomePage() {
         </section>
       )}
 
-      <section style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-subtle)' }} className="py-20 px-4">
+      {/* ── FEATURES ── */}
+      <section style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-subtle)' }}
+        className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: 'var(--text-muted)', fontFamily: 'var(--font-ui)', marginBottom: 8 }}>Platform</div>
-            <h2 style={{ margin: 0, marginBottom: 12, fontSize: 'var(--text-3xl)', fontWeight: 400, color: 'var(--text-primary)', fontFamily: 'var(--font-editorial)' }}>Lebih dari sekadar perbandingan harga</h2>
+            <div style={{
+              fontSize: 10, fontWeight: 700, letterSpacing: '0.14em',
+              textTransform: 'uppercase' as const, color: 'var(--text-muted)',
+              fontFamily: 'var(--font-ui)', marginBottom: 8,
+            }}>Platform</div>
+            <h2 style={{
+              margin: 0, marginBottom: 12,
+              fontSize: 'var(--text-3xl)', fontWeight: 400,
+              color: 'var(--text-primary)',
+              fontFamily: 'var(--font-editorial)',
+            }}>Lebih dari sekadar perbandingan harga</h2>
             <p style={{ color: 'var(--text-secondary)', margin: 0, fontFamily: 'var(--font-ui)' }}>Semua yang Anda butuhkan dalam satu platform</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -345,10 +460,17 @@ export default async function HomePage() {
               { icon: <RefreshCw size={22} style={{ color: 'var(--cyan-400)' }} />, title: 'Riwayat Harga', desc: 'Grafik harga 90 hari terakhir. Tahu kapan harga sedang turun atau naik.', badge: '90 HARI', badgeStyle: { background: 'rgba(34,211,238,0.10)', color: 'var(--cyan-400)', border: '1px solid rgba(34,211,238,0.20)' } },
               { icon: <Shield size={22} style={{ color: 'var(--blue-400)' }} />, title: 'Toko Terverifikasi', desc: 'Hanya tampilkan listing dari toko resmi dan terverifikasi. Aman dari penipuan.', badge: 'VERIFIED', badgeStyle: { background: 'rgba(96,165,250,0.10)', color: 'var(--blue-400)', border: '1px solid rgba(96,165,250,0.20)' } },
             ].map(f => (
-              <div key={f.title} className="rounded-xl p-5 transition-all group" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}>
+              <div key={f.title} className="rounded-xl p-5 transition-all group"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}>
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--bg-hover)' }}>{f.icon}</div>
-                  <span style={{ fontSize: 'var(--text-10)', fontWeight: 'var(--fw-extrabold)', padding: '4px 8px', borderRadius: 'var(--radius-md)', ...f.badgeStyle }}>{f.badge}</span>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--bg-hover)' }}>
+                    {f.icon}
+                  </div>
+                  <span style={{
+                    fontSize: 'var(--text-10)', fontWeight: 'var(--fw-extrabold)',
+                    padding: '4px 8px', borderRadius: 'var(--radius-md)',
+                    ...f.badgeStyle,
+                  }}>{f.badge}</span>
                 </div>
                 <h3 style={{ margin: 0, marginBottom: 8, fontWeight: 'var(--fw-semibold)', color: 'var(--text-primary)' }}>{f.title}</h3>
                 <p style={{ margin: 0, fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 'var(--leading-relaxed)' }}>{f.desc}</p>
@@ -358,36 +480,68 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── PLATFORM KAMI ── */}
       <section className="max-w-7xl mx-auto px-4 py-16">
         <div className="text-center mb-10">
-          <div className="harga-text-gradient mb-2" style={{ fontSize: 'var(--text-10)', fontWeight: 'var(--fw-black)', letterSpacing: 'var(--tracking-widest)', textTransform: 'uppercase' }}>Cakupan</div>
-          <h2 style={{ margin: 0, marginBottom: 8, fontSize: 'var(--text-2xl)', fontWeight: 400, color: 'var(--text-primary)', fontFamily: 'var(--font-editorial)' }}>Semua toko favorit, satu tempat</h2>
-          <p style={{ margin: 0, fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Harga real-time dari <span style={{ color: 'var(--text-primary)', fontWeight: 'var(--fw-semibold)' }}>{platformList.length} marketplace</span> terpopuler di Indonesia &amp; dunia</p>
+          <div className="harga-text-gradient mb-2" style={{
+            fontSize: 'var(--text-10)', fontWeight: 'var(--fw-black)',
+            letterSpacing: 'var(--tracking-widest)', textTransform: 'uppercase',
+          }}>Cakupan</div>
+          <h2 style={{
+            margin: 0, marginBottom: 8,
+            fontSize: 'var(--text-2xl)', fontWeight: 400, color: 'var(--text-primary)',
+          fontFamily: 'var(--font-editorial)',
+          }}>Semua toko favorit, satu tempat</h2>
+          <p style={{ margin: 0, fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+            Harga real-time dari <span style={{ color: 'var(--text-primary)', fontWeight: 'var(--fw-semibold)' }}>{platformList.length} marketplace</span> terpopuler di Indonesia &amp; dunia
+          </p>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {platformList.map(p => (
-            <Link key={p.id} href={'/cari?platform=' + p.id} className="group rounded-2xl p-5 flex flex-col transition-all duration-200 hover:-translate-y-0.5"
+            <Link key={p.id} href={'/cari?platform=' + p.id}
+              className="group rounded-2xl p-5 flex flex-col transition-all duration-200 hover:-translate-y-0.5"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}>
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white text-sm font-bold mb-3 shadow-md shrink-0"
-                style={{ background: p.id === 'tiktok' ? '#1a1a1a' : p.color, fontSize: 'var(--text-sm)', fontWeight: 'var(--fw-extrabold)', boxShadow: 'var(--shadow-card)' }}>
+                style={{
+                  background: p.id === 'tiktok' ? '#1a1a1a' : p.color,
+                  fontSize: 'var(--text-sm)', fontWeight: 'var(--fw-extrabold)',
+                  boxShadow: 'var(--shadow-card)',
+                }}>
                 {p.shortName.slice(0, 2)}
               </div>
-              <div style={{ fontWeight: 'var(--fw-semibold)', color: 'var(--text-primary)', fontSize: 'var(--text-sm)', marginBottom: 2 }}>{p.name}</div>
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--brand)', fontWeight: 'var(--fw-medium)', marginBottom: 8 }}>Cashback {p.cashbackPct}%</div>
-              <div className="mt-auto h-0.5 rounded-full w-0 group-hover:w-full transition-all duration-300" style={{ background: p.id === 'tiktok' ? '#fe2c55' : p.color }} />
+              <div style={{ fontWeight: 'var(--fw-semibold)', color: 'var(--text-primary)', fontSize: 'var(--text-sm)', marginBottom: 2 }}>
+                {p.name}
+              </div>
+              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--brand)', fontWeight: 'var(--fw-medium)', marginBottom: 8 }}>
+                Cashback {p.cashbackPct}%
+              </div>
+              <div className="mt-auto h-0.5 rounded-full w-0 group-hover:w-full transition-all duration-300"
+                style={{ background: p.id === 'tiktok' ? '#fe2c55' : p.color }} />
             </Link>
           ))}
         </div>
-        <p className="text-center mt-6" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>Klik platform untuk melihat produk termurah di sana</p>
+        <p className="text-center mt-6" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+          Klik platform untuk melihat produk termurah di sana
+        </p>
       </section>
 
+      {/* ── CATEGORIES ── */}
       <section className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHead eyebrow="Kategori" title="Jelajahi Kategori"
-          action={<Link href="/cari" className="flex items-center gap-1 transition-colors" style={{ fontSize: 'var(--text-sm)', color: 'var(--brand)' }}>Lihat semua <ArrowRight size={14} /></Link>}
+        <SectionHead
+          eyebrow="Kategori"
+          title="Jelajahi Kategori"
+          action={
+            <Link href="/cari"
+              className="flex items-center gap-1 transition-colors"
+              style={{ fontSize: 'var(--text-sm)', color: 'var(--brand)' }}>
+              Lihat semua <ArrowRight size={14} />
+            </Link>
+          }
         />
         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {categories.map(cat => (
-            <Link key={cat.id} href={'/cari?kategori=' + cat.id} className="group flex flex-col items-center gap-2 p-4 rounded-xl text-center transition-all hover:scale-105"
+            <Link key={cat.id} href={'/cari?kategori=' + cat.id}
+              className="group flex flex-col items-center gap-2 p-4 rounded-xl text-center transition-all hover:scale-105"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}>
               <span className="text-2xl">{cat.icon}</span>
               <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-medium)', color: 'var(--text-secondary)' }}>{cat.label}</span>
@@ -397,23 +551,33 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }} className="py-20 px-4">
+      {/* ── HOW IT WORKS ── */}
+      <section style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}
+        className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="harga-text-gradient mb-2" style={{ fontSize: 'var(--text-10)', fontWeight: 'var(--fw-black)', letterSpacing: 'var(--tracking-widest)', textTransform: 'uppercase' }}>Cara Kerja</div>
-          <h2 style={{ margin: 0, marginBottom: 12, fontSize: 'var(--text-3xl)', fontWeight: 400, color: 'var(--text-primary)', fontFamily: 'var(--font-editorial)' }}>Cara kerja harga.com</h2>
+          <div className="harga-text-gradient mb-2" style={{
+            fontSize: 'var(--text-10)', fontWeight: 'var(--fw-black)',
+            letterSpacing: 'var(--tracking-widest)', textTransform: 'uppercase',
+          }}>Cara Kerja</div>
+          <h2 style={{ margin: 0, marginBottom: 12, fontSize: 'var(--text-3xl)', fontWeight: 400, color: 'var(--text-primary)', fontFamily: 'var(--font-editorial)' }}>
+            Cara kerja harga.com
+          </h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: 48 }}>Hemat uang dalam 3 langkah mudah</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
-              { step: '01', icon: 'Ã°ÂÂÂ', title: 'Cari Produk', desc: 'Ketik nama produk atau paste link dari marketplace manapun' },
-              { step: '02', icon: 'Ã°ÂÂÂ¡', title: 'Bandingkan Harga', desc: 'Lihat harga dari semua marketplace sekaligus + grafik historis' },
-              { step: '03', icon: 'Ã°ÂÂÂ°', title: 'Beli & Dapat Cashback', desc: 'Beli melalui kami, cashback masuk otomatis ke wallet Anda' },
+              { step: '01', icon: '🔍', title: 'Cari Produk', desc: 'Ketik nama produk atau paste link dari marketplace manapun' },
+              { step: '02', icon: '💡', title: 'Bandingkan Harga', desc: 'Lihat harga dari semua marketplace sekaligus + grafik historis' },
+              { step: '03', icon: '💰', title: 'Beli & Dapat Cashback', desc: 'Beli melalui kami, cashback masuk otomatis ke wallet Anda' },
             ].map(s => (
               <div key={s.step} className="flex flex-col items-center">
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-4"
                   style={{ background: 'var(--brand-soft-bg)', border: '1px solid var(--brand-soft-border)', boxShadow: 'var(--shadow-card)' }}>
                   {s.icon}
                 </div>
-                <div style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-extrabold)', color: 'var(--brand)', marginBottom: 8, letterSpacing: 'var(--tracking-wide)' }}>LANGKAH {s.step}</div>
+                <div style={{
+                  fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-extrabold)',
+                  color: 'var(--brand)', marginBottom: 8, letterSpacing: 'var(--tracking-wide)',
+                }}>LANGKAH {s.step}</div>
                 <h3 style={{ margin: 0, marginBottom: 8, fontWeight: 'var(--fw-semibold)', color: 'var(--text-primary)' }}>{s.title}</h3>
                 <p style={{ margin: 0, fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>{s.desc}</p>
               </div>
@@ -422,26 +586,48 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── CASHBACK CTA ── */}
       <section className="max-w-7xl mx-auto px-4 py-20">
         <div className="relative overflow-hidden rounded-2xl p-8 sm:p-12 text-center"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--brand-soft-border)', boxShadow: 'var(--glow-amber)' }}>
-          <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(212,146,10,0.06), transparent)' }} />
-          <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--brand-soft-border), transparent)' }} />
+          style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--brand-soft-border)',
+            boxShadow: 'var(--glow-amber)',
+          }}>
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse at center, rgba(212,146,10,0.06), transparent)' }} />
+          <div className="absolute top-0 left-0 right-0 h-px"
+            style={{ background: 'linear-gradient(to right, transparent, var(--brand-soft-border), transparent)' }} />
           <div className="relative">
-            <div className="text-5xl mb-4">Ã°ÂÂÂ°</div>
-            <h2 style={{ margin: 0, marginBottom: 12, fontSize: 'var(--text-3xl)', fontWeight: 400, color: 'var(--text-primary)', fontFamily: 'var(--font-editorial)' }}>
+            <div className="text-5xl mb-4">💰</div>
+            <h2 style={{
+              margin: 0, marginBottom: 12,
+              fontSize: 'var(--text-3xl)', fontWeight: 400, color: 'var(--text-primary)',
+              fontFamily: 'var(--font-editorial)',
+            }}>
               Dapatkan cashback hingga <span className="harga-text-gradient">8%</span>
             </h2>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: 32, maxWidth: 400, marginLeft: 'auto', marginRight: 'auto' }}>
+            <p style={{
+              color: 'var(--text-secondary)', marginBottom: 32,
+              maxWidth: 400, marginLeft: 'auto', marginRight: 'auto',
+            }}>
               Daftar gratis, mulai belanja melalui harga.com, dan saldo cashback langsung masuk ke wallet Anda.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
               <button className="px-8 py-3 rounded-xl transition-opacity hover:opacity-90"
-                style={{ background: 'var(--gradient-gold)', color: 'var(--text-on-brand)', boxShadow: 'var(--shadow-button)', fontWeight: 'var(--fw-extrabold)', fontSize: 'var(--text-sm)', border: 'none', cursor: 'pointer' }}>
+                style={{
+                  background: 'var(--gradient-gold)', color: 'var(--text-on-brand)',
+                  boxShadow: 'var(--shadow-button)', fontWeight: 'var(--fw-extrabold)',
+                  fontSize: 'var(--text-sm)', border: 'none', cursor: 'pointer',
+                }}>
                 Daftar Gratis
               </button>
               <button className="px-8 py-3 rounded-xl transition-colors"
-                style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 'var(--fw-semibold)', fontSize: 'var(--text-sm)', cursor: 'pointer' }}>
+                style={{
+                  background: 'var(--bg-hover)', border: '1px solid var(--border)',
+                  color: 'var(--text-secondary)', fontWeight: 'var(--fw-semibold)',
+                  fontSize: 'var(--text-sm)', cursor: 'pointer',
+                }}>
                 Pelajari Lebih Lanjut
               </button>
             </div>
@@ -456,57 +642,147 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <footer style={{ borderTop: '1px solid var(--border-subtle)', background: 'var(--bg-card)' }} className="px-4 py-12">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-8 mb-8">
-          <div>
+      {/* ── FOOTER ── */}
+      <footer style={{ borderTop: '1px solid var(--border-subtle)', background: 'var(--bg-card)' }}
+        className="px-4 py-12">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-5 gap-8 mb-8">
+          {/* Brand column */}
+          <div className="col-span-2 sm:col-span-1">
             <div className="flex items-center gap-2 mb-3">
-              <svg width={28} height={28} viewBox="0 0 48 48" fill="none" style={{ flexShrink: 0, filter: 'drop-shadow(0 2px 6px rgba(232,112,90,0.25))' }}>
-                <defs><linearGradient id="hg-footer" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#E8705A" /><stop offset="1" stopColor="#D4604A" /></linearGradient></defs>
+              <svg width={28} height={28} viewBox="0 0 48 48" fill="none" style={{ flexShrink: 0, filter: 'drop-shadow(0 2px 6px rgba(249,115,22,0.25))' }}>
+                <defs>
+                  <linearGradient id="hg-footer" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stopColor="#F97316" />
+                    <stop offset="1" stopColor="#EA580C" />
+                  </linearGradient>
+                </defs>
                 <rect x="0" y="0" width="48" height="48" rx="12" fill="url(#hg-footer)" />
                 <g transform="translate(7.5 7.5) scale(1.38)" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
-                  <circle cx="7.5" cy="7.5" r="1.4" fill="#fff" />
+                  <circle cx="7.5" cy="7.5" r="1.4" fill="#fff" stroke="none" />
                 </g>
               </svg>
-              <span style={{ fontFamily: 'var(--font-sans)', fontSize: 18, fontWeight: 'var(--fw-extrabold)', letterSpacing: 'var(--tracking-tight)' }}>
+              <span style={{ fontFamily: 'var(--font-ui)', fontSize: 18, fontWeight: 800, letterSpacing: '-0.5px' }}>
                 <span style={{ color: 'var(--text-primary)' }}>Harga</span>
                 <span style={{ color: 'var(--brand)' }}>.com</span>
               </span>
             </div>
-            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', lineHeight: 'var(--leading-relaxed)', marginBottom: 16, maxWidth: 220 }}>
-              Platform perbandingan harga terlengkap di Indonesia. Hemat lebih banyak, belanja lebih cerdas.
+            <p style={{
+              fontSize: 'var(--text-xs)', color: 'var(--text-muted)',
+              lineHeight: 'var(--leading-relaxed)', marginBottom: 16, maxWidth: 200,
+            }}>
+              Temukan harga terbaik barang baru &amp; bekas dari semua marketplace Indonesia.
             </p>
             <div className="flex gap-2">
-              {[{label:'Instagram',icon:'IG'},{label:'Twitter',icon:'TW'},{label:'TikTok',icon:'TK'},{label:'YouTube',icon:'YT'}].map(s => (
-                <a key={s.label} href="#" title={s.label} className="flex items-center justify-center rounded-lg transition-colors"
-                  style={{ width: 28, height: 28, background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)', fontSize: 'var(--text-9)', fontWeight: 'var(--fw-extrabold)', color: 'var(--text-muted)', textDecoration: 'none' }}>
+              {[
+                { label: 'Instagram', icon: 'IG' },
+                { label: 'Twitter',   icon: 'X' },
+                { label: 'TikTok',   icon: 'TK' },
+                { label: 'YouTube',  icon: 'YT' },
+              ].map(s => (
+                <a key={s.label} href="#" title={s.label}
+                  className="flex items-center justify-center rounded-lg transition-colors"
+                  style={{
+                    width: 28, height: 28, background: 'var(--bg-hover)',
+                    border: '1px solid var(--border-subtle)',
+                    fontSize: 'var(--text-9)', fontWeight: 'var(--fw-extrabold)',
+                    color: 'var(--text-muted)', textDecoration: 'none',
+                  }}>
                   {s.icon}
                 </a>
               ))}
             </div>
           </div>
+
+          {/* Link columns */}
           {[
-            { title: 'Fitur', links: ['Bandingkan Harga', 'Price Alert', 'Cashback', 'Browser Extension', 'Mobile App'] },
-            { title: 'Platform', links: ['Tokopedia', 'Shopee', 'TikTok Shop', 'Amazon', 'AliExpress', 'Lazada'] },
-            { title: 'Perusahaan', links: ['Tentang Kami', 'Blog', 'Karir', 'Hubungi Kami', 'Privasi'] },
+            {
+              title: 'Produk',
+              links: [
+                { label: 'Cari Harga',    href: '/cari' },
+                { label: 'Trending',      href: '/cari?sort=popular' },
+                { label: 'Kategori',      href: '/cari' },
+                { label: 'Pantau Harga',  href: '/alert' },
+              ],
+            },
+            {
+              title: 'Marketplace',
+              links: [
+                { label: 'Shopee',       href: '/cari?platform=shopee' },
+                { label: 'Tokopedia',    href: '/cari?platform=tokopedia' },
+                { label: 'Lazada',       href: '/cari?platform=lazada' },
+                { label: 'Blibli',       href: '/cari?platform=blibli' },
+                { label: 'Bukalapak',    href: '/cari?platform=bukalapak' },
+                { label: '+6 lainnya',   href: '/cari' },
+              ],
+            },
+            {
+              title: 'Perusahaan',
+              links: [
+                { label: 'Tentang Kami', href: '#' },
+                { label: 'Karir',        href: '#' },
+                { label: 'Kontak',       href: '#' },
+                { label: 'Blog',         href: '#' },
+              ],
+            },
+            {
+              title: 'Bantuan',
+              links: [
+                { label: 'FAQ',                 href: '#' },
+                { label: 'Cara Kerja',          href: '#' },
+                { label: 'Kebijakan Privasi',   href: '#' },
+                { label: 'Syarat & Ketentuan',  href: '#' },
+              ],
+            },
           ].map(col => (
             <div key={col.title}>
-              <div style={{ fontWeight: 'var(--fw-semibold)', color: 'var(--text-primary)', fontSize: 'var(--text-xs)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)' }}>{col.title}</div>
+              <div style={{
+                fontWeight: 700, color: 'var(--text-primary)',
+                fontSize: 11, marginBottom: 12,
+                textTransform: 'uppercase' as const, letterSpacing: '0.08em',
+                fontFamily: 'var(--font-ui)',
+              }}>{col.title}</div>
               <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
                 {col.links.map(l => (
-                  <li key={l}><a href="#" title="Segera hadir" style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)', textDecoration: 'none' }}>{l}</a></li>
+                  <li key={l.label}>
+                    <Link href={l.href} style={{
+                      color: 'var(--text-muted)', fontSize: 13, textDecoration: 'none',
+                      fontFamily: 'var(--font-ui)',
+                      transition: 'color 0.15s',
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}>
+                      {l.label}
+                    </Link>
+                  </li>
                 ))}
               </ul>
             </div>
           ))}
         </div>
-        <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 24 }} className="flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>ÃÂ© 2026 harga.com Ã¢ÂÂ Harga real-time, cashback nyata.</p>
-          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat di Indonesia Ã°ÂÂÂ®Ã°ÂÂÂ©</p>
+
+        <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 24 }}
+          className="flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>
+            © 2026 Harga.com — Temukan Harga Terbaik.
+          </p>
+          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat di Indonesia 🇮🇩</p>
         </div>
       </footer>
 
-      <Script id="harga-scroll-reveal" strategy="afterInteractive">{"(function(){if(typeof IntersectionObserver==='undefined')return;var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('in-view');});},{threshold:0.07,rootMargin:'0px 0px -40px 0px'});document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){io.observe(el);});})();"}</Script>
+      {/* ── SCROLL REVEAL OBSERVER ── */}
+      <Script id="harga-scroll-reveal" strategy="afterInteractive">{`
+(function(){
+  if(typeof IntersectionObserver==='undefined')return;
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('in-view');}
+    });
+  },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){io.observe(el);});
+})();
+      `}</Script>
     </div>
   )
 }
+                                                                                                                                                                                                                                                                                                                                                                                        
