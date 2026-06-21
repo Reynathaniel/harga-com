@@ -108,10 +108,12 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
           return { products: [], total: 0, source: 'supabase' }
         }
       }
+      // Note: products_with_best_offer view has no 'condition' column.
+      // Used goods come from OLX/Carousell platforms only.
       if (condition === 'used') {
-        q = q.or('condition.eq.used,best_platform_id.in.(olx,carousell)')
+        q = q.in('best_platform_id', ['olx', 'carousell'])
       } else if (condition === 'new') {
-        q = q.not('best_platform_id', 'in', '("olx","carousell")')
+        q = q.not('best_platform_id', 'in', '(olx,carousell)')
       }
       if (minPrice != null) q = q.gte('best_price', minPrice)
       if (maxPrice != null) q = q.lte('best_price', maxPrice)
@@ -352,8 +354,4 @@ async function enrichProductWithOffers(
     .from('offers')
     .select('*, merchant:merchants(*)')
     .eq('product_id', product.id)
-    .order('price', { ascending: true })
-
-  const offers: OfferWithMerchant[] = offerRows ?? []
-  return adaptDbProductToAppProduct(product, offers)
-}
+    .order('price', { ascending: true 
