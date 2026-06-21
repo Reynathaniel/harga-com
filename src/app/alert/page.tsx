@@ -22,13 +22,36 @@ export default function AlertPage() {
   const [submitted, setSubmitted] = useState(false)
   const [alerts, setAlerts] = useState(DEMO_ALERTS)
 
-  const handleCreate = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 4000)
-    setQuery('')
-    setEmail('')
-    setTargetPrice('')
+    if (!query || !email || !targetPrice) return
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/alerts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query,
+          email,
+          targetPrice: Number(String(targetPrice).replace(/\D/g, '')),
+          notifyType,
+        }),
+      })
+      if (!res.ok) throw new Error('Gagal menyimpan alert')
+      setSubmitted(true)
+      setTimeout(() => setSubmitted(false), 5000)
+      setQuery('')
+      setEmail('')
+      setTargetPrice('')
+    } catch (err) {
+      setError('Terjadi kesalahan. Coba lagi.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const removeAlert = (id: number) => setAlerts(prev => prev.filter(a => a.id !== id))
@@ -191,13 +214,18 @@ export default function AlertPage() {
                 />
               </div>
 
-              <button type="submit"
+              {error && (
+                <p style={{ fontSize: 12, color: '#f87171', textAlign: 'center', margin: 0 }}>{error}</p>
+              )}
+              <button type="submit" disabled={loading}
                 style={{
-                  width: '100%', padding: '12px', borderRadius: 12, border: 'none', cursor: 'pointer',
-                  background: 'var(--brand)', color: '#fff', fontWeight: 700, fontSize: 14,
+                  width: '100%', padding: '12px', borderRadius: 12, border: 'none', cursor: loading ? 'wait' : 'pointer',
+                  background: loading ? 'var(--bg-hover)' : 'var(--brand)', color: loading ? 'var(--text-muted)' : '#fff',
+                  fontWeight: 700, fontSize: 14,
                   fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  transition: 'all 0.15s',
                 }}>
-                <Bell size={15} /> Aktifkan Alert
+                <Bell size={15} /> {loading ? 'Menyimpan...' : 'Aktifkan Alert'}
               </button>
               <p style={{ fontSize: 11, textAlign: 'center', color: 'var(--text-muted)', margin: 0 }}>
                 Gratis · Bisa dibatalkan kapan saja · Tidak ada spam
@@ -266,27 +294,4 @@ export default function AlertPage() {
           </div>
         </div>
 
-        {/* Promo banner */}
-        <div className="mt-10 p-5 rounded-2xl text-center"
-          style={{ background: 'var(--brand-soft-bg)', border: '1px solid var(--brand-soft-border)' }}>
-          <Zap size={20} style={{ color: 'var(--brand)', margin: '0 auto 8px' }} />
-          <p style={{ fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px', fontSize: 14 }}>
-            Beli lewat harga.com = cashback otomatis
-          </p>
-          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '0 0 12px' }}>
-            Saat alert terpicu, beli langsung dari link kami dan cashback masuk otomatis ke wallet.
-          </p>
-          <Link href="/cashback"
-            style={{
-              display: 'inline-block', padding: '8px 20px', borderRadius: 100,
-              background: 'var(--brand)', color: '#fff', fontSize: 13, fontWeight: 600,
-              textDecoration: 'none',
-            }}>
-            Pelajari Cashback →
-          </Link>
-        </div>
-
-      </div>
-    </div>
-  )
-}
+   
