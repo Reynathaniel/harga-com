@@ -27,7 +27,7 @@ export function adaptOfferToListing(offer: OfferWithMerchant): PriceListing {
     freeShipping:  offer.free_shipping,
     url:           offer.url ?? '#',
     affiliateUrl:  offer.affiliate_url ?? '#',
-    imageUrl:      `https://picsum.photos/seed/${merchant.platform_id}/400/400`,
+    imageUrl:      `https://picsum.photos/seed/${offer.id.replace(/-/g, '').slice(0, 12)}/400/400`,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     videoUrl:      (offer as any).video_url  ?? undefined,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -107,5 +107,3 @@ function generateSyntheticHistory(base: number, days = 30) {
     }
     history.push({ date: subDays(new Date(), i), prices })
   }
-  return history
-}
