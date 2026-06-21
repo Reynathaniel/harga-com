@@ -47,7 +47,7 @@ export default function AlertPage() {
       setQuery('')
       setEmail('')
       setTargetPrice('')
-    } catch (err) {
+    } catch {
       setError('Terjadi kesalahan. Coba lagi.')
     } finally {
       setLoading(false)
@@ -294,4 +294,27 @@ export default function AlertPage() {
           </div>
         </div>
 
-   
+        {/* Promo banner */}
+        <div className="mt-10 p-5 rounded-2xl text-center"
+          style={{ background: 'var(--brand-soft-bg)', border: '1px solid var(--brand-soft-border)' }}>
+          <Zap size={20} style={{ color: 'var(--brand)', margin: '0 auto 8px' }} />
+          <p style={{ fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px', fontSize: 14 }}>
+            Beli lewat harga.com = cashback otomatis
+          </p>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '0 0 12px' }}>
+            Saat alert terpicu, beli langsung dari link kami dan cashback masuk otomatis ke wallet.
+          </p>
+          <Link href="/cashback"
+            style={{
+              display: 'inline-block', padding: '8px 20px', borderRadius: 100,
+              background: 'var(--brand)', color: '#fff', fontSize: 13, fontWeight: 600,
+              textDecoration: 'none',
+            }}>
+            Pelajari Cashback →
+          </Link>
+        </div>
+
+      </div>
+    </div>
+  )
+}
