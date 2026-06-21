@@ -1,17 +1,16 @@
-export const dynamic = 'force-dynamic'
-
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
-import { getAllProductIds, getProductById, getProducts } from '@/lib/db/products'
+import { getProductById, getProducts } from '@/lib/db/products'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
 import { PriceChart } from '@/components/PriceChart'
 import { ProductCard } from '@/components/ProductCard'
 import { PlatformBadge } from '@/components/PlatformBadge'
 import { ProductActions } from '@/components/ProductActions'
+import { ImageGallery } from '@/components/ImageGallery'
+import { BookmarkButton } from '@/components/BookmarkButton'
 import {
   Star, ShoppingCart, Shield, Truck,
-  TrendingDown, Bookmark,
+  TrendingDown,
   CheckCircle2, Info, Zap, Tag, Users, ChevronRight
 } from 'lucide-react'
 import Link from 'next/link'
@@ -61,37 +60,24 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-          {/* LEFT: Image */}
+          {/* LEFT: Image Gallery */}
           <div className="lg:col-span-4">
-            <div className="relative aspect-square bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden mb-3 group">
-              <Image src={product.images[0]} alt={product.name} fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500" priority />
-              <div className="absolute top-3 left-3">
-                <PlatformBadge platformId={cheapest.platformId} size="sm" />
-              </div>
-              <div className="absolute top-3 right-3 flex flex-col gap-2">
-                <button className="w-9 h-9 bg-[var(--bg-card)]/90 border border-[var(--border-subtle)] rounded-xl flex items-center justify-center text-[var(--text-muted)] hover:text-amber-500 transition-colors backdrop-blur-sm">
-                  <Bookmark size={15} />
-                </button>
+            {/* Action icons above gallery */}
+            <div className="flex items-center justify-between mb-2">
+              <PlatformBadge platformId={cheapest.platformId} size="sm" />
+              <div className="flex items-center gap-2">
+                <BookmarkButton productId={product.id} />
                 <ShareButton productId={product.id} productName={product.name} variant="icon" />
               </div>
-              {savings > 0 && (
-                <div className="absolute bottom-3 left-3">
-                  <span className="text-xs font-bold bg-green-500 text-white px-2 py-1 rounded-lg shadow-md">
-                    Hemat {formatRupiah(savings, true)}
-                  </span>
-                </div>
-              )}
             </div>
 
-            {product.images.length > 1 && (
-              <div className="flex gap-2 mb-4">
-                {product.images.map((img, i) => (
-                  <div key={i} className={"w-16 h-16 relative bg-[var(--bg-card)] border rounded-xl overflow-hidden cursor-pointer transition-all hover:scale-105 " +
-                    (i === 0 ? 'border-amber-500/60' : 'border-[var(--border-subtle)] hover:border-amber-500/35')}>
-                    <Image src={img} alt="" fill className="object-cover" />
-                  </div>
-                ))}
+            {/* Interactive gallery */}
+            <ImageGallery images={product.images} alt={product.name} />
+
+            {savings > 0 && (
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-green-400 font-semibold">
+                <TrendingDown size={12} />
+                Hemat {formatRupiah(savings, true)} vs platform termahal
               </div>
             )}
 
