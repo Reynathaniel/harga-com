@@ -777,4 +777,14 @@ export default async function HomePage() {
       <Script id="harga-scroll-reveal" strategy="afterInteractive">{`
 (function(){
   if(typeof IntersectionObserver==='undefined')return;
-  var io
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('in-view');}
+    });
+  },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){io.observe(el);});
+})();
+      `}</Script>
+    </div>
+  )
+}
