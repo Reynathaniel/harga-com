@@ -528,12 +528,15 @@ body {
 
 .slide-up { animation: slide-up 0.3s ease-out forwards; }
 
-/* Hero gradient — warm parchment coral */
+/* Footer link hover */
+.footer-link:hover { color: var(--text-primary) !important; transition: color 0.15s; }
+
+/* Hero gradient — warm parchment orange */
 .hero-gradient {
   background:
-    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(232,112,90,0.07), transparent),
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(249,115,22,0.07), transparent),
     radial-gradient(ellipse 50% 40% at 20% 60%, rgba(71,110,120,0.04), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 30%, rgba(232,112,90,0.04), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 30%, rgba(249,115,22,0.04), transparent),
     var(--bg-primary);
 }
 
@@ -638,7 +641,4 @@ body {
   }
   .reveal,.reveal-grid > *,.stat-pop {
     opacity: 1 !important; transform: none !important;
-    transition: none !important; animation: none !important;
-  }
-}
-                                                       
+    trans
