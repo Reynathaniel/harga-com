@@ -144,31 +144,36 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── STATS GRID ── */}
-      <section style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div className="reveal-grid max-w-3xl mx-auto" style={{
-          display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '1px', background: 'var(--border)',
-        }}>
+      {/* ── CATEGORY ROW ── matches design: 6 large horizontal cards right below hero */}
+      <section className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {[
-            { num: '1.400+', label: 'Produk dilacak' },
-            { num: String(STATS.platforms), label: 'Marketplace' },
-            { num: '4 jam', label: 'Update harga' },
-            { num: 'Rp 18M', label: 'Hemat bulan ini' },
-          ].map(s => (
-            <div key={s.label} className="stat-pop" style={{ padding: '32px 28px', background: 'var(--bg-primary)' }}>
-              <p style={{
-                fontFamily: 'var(--font-editorial)',
-                fontSize: 40, fontWeight: 400,
-                color: 'var(--text-primary)',
-                margin: '0 0 4px',
-                lineHeight: 1,
-              }}>{s.num}</p>
-              <p style={{
-                fontSize: 13, color: 'var(--text-secondary)',
-                margin: 0, fontFamily: 'var(--font-ui)',
-              }}>{s.label}</p>
-            </div>
+            { label: 'Elektronik',   icon: '🖥️',  color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',  href: '/cari?kategori=elektronik' },
+            { label: 'Fashion',      icon: '👗',  color: '#F97316', bg: 'rgba(249,115,22,0.10)',  href: '/cari?kategori=fashion' },
+            { label: 'Rumah',        icon: '🏠',  color: '#0EA5E9', bg: 'rgba(14,165,233,0.10)',  href: '/cari?kategori=rumah' },
+            { label: 'Hobi & Game', icon: '🎮',  color: '#8B5CF6', bg: 'rgba(139,92,246,0.10)',  href: '/cari?kategori=gaming' },
+            { label: 'Otomotif',     icon: '🚗',  color: '#EF4444', bg: 'rgba(239,68,68,0.10)',   href: '/cari?kategori=otomotif' },
+            { label: 'Gadget',       icon: '📱',  color: '#10B981', bg: 'rgba(16,185,129,0.10)',  href: '/cari?kategori=gadget' },
+          ].map(cat => (
+            <Link key={cat.label} href={cat.href}
+              className="group flex items-center gap-4 rounded-2xl transition-all hover:-translate-y-0.5"
+              style={{
+                padding: '18px 20px',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-subtle)',
+                boxShadow: 'var(--shadow-card)',
+                textDecoration: 'none',
+              }}>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 text-2xl"
+                style={{ background: cat.bg, boxShadow: `0 0 0 1px ${cat.color}22` }}>
+                {cat.icon}
+              </div>
+              <span style={{
+                fontWeight: 600, color: 'var(--text-primary)',
+                fontSize: 14, fontFamily: 'var(--font-ui)',
+                lineHeight: 1.2,
+              }}>{cat.label}</span>
+            </Link>
           ))}
         </div>
       </section>
@@ -243,7 +248,7 @@ export default async function HomePage() {
       )}
 
       {/* ── DEAL TERBAIK (with Semua / Baru / Bekas tabs) ── */}
-      <DealTerbaikSection allProducts={allProducts.slice(0, 8)} usedProducts={usedProducts} />
+      <DealTerbaikSection allProducts={allProducts.slice(0, 10)} usedProducts={usedProducts} />
 
       {/* ── TRENDING ── */}
       {trendingProducts.length > 0 && (
@@ -523,32 +528,6 @@ export default async function HomePage() {
         <p className="text-center mt-6" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
           Klik platform untuk melihat produk termurah di sana
         </p>
-      </section>
-
-      {/* ── CATEGORIES ── */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHead
-          eyebrow="Kategori"
-          title="Jelajahi Kategori"
-          action={
-            <Link href="/cari"
-              className="flex items-center gap-1 transition-colors"
-              style={{ fontSize: 'var(--text-sm)', color: 'var(--brand)' }}>
-              Lihat semua <ArrowRight size={14} />
-            </Link>
-          }
-        />
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-          {categories.map(cat => (
-            <Link key={cat.id} href={'/cari?kategori=' + cat.id}
-              className="group flex flex-col items-center gap-2 p-4 rounded-xl text-center transition-all hover:scale-105"
-              style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}>
-              <span className="text-2xl">{cat.icon}</span>
-              <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--fw-medium)', color: 'var(--text-secondary)' }}>{cat.label}</span>
-              <span style={{ fontSize: 'var(--text-10)', color: 'var(--text-muted)' }}>{(cat.count / 1000).toFixed(0)}rb+</span>
-            </Link>
-          ))}
-        </div>
       </section>
 
       {/* ── HOW IT WORKS ── */}
