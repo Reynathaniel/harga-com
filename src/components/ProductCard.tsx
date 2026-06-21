@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { TrendingDown } from 'lucide-react'
+import { PlatformBadge } from '@/components/PlatformBadge'
 import type { Product } from '@/lib/types'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
@@ -115,12 +116,7 @@ export function ProductCard({ product, compact = false }: Props) {
           {/* Platform row */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 min-w-0">
-              <span
-                className="w-3.5 h-3.5 rounded-[4px] shrink-0 flex items-center justify-center text-[7px] font-extrabold text-white"
-                style={{ background: platformBg }}
-              >
-                {(platform?.shortName ?? cheapest.platformId).slice(0, 2)}
-              </span>
+              <PlatformBadge platformId={cheapest.platformId} size="sm" variant="dot" showName={false} />
               <span className="text-[11px] text-[var(--text-secondary)] truncate">
                 {platform?.name ?? cheapest.platformId}
               </span>
