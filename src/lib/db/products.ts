@@ -356,6 +356,8 @@ async function enrichProductWithOffers(
     .eq('product_id', product.id)
     .order('price', { ascending: true })
 
-  const offers: OfferWithMerchant[] = offerRows ?? []
+  // Filter out offers with null merchants (orphaned FK)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const offers: OfferWithMerchant[] = (offerRows ?? [] as any[]).filter((o: any) => o.merchant != null)
   return adaptDbProductToAppProduct(product, offers)
 }
