@@ -125,7 +125,7 @@ export function SearchAutocomplete({
           }}
           placeholder={
             size === 'hero'
-              ? "Cari iPhone 15 Pro, Samsung S24, atau tempel link produk..."
+              ? "Cari apa saja — baru atau bekas..."
               : "Cari produk atau tempel URL..."
           }
           className={cn(
@@ -154,7 +154,7 @@ export function SearchAutocomplete({
           {isUrl ? (
             <><ScanLine size={14} />Analisa</>
           ) : (
-            <>Bandingkan</>
+            <>Cari Harga</>
           )}
         </button>
       </div>
