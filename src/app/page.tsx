@@ -1,7 +1,7 @@
 import { ProductCard } from '@/components/ProductCard'
 import { HeroRealSearch } from '@/components/HeroSection'
 import { DealTerbaikSection } from '@/components/DealTerbaikSection'
-import { getProducts, getCategories, getPromoProducts } from '@/lib/db/products'
+import { getProducts, getPromoProducts } from '@/lib/db/products'
 import { STATS } from '@/lib/mock-data'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
@@ -52,7 +52,6 @@ function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: strin
 export default async function HomePage() {
   const { products: allProducts } = await getProducts({ sort: 'popular', limit: 16 })
   const { products: usedProducts } = await getProducts({ condition: 'used', sort: 'popular', limit: 8 })
-  const categories = await getCategories()
   const platformList = Object.values(PLATFORMS)
   const trendingProducts = await getTrendingProducts()
 
