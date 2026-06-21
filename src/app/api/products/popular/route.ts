@@ -21,13 +21,13 @@ export async function GET(req: NextRequest) {
     if (db) {
       const { data, error } = await db
         .from('products_with_best_offer')
-        .select('*')
-        .gt('click_count', 0)
-        .order('click_count', { ascending: false })
+        .select('id, name, slug, image_url, best_price, total_reviews')
+        .order('total_reviews', { ascending: false, nullsFirst: false })
         .limit(limit)
 
       if (!error && data && data.length > 0) {
-        return NextResponse.json({ ok: true, products: data })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return NextResponse.json({ ok: true, products: (data as any[]).map((p: any) => ({ ...p, click_count: p.total_reviews ?? 0 })) })
       }
     }
 
@@ -44,9 +44,4 @@ export async function GET(req: NextRequest) {
         click_count: 0,
       }))
 
-    return NextResponse.json({ ok: true, products: fallback, source: 'mock' })
-  } catch (err) {
-    console.error('[GET /api/products/popular]', err)
-    return NextResponse.json({ ok: false, products: [], error: String(err) }, { status: 500 })
-  }
-}
+    return NextResponse.json({ ok: true, products: fallback, sour
