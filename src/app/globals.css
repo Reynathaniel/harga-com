@@ -641,4 +641,6 @@ body {
   }
   .reveal,.reveal-grid > *,.stat-pop {
     opacity: 1 !important; transform: none !important;
-    trans
+    transition: none !important; animation: none !important;
+  }
+}
