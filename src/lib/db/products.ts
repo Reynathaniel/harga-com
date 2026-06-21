@@ -354,4 +354,8 @@ async function enrichProductWithOffers(
     .from('offers')
     .select('*, merchant:merchants(*)')
     .eq('product_id', product.id)
-    .order('price', { ascending: true 
+    .order('price', { ascending: true })
+
+  const offers: OfferWithMerchant[] = offerRows ?? []
+  return adaptDbProductToAppProduct(product, offers)
+}
