@@ -50,17 +50,27 @@ function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: strin
 }
 
 export default async function HomePage() {
-  const [
-    { products: allProducts },
-    { products: usedProducts },
-    trendingProducts,
-    promoProducts,
-  ] = await Promise.all([
-    getProducts({ sort: 'popular', limit: 16 }).catch(() => ({ products: [], total: 0, source: 'mock' as const })),
-    getProducts({ condition: 'used', sort: 'popular', limit: 8 }).catch(() => ({ products: [], total: 0, source: 'mock' as const })),
-    getTrendingProducts(),
-    getPromoProducts(8).catch(() => [] as typeof import('@/lib/types').Product[]),
-  ])
+  let allProducts: import('@/lib/types').Product[] = []
+  let usedProducts: import('@/lib/types').Product[] = []
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let trendingProducts: any[] = []
+  let promoProducts: import('@/lib/types').Product[] = []
+
+  try {
+    const results = await Promise.all([
+      getProducts({ sort: 'popular', limit: 16 }),
+      getProducts({ condition: 'used', sort: 'popular', limit: 8 }),
+      getTrendingProducts(),
+      getPromoProducts(8),
+    ])
+    allProducts = results[0]?.products ?? []
+    usedProducts = results[1]?.products ?? []
+    trendingProducts = (results[2] as unknown[]) ?? []
+    promoProducts = (results[3] as import('@/lib/types').Product[]) ?? []
+  } catch (err: unknown) {
+    console.error('[HomePage] data fetch error:', err instanceof Error ? err.stack : String(err))
+    // fall through with empty arrays — page renders with skeleton/empty state
+  }
 
   const platformList = Object.values(PLATFORMS)
 
@@ -774,17 +784,4 @@ export default async function HomePage() {
       </footer>
 
       {/* ── SCROLL REVEAL OBSERVER ── */}
-      <Script id="harga-scroll-reveal" strategy="afterInteractive">{`
-(function(){
-  if(typeof IntersectionObserver==='undefined')return;
-  var io=new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){e.target.classList.add('in-view');}
-    });
-  },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){io.observe(el);});
-})();
-      `}</Script>
-    </div>
-  )
-}
+      <Script id="harga-scroll-reveal" strategy="afterInteractiv
