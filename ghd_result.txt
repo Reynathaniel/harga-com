@@ -1,5 +1,0 @@
-=== GitHubDesktop contents ===
-The system cannot find the file specified.
-Latest app dir: 
-Trying git at: C:\Users\ASUS\AppData\Local\GitHubDesktop\\resources\app\git\cmd\git.exe
-Git not at expected path. Trying broader search...

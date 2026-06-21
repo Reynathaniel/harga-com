@@ -1,4 +1,0 @@
-PUSH_FINAL START
-=== GitHubDesktop\bin contents ===
-The system cannot find the file specified.
-=== FINAL DONE ===

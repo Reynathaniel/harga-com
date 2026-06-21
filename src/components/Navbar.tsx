@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Bell, Search, X, Menu } from 'lucide-react'
 import { PLATFORMS } from '@/lib/platforms'
+import { WaitlistModal } from './WaitlistModal'
 
 const NAV_LINKS = [
   { href: '/',         label: 'Beranda' },
@@ -19,6 +20,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [waitlistOpen, setWaitlistOpen] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [pathname])
 
-  const showInlineSearch = showSearch || pathname !== '/'
+  const showInlineSearch = true
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,7 +67,7 @@ export function Navbar() {
           display: 'flex', alignItems: 'center', gap: 6,
           textDecoration: 'none', flexShrink: 0, marginRight: 8,
         }}>
-          <span style={{ color: 'var(--brand)', fontSize: 18, lineHeight: 1, flexShrink: 0 }}>●</span>
+          <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)', flexShrink: 0 }} />
           <span style={{
             fontFamily: 'var(--font-ui)',
             fontSize: 17,
@@ -106,7 +108,7 @@ export function Navbar() {
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Cari produk di 12 platform..."
+            placeholder="Cari produk..."
             style={{
               flex: 1, background: 'transparent', border: 'none', outline: 'none',
               fontSize: 13, color: 'var(--text-primary)',
@@ -175,14 +177,15 @@ export function Navbar() {
             <Bell size={16} />
           </Link>
 
-          {/* CTA button */}
+          {/* Cari button */}
           <button
+            onClick={handleSearch}
             className="hidden md:flex"
             style={{
               alignItems: 'center', gap: 6,
-              padding: '8px 18px',
+              padding: '8px 16px',
               borderRadius: 100,
-              background: 'var(--bg-dark)',
+              background: 'var(--brand)',
               color: '#FFFFFF',
               border: 'none',
               cursor: 'pointer',
@@ -194,7 +197,30 @@ export function Navbar() {
             }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}>
-            Pantau Harga
+            Cari
+          </button>
+
+          {/* CTA button */}
+          <button
+            onClick={() => setWaitlistOpen(true)}
+            className="hidden md:flex"
+            style={{
+              alignItems: 'center', gap: 6,
+              padding: '8px 18px',
+              borderRadius: 100,
+              background: 'var(--brand)',
+              color: '#FFFFFF',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: 'var(--font-ui)',
+              whiteSpace: 'nowrap' as const,
+              transition: 'opacity 0.15s ease',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}>
+            <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: 'rgba(255,255,255,0.8)', flexShrink: 0 }} /> Daftar Gratis
           </button>
 
           {/* Hamburger */}
@@ -265,16 +291,20 @@ export function Navbar() {
             </Link>
           ))}
 
-          <button style={{
-            width: '100%', marginTop: 16, padding: '12px',
-            borderRadius: 12, background: 'var(--bg-dark)',
-            color: '#FFF', border: 'none', cursor: 'pointer',
-            fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-ui)',
-          }}>
-            Pantau Harga
+          <button
+            onClick={() => { setMobileOpen(false); setWaitlistOpen(true) }}
+            style={{
+              width: '100%', marginTop: 16, padding: '12px',
+              borderRadius: 12, background: 'var(--bg-dark)',
+              color: '#FFF', border: 'none', cursor: 'pointer',
+              fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-ui)',
+            }}>
+            Daftar Gratis
           </button>
         </div>
       </div>
     </nav>
+
+    <WaitlistModal isOpen={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
   )
 }
