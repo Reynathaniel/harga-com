@@ -773,4 +773,9 @@ export default async function HomePage() {
       if(e.isIntersecting){e.target.classList.add('in-view');}
     });
   },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal,.reveal-grid,.stat-po
+  document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){io.observe(el);});
+})();
+      `}</Script>
+    </div>
+  )
+}
