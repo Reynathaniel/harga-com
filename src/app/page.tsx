@@ -50,21 +50,28 @@ function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: strin
 }
 
 export default async function HomePage() {
-  const { products: allProducts } = await getProducts({ sort: 'popular', limit: 16 })
-  const { products: usedProducts } = await getProducts({ condition: 'used', sort: 'popular', limit: 8 })
+  const [
+    { products: allProducts },
+    { products: usedProducts },
+    trendingProducts,
+    promoProducts,
+  ] = await Promise.all([
+    getProducts({ sort: 'popular', limit: 16 }).catch(() => ({ products: [], total: 0, source: 'mock' as const })),
+    getProducts({ condition: 'used', sort: 'popular', limit: 8 }).catch(() => ({ products: [], total: 0, source: 'mock' as const })),
+    getTrendingProducts(),
+    getPromoProducts(8).catch(() => [] as typeof import('@/lib/types').Product[]),
+  ])
+
   const platformList = Object.values(PLATFORMS)
-  const trendingProducts = await getTrendingProducts()
 
-  const promoProducts = await getPromoProducts(8)
-
-  const hematProducts = [...allProducts]
+  const hematProducts = (allProducts ?? [])
     .map(p => {
-      const sorted = lowestListingFirst(p.listings)
+      const sorted = lowestListingFirst(p.listings ?? [])
       const diff = sorted.length > 1 ? priceDiffPercent(sorted[0].price, sorted[sorted.length - 1].price) : 0
       const savings = sorted.length > 1 ? sorted[sorted.length - 1].price - sorted[0].price : 0
       return { product: p, diff, savings }
     })
-    .filter(x => x.diff > 5)
+    .filter(x => x.diff > 5 && isFinite(x.diff))
     .sort((a, b) => b.savings - a.savings)
     .slice(0, 4)
 
@@ -209,8 +216,8 @@ export default async function HomePage() {
             }
           />
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 reveal-grid">
-            {promoProducts.map(p => {
-              const cheapest = lowestListingFirst(p.listings)[0]
+            {(promoProducts ?? []).map(p => {
+              const cheapest = lowestListingFirst(p.listings ?? [])[0]
               const discountPct = cheapest?.originalPrice && cheapest.originalPrice > cheapest.price
                 ? Math.round(100 * (cheapest.originalPrice - cheapest.price) / cheapest.originalPrice)
                 : 0
@@ -220,7 +227,7 @@ export default async function HomePage() {
                   style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-card)' }}>
                   {/* Image */}
                   <div className="relative aspect-square overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
-                    {p.images[0]
+                    {p.images?.[0]
                       ? <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       : <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--text-muted)' }}><Flame size={32} /></div>
                     }
@@ -408,9 +415,11 @@ export default async function HomePage() {
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {hematProducts.map(({ product, diff, savings }) => {
-                const sorted = lowestListingFirst(product.listings)
+                const sorted = lowestListingFirst(product.listings ?? [])
                 const cheapest = sorted[0]
+                if (!cheapest) return null
                 const platform = PLATFORMS[cheapest.platformId]
+                if (!platform) return null
                 return (
                   <Link key={product.id} href={'/produk/' + product.id}
                     className="group rounded-2xl p-4 transition-all"
@@ -768,14 +777,4 @@ export default async function HomePage() {
       <Script id="harga-scroll-reveal" strategy="afterInteractive">{`
 (function(){
   if(typeof IntersectionObserver==='undefined')return;
-  var io=new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){e.target.classList.add('in-view');}
-    });
-  },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){io.observe(el);});
-})();
-      `}</Script>
-    </div>
-  )
-}
+  var io
