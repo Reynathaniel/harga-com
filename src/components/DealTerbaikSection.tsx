@@ -74,8 +74,8 @@ export function DealTerbaikSection({ allProducts, usedProducts }: Props) {
       </div>
 
       {/* Product grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 reveal-grid">
-        {products.slice(0, 8).map(p => <ProductCard key={p.id} product={p} />)}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 reveal-grid">
+        {products.slice(0, 10).map(p => <ProductCard key={p.id} product={p} />)}
       </div>
 
       {tab === 'used' && (
