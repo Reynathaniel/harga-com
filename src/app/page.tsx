@@ -51,28 +51,27 @@ function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: strin
   )
 }
 
-export default async function HomePage() {
-  let allProducts: Product[] = []
-  let usedProducts: Product[] = []
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let trendingProducts: any[] = []
-  let promoProducts: Product[] = []
-
+async function getHomePageData() {
   try {
-    const results = await Promise.all([
-      getProducts({ sort: 'popular', limit: 16 }),
-      getProducts({ condition: 'used', sort: 'popular', limit: 8 }),
-      getTrendingProducts(),
-      getPromoProducts(8),
+    const [r0, r1, r2, r3] = await Promise.all([
+      getProducts({ sort: 'popular', limit: 16 }).catch(() => ({ products: [] as Product[], total: 0, source: 'mock' as const })),
+      getProducts({ condition: 'used', sort: 'popular', limit: 8 }).catch(() => ({ products: [] as Product[], total: 0, source: 'mock' as const })),
+      getTrendingProducts().catch(() => []),
+      getPromoProducts(8).catch(() => [] as Product[]),
     ])
-    allProducts = results[0]?.products ?? []
-    usedProducts = results[1]?.products ?? []
-    trendingProducts = (results[2] ?? []) as unknown[]
-    promoProducts = (results[3] ?? []) as Product[]
-  } catch (err) {
-    console.error('[HomePage] data fetch error:', err instanceof Error ? (err as Error).stack : String(err))
-    // fall through with empty arrays — page renders with skeleton/empty state
+    return {
+      allProducts:      (r0.products ?? []) as Product[],
+      usedProducts:     (r1.products ?? []) as Product[],
+      trendingProducts: (r2 ?? []) as Record<string, unknown>[],
+      promoProducts:    (r3 ?? []) as Product[],
+    }
+  } catch {
+    return { allProducts: [] as Product[], usedProducts: [] as Product[], trendingProducts: [] as Record<string, unknown>[], promoProducts: [] as Product[] }
   }
+}
+
+export default async function HomePage() {
+  const { allProducts, usedProducts, trendingProducts, promoProducts } = await getHomePageData()
 
   const platformList = Object.values(PLATFORMS)
 
@@ -781,9 +780,4 @@ export default async function HomePage() {
           <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>
             © 2026 Harga.com — Temukan Harga Terbaik.
           </p>
-          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat di Indonesia 🇮🇩</p>
-        </div>
-      </footer>
-
-      {/* ── SCROLL REVEAL OBSERVER ── */}
-      <Script id="harga-scroll-reveal" strateg
+          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat
