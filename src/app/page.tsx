@@ -143,6 +143,23 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── STATS STRIP ── */}
+      <div style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="max-w-7xl mx-auto px-4 py-4 grid grid-cols-2 sm:grid-cols-4 divide-x divide-[var(--border-subtle)]">
+          {[
+            { label: 'Produk Aktif', value: STATS.products.toLocaleString('id') + '+', color: 'var(--brand)' },
+            { label: 'Marketplace',  value: STATS.platforms + '+',                      color: 'var(--win)' },
+            { label: 'Update Harga', value: 'Tiap 4 jam',                               color: '#a78bfa' },
+            { label: 'Cashback',     value: 'S/d 8%',                                   color: '#facc15' },
+          ].map(s => (
+            <div key={s.label} className="px-4 sm:px-6 first:pl-0 text-center sm:text-left">
+              <div className="text-lg font-extrabold" style={{ color: s.color, fontFamily: 'var(--font-ui)' }}>{s.value}</div>
+              <div className="text-[11px] text-[var(--text-muted)]">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* ── CATEGORY ROW ── matches design: 6 large horizontal cards right below hero */}
       <section className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -592,22 +609,24 @@ export default async function HomePage() {
               Daftar gratis, mulai belanja melalui harga.com, dan saldo cashback langsung masuk ke wallet Anda.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-              <button className="px-8 py-3 rounded-xl transition-opacity hover:opacity-90"
+              <Link href="/cari"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl transition-opacity hover:opacity-90"
                 style={{
                   background: 'var(--gradient-gold)', color: 'var(--text-on-brand)',
                   boxShadow: 'var(--shadow-button)', fontWeight: 'var(--fw-extrabold)',
-                  fontSize: 'var(--text-sm)', border: 'none', cursor: 'pointer',
+                  fontSize: 'var(--text-sm)', textDecoration: 'none',
                 }}>
-                Daftar Gratis
-              </button>
-              <button className="px-8 py-3 rounded-xl transition-colors"
+                Mulai Belanja
+              </Link>
+              <Link href="/cashback"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl transition-colors"
                 style={{
                   background: 'var(--bg-hover)', border: '1px solid var(--border)',
                   color: 'var(--text-secondary)', fontWeight: 'var(--fw-semibold)',
-                  fontSize: 'var(--text-sm)', cursor: 'pointer',
+                  fontSize: 'var(--text-sm)', textDecoration: 'none',
                 }}>
-                Pelajari Lebih Lanjut
-              </button>
+                Pelajari Cashback
+              </Link>
             </div>
             <div className="flex flex-wrap gap-4 justify-center">
               {['Cashback otomatis', 'Tarik ke GoPay/OVO', 'Tanpa minimum pembelian'].map(b => (
@@ -754,9 +773,4 @@ export default async function HomePage() {
       if(e.isIntersecting){e.target.classList.add('in-view');}
     });
   },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){io.observe(el);});
-})();
-      `}</Script>
-    </div>
-  )
-}
+  document.querySelectorAll('.reveal,.reveal-grid,.stat-po
