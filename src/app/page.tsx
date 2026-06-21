@@ -8,6 +8,8 @@ import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
 import { TrendingDown, Bell, Wallet, Shield, Zap, RefreshCw, ArrowRight, CheckCircle2, Flame } from 'lucide-react'
 import Link from 'next/link'
 import Script from 'next/script'
+import type { Product } from '@/lib/types'
+import type { ReactNode } from 'react'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -27,7 +29,7 @@ async function getTrendingProducts() {
 }
 
 /* Eyebrow + title section head — matches design system SectionHead */
-function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: string; action?: React.ReactNode }) {
+function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: string; action?: ReactNode }) {
   return (
     <div className="reveal flex justify-between items-end flex-wrap gap-4 mb-6">
       <div>
@@ -50,11 +52,11 @@ function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: strin
 }
 
 export default async function HomePage() {
-  let allProducts: import('@/lib/types').Product[] = []
-  let usedProducts: import('@/lib/types').Product[] = []
+  let allProducts: Product[] = []
+  let usedProducts: Product[] = []
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let trendingProducts: any[] = []
-  let promoProducts: import('@/lib/types').Product[] = []
+  let promoProducts: Product[] = []
 
   try {
     const results = await Promise.all([
@@ -65,10 +67,10 @@ export default async function HomePage() {
     ])
     allProducts = results[0]?.products ?? []
     usedProducts = results[1]?.products ?? []
-    trendingProducts = (results[2] as unknown[]) ?? []
-    promoProducts = (results[3] as import('@/lib/types').Product[]) ?? []
-  } catch (err: unknown) {
-    console.error('[HomePage] data fetch error:', err instanceof Error ? err.stack : String(err))
+    trendingProducts = (results[2] ?? []) as unknown[]
+    promoProducts = (results[3] ?? []) as Product[]
+  } catch (err) {
+    console.error('[HomePage] data fetch error:', err instanceof Error ? (err as Error).stack : String(err))
     // fall through with empty arrays — page renders with skeleton/empty state
   }
 
@@ -281,7 +283,7 @@ export default async function HomePage() {
       )}
 
       {/* ── DEAL TERBAIK (with Semua / Baru / Bekas tabs) ── */}
-      <DealTerbaikSection allProducts={allProducts.slice(0, 10)} usedProducts={usedProducts} />
+      <DealTerbaikSection allProducts={(allProducts ?? []).slice(0, 10)} usedProducts={usedProducts ?? []} />
 
       {/* ── TRENDING ── */}
       {trendingProducts.length > 0 && (
@@ -380,8 +382,8 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="flex gap-3">
-              {usedProducts.slice(0, 2).map(p => {
-                const cheapest = lowestListingFirst(p.listings)[0]
+              {(usedProducts ?? []).slice(0, 2).map(p => {
+                const cheapest = lowestListingFirst(p.listings ?? [])[0]
                 return cheapest ? (
                   <Link key={p.id} href={'/produk/' + p.id}
                     className="w-36 rounded-xl overflow-hidden group transition-all"
@@ -784,4 +786,4 @@ export default async function HomePage() {
       </footer>
 
       {/* ── SCROLL REVEAL OBSERVER ── */}
-      <Script id="harga-scroll-reveal" strategy="afterInteractiv
+      <Script id="harga-scroll-reveal" strateg
