@@ -2,11 +2,12 @@ name: Scrape Price Data
 
 on:
   schedule:
+    # Every 4 hours: 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
     - cron: '0 0,4,8,12,16,20 * * *'
   workflow_dispatch:
     inputs:
       query:
-        description: 'Specific query to scrape'
+        description: 'Specific query to scrape (leave empty for default rotation)'
         required: false
         default: ''
 
@@ -14,20 +15,27 @@ jobs:
   scrape:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install dependencies
-        run: npm install @supabase/supabase-js
+
+      - name: Install tsx + supabase-js
+        run: npm install -g tsx && npm install @supabase/supabase-js
+
       - name: Run scraper
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SCRAPE_QUERY: ${{ github.event.inputs.query }}
         run: node scripts/scrape-cron.mjs
-      - name: Ping Vercel revalidate
+
+      - name: Notify Vercel to revalidate
         if: success()
         run: |
-          curl -s "https://harga-com.vercel.app/api/ping" --max-time 10 || true
+          curl -s -X POST "https://harga-com.vercel.app/api/ping" \
+            -H "x-scraper-secret: ${{ secrets.SCRAPER_SECRET }}" \
+            --max-time 10 || true
