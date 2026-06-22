@@ -5,7 +5,7 @@
  * When the schema changes, only update here.
  */
 
-import type { Product, PriceListing, PlatformId } from '../types'
+import type { Product, PriceListing, PlatformId, PriceHistory } from '../types'
 import type { ProductRow, OfferWithMerchant } from '../database.types'
 import { subDays } from 'date-fns'
 
@@ -40,16 +40,18 @@ export function adaptOfferToListing(offer: OfferWithMerchant): PriceListing {
 
 export function adaptDbProductToAppProduct(
   product: ProductRow,
-  offers: OfferWithMerchant[]
+  offers: OfferWithMerchant[],
+  realPriceHistory?: PriceHistory[]
 ): Product {
   const listings = offers.map(adaptOfferToListing)
   const prices = listings.map(l => l.price)
   const lowestPrice  = prices.length ? Math.min(...prices) : 0
   const highestPrice = prices.length ? Math.max(...prices) : 0
 
-  // Generate synthetic price history if no real history available
-  // (replaced by real data from price-history.ts when integrated)
-  const priceHistory = generateSyntheticHistory(lowestPrice)
+  // Use real price history if provided, otherwise fall back to synthetic data
+  const priceHistory = (realPriceHistory && realPriceHistory.length > 0)
+    ? realPriceHistory
+    : generateSyntheticHistory(lowestPrice)
 
   // Parse specifications safely
   let specifications: Record<string, string> = {}
@@ -86,7 +88,7 @@ export function adaptDbProductToAppProduct(
 // ── generateSyntheticHistory ────────────────────────────────────────
 // Used when real price history is not yet populated in DB
 
-function generateSyntheticHistory(base: number, days = 30) {
+export function generateSyntheticHistory(base: number, days = 30) {
   const history = []
 
   for (let i = days; i >= 0; i--) {
@@ -105,7 +107,3 @@ function generateSyntheticHistory(base: number, days = 30) {
       olx:        null,
       carousell:  null,
     }
-    history.push({ date: subDays(new Date(), i), prices })
-  }
-  return history
-}
