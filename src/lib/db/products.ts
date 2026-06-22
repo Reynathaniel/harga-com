@@ -360,4 +360,73 @@ export async function getPriceHistory(productId: string, days = 30): Promise<Pri
       since.setDate(since.getDate() - days)
       since.setHours(0, 0, 0, 0)
 
-      // F
+      // Fetch offer IDs for this product
+      const { data: offerRows } = await (db as any)
+        .from('offers')
+        .select('id, merchant_id')
+        .eq('product_id', productId)
+
+      if (!offerRows || offerRows.length === 0) return []
+
+      // Fetch merchants to map merchant_id → platform_id
+      const { data: merchantRows } = await (db as any)
+        .from('merchants')
+        .select('id, platform_id')
+
+      const merchantMap: Record<string, string> = {}
+      for (const m of (merchantRows ?? [])) {
+        merchantMap[m.id] = m.platform_id
+      }
+
+      // Build offer_id → platform_id map
+      const offerPlatform: Record<string, string> = {}
+      for (const o of offerRows as any[]) {
+        offerPlatform[o.id] = merchantMap[o.merchant_id] ?? 'unknown'
+      }
+
+      const offerIds = offerRows.map((o: any) => o.id)
+
+      // Query price_history for these offers since cutoff date
+      const { data: rows, error: phErr } = await (db as any)
+        .from('price_history')
+        .select('offer_id, price, recorded_at')
+        .in('offer_id', offerIds)
+        .gte('recorded_at', since.toISOString())
+        .order('recorded_at', { ascending: true })
+
+      if (phErr) throw phErr
+      if (!rows || rows.length === 0) return []
+
+      // Group by day (YYYY-MM-DD) × platform → min price
+      const dayMap = new Map<string, Record<string, number>>()
+      for (const row of rows as any[]) {
+        const day      = String(row.recorded_at).slice(0, 10)
+        const platform = offerPlatform[row.offer_id]
+        if (!platform || platform === 'unknown') continue
+
+        if (!dayMap.has(day)) dayMap.set(day, {})
+        const dp = dayMap.get(day)!
+        if (!(platform in dp) || row.price < dp[platform]) {
+          dp[platform] = row.price
+        }
+      }
+
+      // Convert to PriceHistory[]
+      const result: PriceHistory[] = []
+      for (const [day, platformPrices] of dayMap) {
+        const prices: Partial<Record<PlatformId, number | null>> = {}
+        for (const [plat, price] of Object.entries(platformPrices)) {
+          prices[plat as PlatformId] = price
+        }
+        result.push({ date: new Date(day + 'T00:00:00Z'), prices })
+      }
+      result.sort((a, b) => a.date.getTime() - b.date.getTime())
+      return result
+
+    } catch (err) {
+      console.error('[getPriceHistory] Supabase error:', err)
+    }
+  }
+
+  return []
+}
