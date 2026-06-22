@@ -247,4 +247,16 @@ export function Navbar() {
                 marginTop: 16, padding: '13px',
                 borderRadius: 12, background: 'var(--brand)',
                 color: '#FFF', textDecoration: 'none',
-                fontSize:
+                fontSize: 14, fontWeight: 700, fontFamily: 'var(--font-ui)',
+              }}>
+              <Bell size={15} />
+              Pantau Harga
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      <WaitlistModal isOpen={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
+    </>
+  )
+}
