@@ -11,7 +11,7 @@ import { subDays } from 'date-fns'
 
 // ── adaptOfferToListing ─────────────────────────────────────────────
 
-export function adaptOfferToListing(offer: OfferWithMerchant): PriceListing {
+export function adaptOfferToListing(offer: OfferWithMerchant, fallbackImageUrl?: string): PriceListing {
   const merchant = offer.merchant
   return {
     platformId:    merchant.platform_id as PlatformId,
@@ -27,7 +27,7 @@ export function adaptOfferToListing(offer: OfferWithMerchant): PriceListing {
     freeShipping:  offer.free_shipping,
     url:           offer.url ?? '#',
     affiliateUrl:  offer.affiliate_url ?? '#',
-    imageUrl:      `https://picsum.photos/seed/${offer.id.replace(/-/g, '').slice(0, 12)}/400/400`,
+    imageUrl:      fallbackImageUrl ?? `https://picsum.photos/seed/${offer.id.replace(/-/g, '').slice(0, 12)}/400/400`,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     videoUrl:      (offer as any).video_url  ?? undefined,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -43,7 +43,8 @@ export function adaptDbProductToAppProduct(
   offers: OfferWithMerchant[],
   realPriceHistory?: PriceHistory[]
 ): Product {
-  const listings = offers.map(adaptOfferToListing)
+  const productImage = product.images?.[0] ?? product.image_url ?? undefined
+  const listings = offers.map(offer => adaptOfferToListing(offer, productImage))
   const prices = listings.map(l => l.price)
   const lowestPrice  = prices.length ? Math.min(...prices) : 0
   const highestPrice = prices.length ? Math.max(...prices) : 0
@@ -99,11 +100,4 @@ export function generateSyntheticHistory(base: number, days = 30) {
       lazada:     Math.round(v() * 1.02 / 1000) * 1000,
       bukalapak:  i > 20 ? null : Math.round(v() * 0.97 / 1000) * 1000,
       blibli:     Math.round(v() * 1.05 / 1000) * 1000,
-      tiktok:     i > 15 ? null : Math.round(v() * 0.91 / 1000) * 1000,
-      amazon:     null,
-      alibaba:    null,
-      aliexpress: null,
-      jd:         null,
-      olx:        null,
-      carousell:  null,
-    }
+      tiktok:     i > 15 ? null : Math.round(v() * 0.91 / 1000) * 10
