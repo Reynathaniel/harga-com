@@ -1,9 +1,8 @@
 name: Scrape Price Data
 
 on:
-  schedule:
-    # Every 4 hours: 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
-    - cron: '0 0,4,8,12,16,20 * * *'
+  # Schedule disabled — Vercel cron (vercel.json) handles automated scraping.
+  # Use workflow_dispatch for manual runs.
   workflow_dispatch:
     inputs:
       query:
@@ -38,4 +37,4 @@ jobs:
         run: |
           curl -s -X POST "https://harga-com.vercel.app/api/ping" \
             -H "x-scraper-secret: ${{ secrets.SCRAPER_SECRET }}" \
-            --max-time 10 || true
+            --max-time 10 
