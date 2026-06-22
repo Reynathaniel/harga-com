@@ -7,6 +7,7 @@ import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
 import type { Product } from '@/lib/types'
 import { TrendingDown, Bell, Wallet, Shield, Zap, RefreshCw, ArrowRight, CheckCircle2, Flame } from 'lucide-react'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
 import Script from 'next/script'
 export const dynamic = 'force-dynamic'
@@ -27,7 +28,7 @@ async function getTrendingProducts() {
 }
 
 /* Eyebrow + title section head — matches design system SectionHead */
-function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: string; action?: React.ReactNode }) {
+function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: string; action?: ReactNode }) {
   return (
     <div className="reveal flex justify-between items-end flex-wrap gap-4 mb-6">
       <div>
@@ -408,7 +409,7 @@ export default async function HomePage() {
               eyebrow="Selisih Terbesar"
               title={<span className="flex items-center gap-2"><TrendingDown size={20} style={{ color: 'var(--win)' }} /> Hemat Terbesar Hari Ini</span> as any}
               action={
-                <Link href="/cari?sort=hemat"
+                <Link href="/cari?sort=lowest"
                   className="flex items-center gap-1 transition-colors"
                   style={{ fontSize: 'var(--text-sm)', color: 'var(--win)' }}>
                   Lihat semua <ArrowRight size={14} />
@@ -486,7 +487,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
               { icon: <TrendingDown size={22} style={{ color: 'var(--win)' }} />, title: 'Bandingkan Real-Time', desc: 'Harga diperbarui setiap 4 jam dari semua marketplace. Selalu dapatkan harga terkini.', badge: 'LIVE', badgeStyle: { background: 'var(--win-soft-bg)', color: 'var(--win)', border: '1px solid var(--win-soft-border)' } },
-              { icon: <Wallet size={22} style={{ color: 'var(--brand)' }} />, title: 'Cashback Otomatis', desc: 'Beli melalui kami dan dapatkan cashback 5-8%. Saldo bisa ditarik ke GoPay/OVO/Bank.', badge: 'S/D 8%', badgeStyle: { background: 'var(--brand-soft-bg)', color: 'var(--brand)', border: '1px solid var(--brand-soft-border)' } },
+              { icon: <Wallet size={22} style={{ color: 'var(--brand)' }} />, title: 'Cashback Otomatis', desc: 'Beli melalui kami dan dapatkan cashback 5-8%. Fitur penarikan ke GoPay/OVO segera hadir.', badge: 'SEGERA', badgeStyle: { background: 'var(--brand-soft-bg)', color: 'var(--brand)', border: '1px solid var(--brand-soft-border)' } },
               { icon: <Bell size={22} style={{ color: 'var(--amber-300)' }} />, title: 'Price Alert Pintar', desc: 'Set target harga dan dapatkan notifikasi WA/Email saat harga turun ke target.', badge: 'WA + EMAIL', badgeStyle: { background: 'var(--brand-soft-bg)', color: 'var(--amber-300)', border: '1px solid var(--brand-soft-border)' } },
               { icon: <Zap size={22} style={{ color: '#facc15' }} />, title: 'Beli Sekarang', desc: 'Tidak perlu pindah tab. Beli langsung melalui kami, cashback masuk otomatis.', badge: '1 KLIK', badgeStyle: { background: 'rgba(250,204,21,0.10)', color: '#facc15', border: '1px solid rgba(250,204,21,0.20)' } },
               { icon: <RefreshCw size={22} style={{ color: 'var(--cyan-400)' }} />, title: 'Riwayat Harga', desc: 'Grafik harga 90 hari terakhir. Tahu kapan harga sedang turun atau naik.', badge: '90 HARI', badgeStyle: { background: 'rgba(34,211,238,0.10)', color: 'var(--cyan-400)', border: '1px solid rgba(34,211,238,0.20)' } },
@@ -573,7 +574,7 @@ export default async function HomePage() {
             {[
               { step: '01', icon: '🔍', title: 'Cari Produk', desc: 'Ketik nama produk atau paste link dari marketplace manapun' },
               { step: '02', icon: '💡', title: 'Bandingkan Harga', desc: 'Lihat harga dari semua marketplace sekaligus + grafik historis' },
-              { step: '03', icon: '💰', title: 'Beli & Dapat Cashback', desc: 'Beli melalui kami, cashback masuk otomatis ke wallet Anda' },
+              { step: '03', icon: '💰', title: 'Beli & Dapat Cashback', desc: 'Beli melalui kami, cashback tercatat otomatis (penarikan wallet segera hadir)' },
             ].map(s => (
               <div key={s.step} className="flex flex-col items-center">
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-4"
@@ -617,7 +618,7 @@ export default async function HomePage() {
               color: 'var(--text-secondary)', marginBottom: 32,
               maxWidth: 400, marginLeft: 'auto', marginRight: 'auto',
             }}>
-              Daftar gratis, mulai belanja melalui harga.com, dan saldo cashback langsung masuk ke wallet Anda.
+              Daftar gratis dan mulai belanja melalui harga.com. Fitur wallet & penarikan cashback segera hadir.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
               <Link href="/cari"
@@ -640,7 +641,7 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="flex flex-wrap gap-4 justify-center">
-              {['Cashback otomatis', 'Tarik ke GoPay/OVO', 'Tanpa minimum pembelian'].map(b => (
+              {['Cashback otomatis', 'Tarik ke wallet (segera)', 'Tanpa minimum pembelian'].map(b => (
                 <div key={b} className="flex items-center gap-1.5" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
                   <CheckCircle2 size={14} style={{ color: 'var(--win)' }} />{b}
                 </div>
@@ -683,12 +684,11 @@ export default async function HomePage() {
             </p>
             <div className="flex gap-2">
               {[
-                { label: 'Instagram', icon: 'IG' },
-                { label: 'Twitter',   icon: 'X' },
-                { label: 'TikTok',   icon: 'TK' },
-                { label: 'YouTube',  icon: 'YT' },
+                { label: 'Instagram', icon: 'IG', href: 'https://instagram.com/harga.com.id' },
+                { label: 'Twitter',   icon: 'X',  href: 'https://twitter.com/hargacomid' },
+                { label: 'TikTok',   icon: 'TK', href: 'https://tiktok.com/@harga.com.id' },
               ].map(s => (
-                <a key={s.label} href="#" title={s.label}
+                <a key={s.label} href={s.href} title={s.label} target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-center rounded-lg transition-colors"
                   style={{
                     width: 28, height: 28, background: 'var(--bg-hover)',
@@ -727,19 +727,18 @@ export default async function HomePage() {
             {
               title: 'Perusahaan',
               links: [
-                { label: 'Tentang Kami', href: '#' },
-                { label: 'Karir',        href: '#' },
-                { label: 'Kontak',       href: '#' },
-                { label: 'Blog',         href: '#' },
+                { label: 'Tentang Kami', href: '/tentang' },
+                { label: 'Kontak',       href: 'mailto:halo@harga.com' },
+                { label: 'Blog',         href: '/blog' },
               ],
             },
             {
               title: 'Bantuan',
               links: [
-                { label: 'FAQ',                 href: '#' },
-                { label: 'Cara Kerja',          href: '#' },
-                { label: 'Kebijakan Privasi',   href: '#' },
-                { label: 'Syarat & Ketentuan',  href: '#' },
+                { label: 'FAQ',                 href: '/faq' },
+                { label: 'Cara Kerja',          href: '/cara-kerja' },
+                { label: 'Kebijakan Privasi',   href: '/kebijakan-privasi' },
+                { label: 'Syarat & Ketentuan',  href: '/syarat-ketentuan' },
               ],
             },
           ].map(col => (
@@ -781,12 +780,4 @@ export default async function HomePage() {
   if(typeof IntersectionObserver==='undefined')return;
   var io=new IntersectionObserver(function(entries){
     entries.forEach(function(e){
-      if(e.isIntersecting){e.target.classList.add('in-view');}
-    });
-  },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){io.observe(el);});
-})();
-      `}</Script>
-    </div>
-  )
-}
+      if(e.isIntersecting){e.target.classList.add('in-vi
