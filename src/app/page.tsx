@@ -166,16 +166,18 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ── CATEGORY ROW ── matches design: 6 large horizontal cards right below hero */}
+      {/* ── CATEGORY ROW ── */}
       <section className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {[
             { label: 'Elektronik',   icon: '🖥️',  color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',  href: '/cari?kategori=elektronik' },
             { label: 'Fashion',      icon: '👗',  color: '#F97316', bg: 'rgba(249,115,22,0.10)',  href: '/cari?kategori=fashion' },
-            { label: 'Rumah',        icon: '🏠',  color: '#0EA5E9', bg: 'rgba(14,165,233,0.10)',  href: '/cari?kategori=rumah' },
+            { label: 'Rumah',        icon: '🏠',  color: '#0EA5E9', bg: 'rgba(14,165,233,0.10)',  href: '/cari?kategori=rumah-tangga' },
             { label: 'Hobi & Game', icon: '🎮',  color: '#8B5CF6', bg: 'rgba(139,92,246,0.10)',  href: '/cari?kategori=gaming' },
             { label: 'Otomotif',     icon: '🚗',  color: '#EF4444', bg: 'rgba(239,68,68,0.10)',   href: '/cari?kategori=otomotif' },
-            { label: 'Gadget',       icon: '📱',  color: '#10B981', bg: 'rgba(16,185,129,0.10)',  href: '/cari?kategori=gadget' },
+            { label: 'Gadget',       icon: '📱',  color: '#10B981', bg: 'rgba(16,185,129,0.10)',  href: '/cari?kategori=elektronik' },
+            { label: 'Motor Bekas',  icon: '🏍️',  color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',  href: '/cari?kategori=motor-bekas' },
+            { label: 'Mobil Bekas',  icon: '🚙',  color: '#64748B', bg: 'rgba(100,116,139,0.10)', href: '/cari?kategori=mobil-bekas' },
           ].map(cat => (
             <Link key={cat.label} href={cat.href}
               className="group flex items-center gap-4 rounded-2xl transition-all hover:-translate-y-0.5"
@@ -778,12 +780,4 @@ export default async function HomePage() {
   if(typeof IntersectionObserver==='undefined')return;
   var io=new IntersectionObserver(function(entries){
     entries.forEach(function(e){
-      if(e.isIntersecting){e.target.classList.add('in-view');}
-    });
-  },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){io.observe(el);});
-})();
-      `}</Script>
-    </div>
-  )
-}
+      if(e.isIntersecting){e.target.
