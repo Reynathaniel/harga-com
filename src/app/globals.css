@@ -645,4 +645,10 @@ body {
 /* Reduced motion — respect user preference */
 @media (prefers-reduced-motion: reduce) {
   .hero-enter-1,.hero-enter-2,.hero-enter-3,.hero-enter-4,.hero-enter-5 {
-    animation: none !important; opacity: 1 !important; 
+    animation: none !important; opacity: 1 !important; transform: none !important;
+  }
+  .reveal,.reveal-grid > *,.stat-pop {
+    opacity: 1 !important; transform: none !important;
+    transition: none !important; animation: none !important;
+  }
+}
