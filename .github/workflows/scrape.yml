@@ -37,4 +37,4 @@ jobs:
         run: |
           curl -s -X POST "https://harga-com.vercel.app/api/ping" \
             -H "x-scraper-secret: ${{ secrets.SCRAPER_SECRET }}" \
-            --max-time 10 
+            --max-time 10 || true

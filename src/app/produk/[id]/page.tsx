@@ -66,7 +66,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
           <ChevronRight size={12} className="shrink-0" />
           <Link href="/cari" className="hover:text-[var(--text-primary)] transition-colors">Cari</Link>
           <ChevronRight size={12} className="shrink-0" />
-          <Link href={"/cari?kategori=" + product.category.toLowerCase()} className="hover:text-[var(--text-primary)] transition-colors">
+          <Link href={"/cari?kategori=" + product.category.toLowerCase().replace(/\s+/g, '-')} className="hover:text-[var(--text-primary)] transition-colors">
             {product.category}
           </Link>
           <ChevronRight size={12} className="shrink-0" />
@@ -298,7 +298,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                 <h2 className="text-lg font-bold text-[var(--text-primary)]">Produk Serupa</h2>
                 <p className="text-sm text-[var(--text-muted)]">Dari kategori {product.category}</p>
               </div>
-              <Link href={"/cari?kategori=" + product.category.toLowerCase()}
+              <Link href={"/cari?kategori=" + product.category.toLowerCase().replace(/\s+/g, '-')}
                 className="text-sm text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors">
                 Lihat semua <ChevronRight size={14} />
               </Link>

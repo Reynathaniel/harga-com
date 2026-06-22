@@ -61,7 +61,7 @@ export default function AlertPage() {
     }
   }
 
-  const removeAlert = (id: number) => setAlerts(prev => prev.filter(a => a.id !== id))
+  const removeAlert = (id: string | number) => setAlerts(prev => prev.filter(a => a.id !== id))
 
   return (
     <div className="pt-[92px] min-h-screen" style={{ background: 'var(--bg-primary)' }}>
@@ -150,7 +150,7 @@ export default function AlertPage() {
                   <Link href="/cari" style={{ color: 'var(--brand)', textDecoration: 'none' }}>
                     cari produk
                   </Link>
-                  {' '}dan klik tombol "Pantau Harga" di halaman produk.
+                  {' '}dan klik tombol {'"'}Pantau Harga{'"'} di halaman produk.
                 </p>
               </div>
 
@@ -248,7 +248,9 @@ export default function AlertPage() {
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {alerts.map(alert => {
-              const pct = Math.round(100 * (alert.currentPrice - alert.targetPrice) / alert.currentPrice)
+              const pct = alert.currentPrice > 0
+                ? Math.round(100 * (alert.currentPrice - alert.targetPrice) / alert.currentPrice)
+                : 0
               return (
                 <div key={alert.id}
                   style={{

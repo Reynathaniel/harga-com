@@ -117,9 +117,8 @@ Local: copy values from `.env.local`. On Vercel, these must be set in project en
 
 ## Known issues / incomplete areas
 
-- `/api/waitlist` route does not exist yet — `WaitlistModal` POSTs to it but gets a 404
 - `/alert` page stores alerts in React state only (no DB persistence)  
 - Product detail page image gallery is static (clicking thumbnails doesn't swap main image)
 - Bookmark button on product detail has no `onClick`
 - `adaptOfferToListing()` in `adapters.ts` uses `picsum.photos` placeholder images instead of real product images
-- Price history chart uses synthetic generated data (`generateSyntheticHistory` in `adapters.ts`); real `price_history` rows are not yet wired to the chart
+- Price history chart shows "Riwayat harga belum tersedia" when no real `price_history` rows exist for a product

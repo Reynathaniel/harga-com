@@ -11,7 +11,9 @@ import { NextRequest, NextResponse } from 'next/server'
 
 // ── Rate limiter ───────────────────────────────────────────────────
 // Simple in-memory store; resets on cold start / edge redeployment.
-// For production, replace with Redis or Upstash.
+// TODO: Rate limiter ini menggunakan in-memory Map yang tidak efektif di Vercel serverless.
+// Setiap instance memiliki Map kosong. Untuk production, ganti dengan Redis/Upstash.
+// npm install @upstash/ratelimit @upstash/redis
 
 interface RateEntry {
   count:     number

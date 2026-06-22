@@ -438,4 +438,27 @@ export type MerchantRow           = Database['public']['Tables']['merchants']['R
 export type ProductRow            = Database['public']['Tables']['products']['Row']
 export type OfferRow              = Database['public']['Tables']['offers']['Row']
 export type PriceHistoryRow       = Database['public']['Tables']['price_history']['Row']
-export type CashbackRateRow       = Database['public']['Tables']['cashback_rate
+export type CashbackRateRow       = Database['public']['Tables']['cashback_rates']['Row']
+export type ClickTrackingRow      = Database['public']['Tables']['click_tracking']['Row']
+export type UserProfileRow        = Database['public']['Tables']['user_profiles']['Row']
+export type ReferralClickRow      = Database['public']['Tables']['referral_clicks']['Row']
+export type ReferralCommissionRow = Database['public']['Tables']['referral_commissions']['Row']
+export type CommissionSettingsRow = Database['public']['Tables']['commission_settings']['Row']
+export type CheckoutIntentRow     = Database['public']['Tables']['checkout_intents']['Row']
+export type PriceAlertRow         = Database['public']['Tables']['price_alerts']['Row']
+export type WaitlistRow           = Database['public']['Tables']['waitlist']['Row']
+
+// ── Joined / enriched types used in the app ───────────────────────
+export interface OfferWithMerchant extends OfferRow {
+  merchant: MerchantRow
+}
+
+export interface ProductWithOffers extends ProductRow {
+  offers: OfferWithMerchant[]
+}
+
+export interface PriceHistoryPoint {
+  date: string          // ISO string
+  price: number
+  platform_id: string
+}

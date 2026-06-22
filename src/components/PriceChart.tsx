@@ -25,6 +25,17 @@ const RANGES = [
 export function PriceChart({ history, activePlatforms }: PriceChartProps) {
   const [range, setRange] = useState(30)
 
+  if (history.length === 0) {
+    return (
+      <div>
+        <span className="text-sm font-medium text-[var(--text-secondary)]">Riwayat Harga</span>
+        <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '20px' }}>
+          Riwayat harga belum tersedia
+        </p>
+      </div>
+    )
+  }
+
   const platforms = activePlatforms || ['tokopedia', 'shopee', 'lazada', 'tiktok'] as PlatformId[]
   const sliced = history.slice(-range)
 

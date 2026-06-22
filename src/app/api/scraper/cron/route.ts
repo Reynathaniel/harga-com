@@ -1,11 +1,15 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { scrapeAll, INDONESIAN_PLATFORMS } from '@/lib/scrapers'
 import { saveScraperResults } from '@/lib/db/scraper-save'
 
 export const maxDuration = 60
 
 // Called by GitHub Actions every 4 hours (Vercel Hobby cron = once/day only)
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const secret = request.headers.get('x-cron-secret') ?? request.nextUrl.searchParams.get('secret')
+  if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   const start = Date.now()
   try {
     const result = await scrapeAll({

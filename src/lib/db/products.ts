@@ -14,8 +14,13 @@ import {
 } from '../mock-data'
 import type { Product } from '../types'
 import type { ProductRow, OfferWithMerchant } from '../database.types'
-import { adaptDbProductToAppProduct, generateSyntheticHistory } from './adapters'
-import type { PriceHistory, PlatformId } from '../types'
+import { adaptDbProductToAppProduct } from './adapters'
+import { getPriceHistory } from './price-history'
+import type { PriceHistory } from '../types'
+
+function sanitizeSearchQuery(q: string): string {
+  return q.trim().slice(0, 200).replace(/[<>{}]/g, '')
+}
 
 // Map category URL id → DB label
 const CATEGORY_ID_TO_LABEL: Record<string, string> = {
@@ -52,11 +57,36 @@ export interface ProductsResult {
   source: 'supabase' | 'mock'
 }
 
+// enrichProductWithOffers — fetch offers for a product and build the full Product object
+
+async function enrichProductWithOffers(
+  db: ReturnType<typeof tryGetServerClient>,
+  product: ProductRow,
+  fetchHistory?: boolean
+): Promise<Product> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: offerData } = await (db as any)
+    .from('offers')
+    .select('*, merchant:merchants(*)')
+    .eq('product_id', product.id)
+    .eq('in_stock', true)
+    .order('price', { ascending: true })
+
+  const offers: OfferWithMerchant[] = (offerData as OfferWithMerchant[]) ?? []
+
+  let realHistory: PriceHistory[] = []
+  if (fetchHistory) {
+    realHistory = await getPriceHistory(product.id)
+  }
+
+  return adaptDbProductToAppProduct(product, offers, realHistory)
+}
+
 // getProducts
 
 export async function getProducts(opts: GetProductsOptions = {}): Promise<ProductsResult> {
   const {
-    query = '',
+    query: rawQuery = '',
     category,
     platform,
     condition,
@@ -66,6 +96,8 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
     limit = 40,
     offset = 0,
   } = opts
+
+  const query = sanitizeSearchQuery(rawQuery)
 
   const db = tryGetServerClient()
 
@@ -77,7 +109,7 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
         .select('*', { count: 'exact' })
         .range(offset, offset + limit - 1)
 
-      if (query.trim()) {
+      if (query) {
         q = q.or(`name.ilike.%${query}%,brand.ilike.%${query}%`)
       }
       if (category) {
@@ -101,10 +133,8 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
             .from('offers')
             .select('product_id')
             .in('merchant_id', merchantIds)
-          const productIds = [
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ...new Set(((offerRows as any[]) ?? []).map((o: any) => o.product_id as string)),
-          ]
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const productIds = Array.from(new Set(((offerRows as any[]) ?? []).map((o: any) => o.product_id as string)))
           if (productIds.length === 0) return { products: [], total: 0, source: 'supabase' }
           q = q.in('id', productIds)
         } else {
@@ -346,87 +376,3 @@ export async function getPromoProducts(limit = 8): Promise<Product[]> {
   return MOCK_PRODUCTS.slice(0, limit).map(p => p as unknown as Product)
 }
 
-// getPriceHistory — fetch real price history for a product from Supabase
-// Queries price_history joined via offers → groups by day, takes min price per platform per day
-// Falls back to generateSyntheticHistory if no real data found or Supabase unreachable.
-
-export async function getPriceHistory(productId: string, days = 30): Promise<PriceHistory[]> {
-  const db = tryGetServerClient()
-
-  if (db) {
-    try {
-      // Compute the cutoff date
-      const since = new Date()
-      since.setDate(since.getDate() - days)
-      since.setHours(0, 0, 0, 0)
-
-      // Fetch offer IDs for this product
-      const { data: offerRows } = await (db as any)
-        .from('offers')
-        .select('id, merchant_id')
-        .eq('product_id', productId)
-
-      if (!offerRows || offerRows.length === 0) return []
-
-      // Fetch merchants to map merchant_id → platform_id
-      const { data: merchantRows } = await (db as any)
-        .from('merchants')
-        .select('id, platform_id')
-
-      const merchantMap: Record<string, string> = {}
-      for (const m of (merchantRows ?? [])) {
-        merchantMap[m.id] = m.platform_id
-      }
-
-      // Build offer_id → platform_id map
-      const offerPlatform: Record<string, string> = {}
-      for (const o of offerRows as any[]) {
-        offerPlatform[o.id] = merchantMap[o.merchant_id] ?? 'unknown'
-      }
-
-      const offerIds = offerRows.map((o: any) => o.id)
-
-      // Query price_history for these offers since cutoff date
-      const { data: rows, error: phErr } = await (db as any)
-        .from('price_history')
-        .select('offer_id, price, recorded_at')
-        .in('offer_id', offerIds)
-        .gte('recorded_at', since.toISOString())
-        .order('recorded_at', { ascending: true })
-
-      if (phErr) throw phErr
-      if (!rows || rows.length === 0) return []
-
-      // Group by day (YYYY-MM-DD) × platform → min price
-      const dayMap = new Map<string, Record<string, number>>()
-      for (const row of rows as any[]) {
-        const day      = String(row.recorded_at).slice(0, 10)
-        const platform = offerPlatform[row.offer_id]
-        if (!platform || platform === 'unknown') continue
-
-        if (!dayMap.has(day)) dayMap.set(day, {})
-        const dp = dayMap.get(day)!
-        if (!(platform in dp) || row.price < dp[platform]) {
-          dp[platform] = row.price
-        }
-      }
-
-      // Convert to PriceHistory[]
-      const result: PriceHistory[] = []
-      for (const [day, platformPrices] of dayMap) {
-        const prices: Partial<Record<PlatformId, number | null>> = {}
-        for (const [plat, price] of Object.entries(platformPrices)) {
-          prices[plat as PlatformId] = price
-        }
-        result.push({ date: new Date(day + 'T00:00:00Z'), prices })
-      }
-      result.sort((a, b) => a.date.getTime() - b.date.getTime())
-      return result
-
-    } catch (err) {
-      console.error('[getPriceHistory] Supabase error:', err)
-    }
-  }
-
-  return []
-}

@@ -31,16 +31,16 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Fallback -- return mock products ordered by reviews as proxy for popularity
+    // Fallback — return mock products ordered by reviews as proxy for popularity
     const fallback = [...MOCK_PRODUCTS]
       .sort((a, b) => b.totalReviews - a.totalReviews)
       .slice(0, limit)
       .map(p => ({
-        id:          p.id,
-        name:        p.name,
-        slug:        p.slug,
-        image_url:   p.images[0] ?? null,
-        best_price:  p.lowestPrice,
+        id:         p.id,
+        name:       p.name,
+        slug:       p.slug,
+        image_url:  p.images[0] ?? null,
+        best_price: p.lowestPrice,
         click_count: 0,
       }))
 

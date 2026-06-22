@@ -43,7 +43,7 @@ export function ProductCard({ product, compact = false }: Props) {
   const rawImg = product.images?.[0]
   const imgSrc = !imgFailed && rawImg && rawImg.startsWith('http')
     ? rawImg
-    : `https://picsum.photos/seed/${encodeURIComponent(product.slug)}/400/300`
+    : '/placeholder-product.png'
 
   const platformBg = platform?.id === 'tiktok' ? '#1a1a1a' : (platform?.color ?? '#9c9589')
 

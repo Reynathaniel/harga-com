@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data, error } = await (db as any)
           .from('price_alerts')
-          .insert({ query, email, target_price: targetPrice, notify_type: notifyType })
+          .insert({ query, email: email || null, target_price: targetPrice, notify_type: notifyType, is_active: true })
           .select()
           .single()
 
@@ -75,10 +75,11 @@ export async function POST(request: NextRequest) {
   }
 
   // --- Mode 2: product-based alert ---
-  const { productId, targetPrice, email, platforms } = body as {
+  const { productId, targetPrice, email, phone, platforms } = body as {
     productId:   string
     targetPrice: number
     email?:      string
+    phone?:      string
     platforms?:  string[]
   }
 
@@ -105,15 +106,16 @@ export async function POST(request: NextRequest) {
     }
 
     if (db) {
-      // Insert into price_alerts (watchlist.user_id requires a UUID FK — not usable without auth)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (db as any)
         .from('price_alerts')
         .insert({
-          query:        product.name,
-          email:        email ?? 'guest@harga.com',
+          product_id:   product.id,
+          product_name: product.name,
           target_price: targetPrice,
-          notify_type:  'email',
+          email:        email || null,
+          phone:        phone || null,
+          is_active:    true,
         })
         .select()
         .single()

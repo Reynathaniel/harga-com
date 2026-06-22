@@ -24,7 +24,7 @@ export async function getOffersByProduct(productId: string): Promise<PriceListin
         .order('price', { ascending: true })
 
       if (error) throw error
-      return (data as OfferWithMerchant[]).map(adaptOfferToListing)
+      return (data as OfferWithMerchant[]).map(offer => adaptOfferToListing(offer))
     } catch (err) {
       console.error('[db/offers] getOffersByProduct error, falling back to mock:', err)
     }

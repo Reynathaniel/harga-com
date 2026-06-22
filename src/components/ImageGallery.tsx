@@ -13,12 +13,10 @@ export function ImageGallery({ images, alt }: Props) {
   const [failed, setFailed] = useState<Record<number, boolean>>({})
   const [zoomed, setZoomed] = useState(false)
 
-  const imgs = images.length > 0 ? images : [`https://picsum.photos/seed/${encodeURIComponent(alt)}/600/600`]
+  const imgs = images.length > 0 ? images : ['/placeholder-product.png']
 
   const src = (i: number) =>
-    failed[i]
-      ? `https://picsum.photos/seed/${encodeURIComponent(alt + i)}/600/600`
-      : imgs[i]
+    failed[i] ? '/placeholder-product.png' : imgs[i]
 
   const prev = () => setActive(i => (i - 1 + imgs.length) % imgs.length)
   const next = () => setActive(i => (i + 1) % imgs.length)

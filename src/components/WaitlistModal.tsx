@@ -218,4 +218,3 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
     </>
   )
 }
-                                   

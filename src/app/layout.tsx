@@ -4,13 +4,25 @@ import { Navbar } from '@/components/Navbar'
 import { LiveBar } from '@/components/LiveBar'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://harga.com'),
   title: 'Harga.com — Temukan Harga Termurah di Seluruh Indonesia',
   description: 'Bandingkan harga dari Tokopedia, Shopee, Lazada, dan 5 marketplace lainnya. Dapatkan cashback, set price alert, dan beli langsung dengan harga terbaik.',
   keywords: ['bandingkan harga', 'harga murah', 'cashback', 'price comparison', 'tokopedia', 'shopee', 'lazada'],
   openGraph: {
-    title: 'Harga.com — Temukan Harga Termurah',
-    description: 'Bandingkan harga dari 8 marketplace Indonesia sekaligus',
+    title: 'Harga.com — Perbandingan Harga Terbaik Indonesia',
+    description: 'Temukan harga terbaik dari Tokopedia, Shopee, Lazada dan platform lain',
     type: 'website',
+    url: 'https://harga.com',
+    siteName: 'Harga.com',
+    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    locale: 'id_ID',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Harga.com — Perbandingan Harga Terbaik Indonesia',
+    description: 'Temukan harga terbaik dari Tokopedia, Shopee, Lazada dan platform lain',
+    site: '@hargacom',
+    images: ['/og-image.png'],
   },
 }
 

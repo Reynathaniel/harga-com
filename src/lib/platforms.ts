@@ -91,16 +91,6 @@ export const PLATFORMS: Record<string, Platform> = {
     affiliateBase: 'https://www.aliexpress.com/item/',
     cashbackPct: 5,
   },
-  jd: {
-    id: 'jd',
-    name: 'JD.ID',
-    shortName: 'JD.ID',
-    color: '#c0040e',
-    bgColor: '#ffe5e7',
-    logo: '/logos/jd.svg',
-    affiliateBase: 'https://jd.id/product/',
-    cashbackPct: 4,
-  },
   olx: {
     id: 'olx',
     name: 'OLX',
@@ -125,7 +115,7 @@ export const PLATFORMS: Record<string, Platform> = {
 
 export const PLATFORM_ORDER: string[] = [
   'tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak',
-  'amazon', 'aliexpress', 'alibaba', 'jd', 'olx', 'carousell',
+  'amazon', 'aliexpress', 'alibaba', 'olx', 'carousell',
 ]
 
 export const PLATFORM_PRIMARY: string[] = [
@@ -133,5 +123,5 @@ export const PLATFORM_PRIMARY: string[] = [
 ]
 
 export const PLATFORM_INTL: string[] = [
-  'amazon', 'aliexpress', 'alibaba', 'jd', 'olx', 'carousell',
+  'amazon', 'aliexpress', 'alibaba', 'olx', 'carousell',
 ]

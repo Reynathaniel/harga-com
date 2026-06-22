@@ -57,8 +57,10 @@ export async function GET() {
     const seen = new Set<string>()
     const drops: LiveDrop[] = []
 
-    for (const row of rows) {
-      const offer = Array.isArray(row.offers) ? row.offers[0] : (row.offers as { price: number; product_id: string; products: { id: string; name: string } | null; merchants: { name: string } | null } | null)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for (const row of rows as any[]) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const offer: any = Array.isArray(row.offers) ? row.offers[0] : row.offers
       if (!offer) continue
 
       const product = Array.isArray(offer.products) ? offer.products[0] : offer.products

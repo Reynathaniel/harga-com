@@ -27,7 +27,7 @@ export function adaptOfferToListing(offer: OfferWithMerchant, fallbackImageUrl?:
     freeShipping:  offer.free_shipping,
     url:           offer.url ?? '#',
     affiliateUrl:  offer.affiliate_url ?? '#',
-    imageUrl:      fallbackImageUrl ?? `https://picsum.photos/seed/${offer.id.replace(/-/g, '').slice(0, 12)}/400/400`,
+    imageUrl:      fallbackImageUrl ?? '/placeholder-product.png',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     videoUrl:      (offer as any).video_url  ?? undefined,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,10 +49,9 @@ export function adaptDbProductToAppProduct(
   const lowestPrice  = prices.length ? Math.min(...prices) : 0
   const highestPrice = prices.length ? Math.max(...prices) : 0
 
-  // Use real price history if provided, otherwise fall back to synthetic data
   const priceHistory = (realPriceHistory && realPriceHistory.length > 0)
     ? realPriceHistory
-    : generateSyntheticHistory(lowestPrice)
+    : []
 
   // Parse specifications safely
   let specifications: Record<string, string> = {}
@@ -73,7 +72,7 @@ export function adaptDbProductToAppProduct(
     specifications,
     images:        product.images?.length
                      ? product.images
-                     : [product.image_url ?? `https://picsum.photos/seed/${product.slug}/600/600`],
+                     : [product.image_url ?? '/placeholder-product.png'],
     tags:          product.tags ?? [],
     listings,
     priceHistory,

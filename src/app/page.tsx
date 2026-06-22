@@ -2,6 +2,7 @@ import { ProductCard } from '@/components/ProductCard'
 import { HeroRealSearch } from '@/components/HeroSection'
 import { DealTerbaikSection } from '@/components/DealTerbaikSection'
 import { getProducts, getPromoProducts } from '@/lib/db/products'
+import { tryGetServerClient } from '@/lib/supabase'
 import { STATS } from '@/lib/mock-data'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
@@ -15,13 +16,17 @@ export const revalidate = 0
 
 async function getTrendingProducts() {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/api/products/popular?limit=8`,
-      { cache: 'no-store' }
-    )
-    if (!res.ok) return []
-    const json = await res.json()
-    return json.products ?? []
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = tryGetServerClient() as any
+    if (!db) return []
+    const { data, error } = await db
+      .from('products_with_best_offer')
+      .select('id, name, slug, image_url, best_price, total_reviews')
+      .order('total_reviews', { ascending: false, nullsFirst: false })
+      .limit(8)
+    if (error || !data || data.length === 0) return []
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (data as any[]).map((p: any) => ({ ...p, click_count: p.total_reviews ?? 0 }))
   } catch {
     return []
   }
@@ -155,7 +160,7 @@ export default async function HomePage() {
       <div style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="max-w-7xl mx-auto px-4 py-4 grid grid-cols-2 sm:grid-cols-4 divide-x divide-[var(--border-subtle)]">
           {[
-            { label: 'Produk Aktif', value: STATS.products.toLocaleString('id') + '+', color: 'var(--brand)' },
+            { label: 'Produk Aktif', value: STATS.totalProducts + '+', color: 'var(--brand)' },
             { label: 'Marketplace',  value: STATS.platforms + '+',                      color: 'var(--win)' },
             { label: 'Update Harga', value: 'Tiap 4 jam',                               color: '#a78bfa' },
             { label: 'Cashback',     value: 'S/d 8%',                                   color: '#facc15' },
