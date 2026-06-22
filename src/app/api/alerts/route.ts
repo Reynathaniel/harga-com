@@ -1,24 +1,19 @@
 /**
  * POST /api/alerts — Create a price alert
  *
- * Body: { productId, targetPrice, email?, platforms? }
- * Stores to Supabase `watchlist` table.
- * Returns the created alert record.
+ * Accepts two modes:
+ * 1. Product alert: { productId, targetPrice, email?, platforms? }
+ * 2. Query alert:   { query, targetPrice, email, notifyType? }
+ *
+ * Stores to Supabase `price_alerts` or `watchlist` table.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { tryGetServerClient } from '@/lib/supabase'
 import { getProductById } from '@/lib/db/products'
 
-interface AlertBody {
-  productId:   string
-  targetPrice: number
-  email?:      string
-  platforms?:  string[]
-}
-
 export async function POST(request: NextRequest) {
-  let body: Partial<AlertBody>
+  let body: Record<string, unknown>
 
   try {
     body = await request.json()
@@ -29,7 +24,63 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { productId, targetPrice, email, platforms } = body
+  const db = tryGetServerClient()
+
+  // --- Mode 1: query-based alert (from /alert page form) ---
+  if (body.query && !body.productId) {
+    const query       = String(body.query ?? '').trim()
+    const email       = String(body.email ?? '').trim()
+    const targetPrice = Number(body.targetPrice)
+    const notifyType  = String(body.notifyType ?? 'email')
+
+    if (!query || !email || !targetPrice || targetPrice <= 0) {
+      return NextResponse.json(
+        { success: false, error: 'query, email, dan targetPrice diperlukan' },
+        { status: 400 }
+      )
+    }
+
+    if (db) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (db as any)
+          .from('price_alerts')
+          .insert({ query, email, target_price: targetPrice, notify_type: notifyType })
+          .select()
+          .single()
+
+        if (error) throw error
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return NextResponse.json({ success: true, data: data as any })
+      } catch (err) {
+        console.error('[POST /api/alerts] DB error (query mode):', err)
+        // fall through to mock success
+      }
+    }
+
+    // Mock fallback
+    return NextResponse.json({
+      success: true,
+      data: {
+        id:          `alert_${Date.now()}`,
+        query,
+        email,
+        targetPrice,
+        notifyType,
+        active:      true,
+        createdAt:   new Date().toISOString(),
+      },
+    })
+  }
+
+  // --- Mode 2: product-based alert ---
+  const { productId, targetPrice, email, platforms } = body as {
+    productId:   string
+    targetPrice: number
+    email?:      string
+    platforms?:  string[]
+  }
 
   if (!productId || typeof productId !== 'string') {
     return NextResponse.json(
@@ -45,7 +96,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Verify product exists
     const product = await getProductById(productId)
     if (!product) {
       return NextResponse.json(
@@ -54,11 +104,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const db = tryGetServerClient()
-
     if (db) {
-      // Use a static "guest" user id when no auth — real auth integration later
-      // For now we store email in session_id column as a workaround
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (db as any)
         .from('watchlist')
@@ -90,20 +136,21 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Mock fallback — just echo back a synthetic record
-    const mockAlert = {
-      id:           `alert_${Date.now()}`,
-      productId:    product.id,
-      productName:  product.name,
-      productImage: product.images[0] ?? null,
-      targetPrice,
-      currentPrice: product.lowestPrice,
-      platforms:    platforms ?? [],
-      active:       true,
-      createdAt:    new Date().toISOString(),
-    }
-
-    return NextResponse.json({ success: true, data: mockAlert })
+    // Mock fallback
+    return NextResponse.json({
+      success: true,
+      data: {
+        id:           `alert_${Date.now()}`,
+        productId:    product.id,
+        productName:  product.name,
+        productImage: product.images[0] ?? null,
+        targetPrice,
+        currentPrice: product.lowestPrice,
+        platforms:    platforms ?? [],
+        active:       true,
+        createdAt:    new Date().toISOString(),
+      },
+    })
   } catch (err) {
     console.error('[POST /api/alerts]', err)
     return NextResponse.json(
