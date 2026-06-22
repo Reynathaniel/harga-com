@@ -163,4 +163,10 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/alerts — placeholder (would need auth)
-export async func
+export async function GET() {
+  return NextResponse.json(
+    { success: false, error: 'Autentikasi diperlukan untuk melihat alerts' },
+    { status: 401 }
+  )
+}
+
