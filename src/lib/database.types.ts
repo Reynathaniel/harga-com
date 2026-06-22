@@ -355,6 +355,46 @@ export interface Database {
         }
         Update: Partial<Database['public']['Tables']['watchlist']['Insert']>
       }
+
+      price_alerts: {
+        Row: {
+          id: string
+          query: string
+          email: string
+          target_price: number
+          notify_type: string
+          active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          query: string
+          email: string
+          target_price: number
+          notify_type?: string
+          active?: boolean
+          created_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['price_alerts']['Insert']>
+      }
+
+      waitlist: {
+        Row: {
+          id: string
+          email: string
+          name: string | null
+          source: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          email: string
+          name?: string | null
+          source?: string | null
+          created_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['waitlist']['Insert']>
+      }
     }
 
     Views: {
@@ -398,25 +438,4 @@ export type MerchantRow           = Database['public']['Tables']['merchants']['R
 export type ProductRow            = Database['public']['Tables']['products']['Row']
 export type OfferRow              = Database['public']['Tables']['offers']['Row']
 export type PriceHistoryRow       = Database['public']['Tables']['price_history']['Row']
-export type CashbackRateRow       = Database['public']['Tables']['cashback_rates']['Row']
-export type ClickTrackingRow      = Database['public']['Tables']['click_tracking']['Row']
-export type UserProfileRow        = Database['public']['Tables']['user_profiles']['Row']
-export type ReferralClickRow      = Database['public']['Tables']['referral_clicks']['Row']
-export type ReferralCommissionRow = Database['public']['Tables']['referral_commissions']['Row']
-export type CommissionSettingsRow = Database['public']['Tables']['commission_settings']['Row']
-export type CheckoutIntentRow     = Database['public']['Tables']['checkout_intents']['Row']
-
-// ── Joined / enriched types used in the app ───────────────────────
-export interface OfferWithMerchant extends OfferRow {
-  merchant: MerchantRow
-}
-
-export interface ProductWithOffers extends ProductRow {
-  offers: OfferWithMerchant[]
-}
-
-export interface PriceHistoryPoint {
-  date: string          // ISO string
-  price: number
-  platform_id: string
-}
+export type CashbackRateRow       = Database['public']['Tables']['cashback_rate
