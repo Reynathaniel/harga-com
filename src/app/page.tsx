@@ -5,6 +5,7 @@ import { getProducts, getPromoProducts } from '@/lib/db/products'
 import { STATS } from '@/lib/mock-data'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
+import type { Product } from '@/lib/types'
 import { TrendingDown, Bell, Wallet, Shield, Zap, RefreshCw, ArrowRight, CheckCircle2, Flame } from 'lucide-react'
 import Link from 'next/link'
 import Script from 'next/script'
@@ -55,10 +56,10 @@ export default async function HomePage() {
     trendingProducts,
     promoProducts,
   ] = await Promise.all([
-    getProducts({ sort: 'popular', limit: 16 }).catch(() => ({ products: [] as typeof import('@/lib/types').Product[], total: 0, source: 'mock' as const })),
-    getProducts({ condition: 'used', sort: 'popular', limit: 8 }).catch(() => ({ products: [] as typeof import('@/lib/types').Product[], total: 0, source: 'mock' as const })),
+    getProducts({ sort: 'popular', limit: 16 }).catch(() => ({ products: [] as Product[], total: 0, source: 'mock' as const })),
+    getProducts({ condition: 'used', sort: 'popular', limit: 8 }).catch(() => ({ products: [] as Product[], total: 0, source: 'mock' as const })),
     getTrendingProducts(),
-    getPromoProducts(8).catch(() => [] as typeof import('@/lib/types').Product[]),
+    getPromoProducts(8).catch(() => [] as Product[]),
   ])
 
   const platformList = Object.values(PLATFORMS)
@@ -780,4 +781,6 @@ export default async function HomePage() {
   if(typeof IntersectionObserver==='undefined')return;
   var io=new IntersectionObserver(function(entries){
     entries.forEach(function(e){
-      if(e.isIntersecting){e.target.
+      if(e.isIntersecting){e.target.classList.add('in-view');}
+    });
+  },{thre
