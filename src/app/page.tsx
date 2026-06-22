@@ -8,9 +8,6 @@ import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
 import { TrendingDown, Bell, Wallet, Shield, Zap, RefreshCw, ArrowRight, CheckCircle2, Flame } from 'lucide-react'
 import Link from 'next/link'
 import Script from 'next/script'
-import type { Product } from '@/lib/types'
-import type { ReactNode } from 'react'
-
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
@@ -29,7 +26,7 @@ async function getTrendingProducts() {
 }
 
 /* Eyebrow + title section head — matches design system SectionHead */
-function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: string; action?: ReactNode }) {
+function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: string; action?: React.ReactNode }) {
   return (
     <div className="reveal flex justify-between items-end flex-wrap gap-4 mb-6">
       <div>
@@ -51,27 +48,18 @@ function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: strin
   )
 }
 
-async function getHomePageData() {
-  try {
-    const [r0, r1, r2, r3] = await Promise.all([
-      getProducts({ sort: 'popular', limit: 16 }).catch(() => ({ products: [] as Product[], total: 0, source: 'mock' as const })),
-      getProducts({ condition: 'used', sort: 'popular', limit: 8 }).catch(() => ({ products: [] as Product[], total: 0, source: 'mock' as const })),
-      getTrendingProducts().catch(() => []),
-      getPromoProducts(8).catch(() => [] as Product[]),
-    ])
-    return {
-      allProducts:      (r0.products ?? []) as Product[],
-      usedProducts:     (r1.products ?? []) as Product[],
-      trendingProducts: (r2 ?? []) as Record<string, unknown>[],
-      promoProducts:    (r3 ?? []) as Product[],
-    }
-  } catch {
-    return { allProducts: [] as Product[], usedProducts: [] as Product[], trendingProducts: [] as Record<string, unknown>[], promoProducts: [] as Product[] }
-  }
-}
-
 export default async function HomePage() {
-  const { allProducts, usedProducts, trendingProducts, promoProducts } = await getHomePageData()
+  const [
+    { products: allProducts },
+    { products: usedProducts },
+    trendingProducts,
+    promoProducts,
+  ] = await Promise.all([
+    getProducts({ sort: 'popular', limit: 16 }).catch(() => ({ products: [] as typeof import('@/lib/types').Product[], total: 0, source: 'mock' as const })),
+    getProducts({ condition: 'used', sort: 'popular', limit: 8 }).catch(() => ({ products: [] as typeof import('@/lib/types').Product[], total: 0, source: 'mock' as const })),
+    getTrendingProducts(),
+    getPromoProducts(8).catch(() => [] as typeof import('@/lib/types').Product[]),
+  ])
 
   const platformList = Object.values(PLATFORMS)
 
@@ -780,4 +768,22 @@ export default async function HomePage() {
           <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>
             © 2026 Harga.com — Temukan Harga Terbaik.
           </p>
-          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat
+          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat di Indonesia 🇮🇩</p>
+        </div>
+      </footer>
+
+      {/* ── SCROLL REVEAL OBSERVER ── */}
+      <Script id="harga-scroll-reveal" strategy="afterInteractive">{`
+(function(){
+  if(typeof IntersectionObserver==='undefined')return;
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('in-view');}
+    });
+  },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){io.observe(el);});
+})();
+      `}</Script>
+    </div>
+  )
+}
