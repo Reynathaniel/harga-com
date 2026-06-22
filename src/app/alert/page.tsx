@@ -4,11 +4,8 @@ import { useState } from 'react'
 import { Bell, Search, TrendingDown, CheckCircle2, Trash2, Plus, Zap, Mail, Phone } from 'lucide-react'
 import Link from 'next/link'
 
-const DEMO_ALERTS = [
-  { id: 1, product: 'Sony WH-1000XM5', currentPrice: 3990000, targetPrice: 3500000, platform: 'Shopee', notifyType: 'email', active: true },
-  { id: 2, product: 'iPhone 15 Pro Max 256GB', currentPrice: 18799000, targetPrice: 16000000, platform: 'Tokopedia', notifyType: 'wa', active: true },
-  { id: 3, product: 'ASUS ROG Zephyrus G14', currentPrice: 21499000, targetPrice: 19000000, platform: 'TikTok Shop', notifyType: 'email', active: false },
-]
+type AlertItem = { id: string | number; product: string; currentPrice: number; targetPrice: number; platform: string; notifyType: string; active: boolean }
+const DEMO_ALERTS: AlertItem[] = []
 
 function formatRupiah(n: number) {
   return 'Rp ' + n.toLocaleString('id-ID')
@@ -20,7 +17,7 @@ export default function AlertPage() {
   const [targetPrice, setTargetPrice] = useState('')
   const [notifyType, setNotifyType] = useState<'email' | 'wa'>('email')
   const [submitted, setSubmitted] = useState(false)
-  const [alerts, setAlerts] = useState(DEMO_ALERTS)
+  const [alerts, setAlerts] = useState<AlertItem[]>(DEMO_ALERTS)
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -42,6 +39,16 @@ export default function AlertPage() {
         }),
       })
       if (!res.ok) throw new Error('Gagal menyimpan alert')
+      const json = await res.json()
+      setAlerts(prev => [...prev, {
+        id: json.data?.id ?? Date.now(),
+        product: query,
+        currentPrice: 0,
+        targetPrice: Number(String(targetPrice).replace(/\D/g, '')),
+        platform: 'Semua Platform',
+        notifyType,
+        active: true,
+      }])
       setSubmitted(true)
       setTimeout(() => setSubmitted(false), 5000)
       setQuery('')
@@ -311,10 +318,4 @@ export default function AlertPage() {
               textDecoration: 'none',
             }}>
             Pelajari Cashback →
-          </Link>
-        </div>
-
-      </div>
-    </div>
-  )
-}
+          <
