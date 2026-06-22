@@ -25,17 +25,32 @@ export async function generateStaticParams() {
   return []
 }
 
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const product = await getProductById(params.id)
+  if (!product) return {}
+  const sorted = lowestListingFirst(product.listings)
+  const cheapest = sorted[0]
+  const priceStr = cheapest ? ` — mulai Rp${Math.round(cheapest.price).toLocaleString('id')}` : ''
+  return {
+    title: `${product.name}${priceStr} | Harga.com`,
+    description: `Bandingkan harga ${product.name} dari Tokopedia, Shopee, Lazada dan platform lainnya. Temukan harga terbaik dan cashback otomatis di Harga.com.`,
+  }
+}
+
 export default async function ProductPage({ params }: { params: { id: string } }) {
   const product = await getProductById(params.id)
   if (!product) notFound()
 
   const sorted = lowestListingFirst(product.listings)
   const cheapest = sorted[0]
+  // Guard: product exists but has no offers yet
+  if (!cheapest) notFound()
+
   const mostExpensive = sorted[sorted.length - 1]
   const savings = mostExpensive.price - cheapest.price
   const savingsPct = priceDiffPercent(cheapest.price, mostExpensive.price)
   const activePlatforms = sorted.map(l => l.platformId) as PlatformId[]
-  const cheapestPlatform = PLATFORMS[cheapest.platformId]
+  const cheapestPlatform = PLATFORMS[cheapest.platformId] ?? { name: cheapest.platformId, cashbackPct: 0, color: '#f59e0b' }
   const cashbackAmount = Math.round(cheapest.price * cheapestPlatform.cashbackPct / 100)
 
   const { products: related } = await getProducts({ category: product.category, limit: 8 })
@@ -284,23 +299,4 @@ export default async function ProductPage({ params }: { params: { id: string } }
                 <p className="text-sm text-[var(--text-muted)]">Dari kategori {product.category}</p>
               </div>
               <Link href={"/cari?kategori=" + product.category.toLowerCase()}
-                className="text-sm text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors">
-                Lihat semua <ChevronRight size={14} />
-              </Link>
-            </div>
-            <div className="hidden sm:grid grid-cols-3 lg:grid-cols-4 gap-4">
-              {relatedFiltered.slice(0, 4).map(p => <ProductCard key={p.id} product={p} />)}
-            </div>
-            <div className="sm:hidden flex gap-3 scroll-x-hidden pb-3 -mx-4 px-4">
-              {relatedFiltered.map(p => (
-                <div key={p.id} className="shrink-0 w-44">
-                  <ProductCard product={p} compact />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
+                className="text-sm t
