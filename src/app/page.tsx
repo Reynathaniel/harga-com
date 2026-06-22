@@ -783,4 +783,10 @@ export default async function HomePage() {
     entries.forEach(function(e){
       if(e.isIntersecting){e.target.classList.add('in-view');}
     });
-  },{thre
+  },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){io.observe(el);});
+})();
+      `}</Script>
+    </div>
+  )
+}
