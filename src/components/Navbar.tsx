@@ -2,7 +2,8 @@
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { Bell, Search, X, Menu } from 'lucide-react'
+import { Bell, Search, X, Menu, Zap } from 'lucide-react'
+import { WaitlistModal } from '@/components/WaitlistModal'
 
 const NAV_LINKS = [
   { href: '/',                   label: 'Beranda' },
@@ -34,6 +35,7 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [waitlistOpen, setWaitlistOpen] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -139,20 +141,21 @@ export function Navbar() {
 
           {/* Right action buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-            {/* Cari button */}
+            {/* Daftar (Waitlist) button */}
             <button
-              onClick={() => handleSearch()}
-              className="hidden md:flex items-center"
+              onClick={() => setWaitlistOpen(true)}
+              className="hidden md:flex items-center gap-1.5"
               style={{
-                padding: '8px 20px', borderRadius: 100,
-                background: 'var(--brand)', color: '#FFF',
-                border: 'none', cursor: 'pointer',
+                padding: '8px 16px', borderRadius: 100,
+                background: 'transparent', color: 'var(--brand)',
+                border: '1px solid var(--brand)', cursor: 'pointer',
                 fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-ui)',
                 transition: 'opacity 0.15s ease',
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.75' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}>
-              Cari
+              <Zap size={13} />
+              Daftar
             </button>
 
             {/* Pantau Harga button */}
@@ -244,14 +247,4 @@ export function Navbar() {
                 marginTop: 16, padding: '13px',
                 borderRadius: 12, background: 'var(--brand)',
                 color: '#FFF', textDecoration: 'none',
-                fontSize: 14, fontWeight: 700, fontFamily: 'var(--font-ui)',
-              }}>
-              <Bell size={15} />
-              Pantau Harga
-            </Link>
-          </div>
-        </div>
-      </nav>
-    </>
-  )
-}
+                fontSize:
