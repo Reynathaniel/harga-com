@@ -46,10 +46,10 @@
   --zinc-400: var(--charcoal-600);
   --zinc-50:  var(--charcoal-950);
 
-  /* ---- Brand: coral accent (design system 2025) ---- */
-  --coral:      #E8705A;
-  --coral-dark: #D4604A;
-  --coral-light:#F07D68;
+  /* ---- Brand: orange accent (design system 2025) ---- */
+  --coral:      #F97316;
+  --coral-dark: #EA580C;
+  --coral-light:#FB923C;
   --teal:       #476E78;
   --teal-light: #5A8595;
 
@@ -97,8 +97,8 @@
   --brand-active: var(--coral-dark);
   --brand-teal:   var(--teal);
   --bg-dark:      #1A1814;
-  --brand-soft-bg:     rgba(232, 112, 90, 0.08);
-  --brand-soft-border: rgba(232, 112, 90, 0.20);
+  --brand-soft-bg:     rgba(249, 115, 22, 0.08);
+  --brand-soft-border: rgba(249, 115, 22, 0.20);
 
   /* ---- Win / savings semantic ---- */
   --win:             var(--mint-400);
@@ -111,11 +111,11 @@
   --info:    var(--blue-400);
 
   /* ---- Gradients ---- */
-  --gradient-gold:    linear-gradient(120deg, #E8705A, #D4604A);
-  --gradient-amber:   linear-gradient(120deg, #F07D68, #E8705A, #D4604A);
-  --gradient-logo:    linear-gradient(135deg, #E8705A, #D4604A);
+  --gradient-gold:    linear-gradient(120deg, #F97316, #EA580C);
+  --gradient-amber:   linear-gradient(120deg, #FB923C, #F97316, #EA580C);
+  --gradient-logo:    linear-gradient(135deg, #F97316, #EA580C);
   --gradient-win:     linear-gradient(120deg, #1A6B3C, #228B4F);
-  --gradient-kinetik: linear-gradient(120deg, #E8705A 0%, #D4604A 55%, #476E78 135%);
+  --gradient-kinetik: linear-gradient(120deg, #F97316 0%, #EA580C 55%, #476E78 135%);
 
   /* ---- Platform colors ---- */
   --platform-tokopedia:  #42b549;
@@ -200,10 +200,10 @@
   --shadow-card:        0 1px 4px rgba(26,22,19,0.06), 0 1px 2px rgba(26,22,19,0.04);
   --shadow-elevated:    0 4px 20px rgba(26,22,19,0.10);
   --shadow-overlay:     0 8px 32px rgba(26,22,19,0.12);
-  --shadow-amber:       0 4px 24px rgba(232,112,90,0.14);
-  --shadow-amber-hover: 0 8px 30px rgba(232,112,90,0.20);
-  --glow-amber:         0 0 40px rgba(232,112,90,0.10);
-  --shadow-button:      0 4px 16px rgba(232,112,90,0.30);
+  --shadow-amber:       0 4px 24px rgba(249,115,22,0.14);
+  --shadow-amber-hover: 0 8px 30px rgba(249,115,22,0.20);
+  --glow-amber:         0 0 40px rgba(249,115,22,0.10);
+  --shadow-button:      0 4px 16px rgba(249,115,22,0.30);
   --shadow-green:       0 4px 20px rgba(26,107,60,0.14);
   --glow-mint:          0 0 24px rgba(26,107,60,0.20);
 
@@ -221,7 +221,7 @@
   --glass-blur:   blur(20px);
 
   /* ---- Focus ---- */
-  --ring-brand: 0 0 0 3px rgba(232, 112, 90, 0.15);
+  --ring-brand: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
 
 /* ============================================================
@@ -242,7 +242,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-::selection { background: rgba(232, 112, 90, 0.18); color: var(--charcoal-950); }
+::selection { background: rgba(249, 115, 22, 0.18); color: var(--charcoal-950); }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--cream-100); }
@@ -316,6 +316,10 @@ body {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.7; }
 }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0; }
@@ -328,6 +332,14 @@ body {
 /* ============================================================
    Utility classes
    ============================================================ */
+
+/* Hide scrollbar while allowing scroll */
+.scroll-x-hidden {
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scroll-x-hidden::-webkit-scrollbar { display: none; }
 
 .harga-skeleton {
   background: linear-gradient(90deg, var(--cream-200) 25%, var(--cream-100) 50%, var(--cream-200) 75%);
@@ -347,7 +359,7 @@ body {
 }
 
 .harga-text-gradient {
-  background: linear-gradient(120deg, var(--coral), var(--coral-dark));
+  background: linear-gradient(120deg, #F97316, #EA580C);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -436,14 +448,14 @@ body {
    ============================================================ */
 
 .text-gradient-gold {
-  background: linear-gradient(120deg, var(--coral), var(--coral-dark));
+  background: linear-gradient(120deg, #F97316, #EA580C);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .text-gradient-amber {
-  background: linear-gradient(120deg, var(--coral-light), var(--coral), var(--coral-dark));
+  background: linear-gradient(120deg, #FB923C, #F97316, #EA580C);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -528,12 +540,15 @@ body {
 
 .slide-up { animation: slide-up 0.3s ease-out forwards; }
 
-/* Hero gradient — warm parchment coral */
+/* Footer link hover */
+.footer-link:hover { color: var(--text-primary) !important; transition: color 0.15s; }
+
+/* Hero gradient — warm parchment orange */
 .hero-gradient {
   background:
-    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(232,112,90,0.07), transparent),
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(249,115,22,0.07), transparent),
     radial-gradient(ellipse 50% 40% at 20% 60%, rgba(71,110,120,0.04), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 30%, rgba(232,112,90,0.04), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 30%, rgba(249,115,22,0.04), transparent),
     var(--bg-primary);
 }
 
@@ -571,3 +586,73 @@ body {
 .platform-alibaba    { background: var(--platform-alibaba); }
 .platform-aliexpress { background: var(--platform-aliexpress); }
 .platform-jd         { background: var(--platform-jd); }
+
+/* ============================================================
+   Motion System v2 — Smooth Scroll Reveal + Entrance
+   ============================================================ */
+
+/* Hero entrance — staggered, fires on page load */
+@keyframes harga-hero-enter {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-enter-1 { animation: harga-hero-enter 0.72s cubic-bezier(0.22,1,0.36,1) 0.04s both; }
+.hero-enter-2 { animation: harga-hero-enter 0.72s cubic-bezier(0.22,1,0.36,1) 0.18s both; }
+.hero-enter-3 { animation: harga-hero-enter 0.72s cubic-bezier(0.22,1,0.36,1) 0.34s both; }
+.hero-enter-4 { animation: harga-hero-enter 0.72s cubic-bezier(0.22,1,0.36,1) 0.50s both; }
+.hero-enter-5 { animation: harga-hero-enter 0.72s cubic-bezier(0.22,1,0.36,1) 0.66s both; }
+
+/* Scroll reveal — JS adds .in-view via IntersectionObserver */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.65s cubic-bezier(0.22,1,0.36,1),
+    transform 0.65s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Grid reveal — children stagger in when parent gets .in-view */
+.reveal-grid > * {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.55s cubic-bezier(0.22,1,0.36,1),
+    transform 0.55s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal-grid.in-view > *:nth-child(1)   { opacity: 1; transform: none; transition-delay:   0ms; }
+.reveal-grid.in-view > *:nth-child(2)   { opacity: 1; transform: none; transition-delay:  70ms; }
+.reveal-grid.in-view > *:nth-child(3)   { opacity: 1; transform: none; transition-delay: 140ms; }
+.reveal-grid.in-view > *:nth-child(4)   { opacity: 1; transform: none; transition-delay: 210ms; }
+.reveal-grid.in-view > *:nth-child(5)   { opacity: 1; transform: none; transition-delay: 280ms; }
+.reveal-grid.in-view > *:nth-child(6)   { opacity: 1; transform: none; transition-delay: 350ms; }
+.reveal-grid.in-view > *:nth-child(7)   { opacity: 1; transform: none; transition-delay: 420ms; }
+.reveal-grid.in-view > *:nth-child(8)   { opacity: 1; transform: none; transition-delay: 490ms; }
+.reveal-grid.in-view > *:nth-child(n+9) { opacity: 1; transform: none; transition-delay: 490ms; }
+
+/* Stat pop — numbers bounce in */
+@keyframes harga-stat-pop {
+  from { opacity: 0; transform: translateY(14px) scale(0.93); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.stat-pop { opacity: 0; }
+.stat-pop.in-view { animation: harga-stat-pop 0.52s cubic-bezier(0.22,1,0.36,1) both; }
+.stat-pop.in-view:nth-child(1) { animation-delay:   0ms; }
+.stat-pop.in-view:nth-child(2) { animation-delay:  90ms; }
+.stat-pop.in-view:nth-child(3) { animation-delay: 180ms; }
+.stat-pop.in-view:nth-child(4) { animation-delay: 270ms; }
+
+/* Reduced motion — respect user preference */
+@media (prefers-reduced-motion: reduce) {
+  .hero-enter-1,.hero-enter-2,.hero-enter-3,.hero-enter-4,.hero-enter-5 {
+    animation: none !important; opacity: 1 !important; transform: none !important;
+  }
+  .reveal,.reveal-grid > *,.stat-pop {
+    opacity: 1 !important; transform: none !important;
+    transition: none !important; animation: none !important;
+  }
+}

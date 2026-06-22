@@ -18,6 +18,10 @@ import { adaptDbProductToAppProduct } from './adapters'
 import { getPriceHistory } from './price-history'
 import type { PriceHistory } from '../types'
 
+function sanitizeSearchQuery(q: string): string {
+  return q.trim().slice(0, 200).replace(/[<>{}]/g, '')
+}
+
 // Map category URL id → DB label
 const CATEGORY_ID_TO_LABEL: Record<string, string> = {
   'elektronik':   'Elektronik',
@@ -82,7 +86,7 @@ async function enrichProductWithOffers(
 
 export async function getProducts(opts: GetProductsOptions = {}): Promise<ProductsResult> {
   const {
-    query = '',
+    query: rawQuery = '',
     category,
     platform,
     condition,
@@ -92,6 +96,8 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
     limit = 40,
     offset = 0,
   } = opts
+
+  const query = sanitizeSearchQuery(rawQuery)
 
   const db = tryGetServerClient()
 
@@ -103,7 +109,7 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
         .select('*', { count: 'exact' })
         .range(offset, offset + limit - 1)
 
-      if (query.trim()) {
+      if (query) {
         q = q.or(`name.ilike.%${query}%,brand.ilike.%${query}%`)
       }
       if (category) {
