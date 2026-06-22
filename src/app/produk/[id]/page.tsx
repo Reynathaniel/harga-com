@@ -299,4 +299,23 @@ export default async function ProductPage({ params }: { params: { id: string } }
                 <p className="text-sm text-[var(--text-muted)]">Dari kategori {product.category}</p>
               </div>
               <Link href={"/cari?kategori=" + product.category.toLowerCase()}
-                className="text-sm t
+                className="text-sm text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors">
+                Lihat semua <ChevronRight size={14} />
+              </Link>
+            </div>
+            <div className="hidden sm:grid grid-cols-3 lg:grid-cols-4 gap-4">
+              {relatedFiltered.slice(0, 4).map(p => <ProductCard key={p.id} product={p} />)}
+            </div>
+            <div className="sm:hidden flex gap-3 scroll-x-hidden pb-3 -mx-4 px-4">
+              {relatedFiltered.map(p => (
+                <div key={p.id} className="shrink-0 w-44">
+                  <ProductCard product={p} compact />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
