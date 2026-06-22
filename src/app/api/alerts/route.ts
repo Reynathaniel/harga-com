@@ -105,13 +105,15 @@ export async function POST(request: NextRequest) {
     }
 
     if (db) {
+      // Insert into price_alerts (watchlist.user_id requires a UUID FK — not usable without auth)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (db as any)
-        .from('watchlist')
+        .from('price_alerts')
         .insert({
-          user_id:      email ?? 'guest',
-          product_id:   product.id,
+          query:        product.name,
+          email:        email ?? 'guest@harga.com',
           target_price: targetPrice,
+          notify_type:  'email',
         })
         .select()
         .single()
@@ -124,7 +126,7 @@ export async function POST(request: NextRequest) {
         success: true,
         data: {
           id:           row.id,
-          productId:    row.product_id,
+          productId:    product.id,
           productName:  product.name,
           productImage: product.images[0] ?? null,
           targetPrice:  row.target_price,
@@ -161,9 +163,4 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/alerts — placeholder (would need auth)
-export async function GET() {
-  return NextResponse.json(
-    { success: false, error: 'Autentikasi diperlukan untuk melihat alerts' },
-    { status: 401 }
-  )
-}
+export async func
