@@ -4,11 +4,8 @@ import { useState } from 'react'
 import { Bell, Search, TrendingDown, CheckCircle2, Trash2, Plus, Zap, Mail, Phone } from 'lucide-react'
 import Link from 'next/link'
 
-const DEMO_ALERTS = [
-  { id: 1, product: 'Sony WH-1000XM5', currentPrice: 3990000, targetPrice: 3500000, platform: 'Shopee', notifyType: 'email', active: true },
-  { id: 2, product: 'iPhone 15 Pro Max 256GB', currentPrice: 18799000, targetPrice: 16000000, platform: 'Tokopedia', notifyType: 'wa', active: true },
-  { id: 3, product: 'ASUS ROG Zephyrus G14', currentPrice: 21499000, targetPrice: 19000000, platform: 'TikTok Shop', notifyType: 'email', active: false },
-]
+type AlertItem = { id: string | number; product: string; currentPrice: number; targetPrice: number; platform: string; notifyType: string; active: boolean }
+const DEMO_ALERTS: AlertItem[] = []
 
 function formatRupiah(n: number) {
   return 'Rp ' + n.toLocaleString('id-ID')
@@ -20,18 +17,51 @@ export default function AlertPage() {
   const [targetPrice, setTargetPrice] = useState('')
   const [notifyType, setNotifyType] = useState<'email' | 'wa'>('email')
   const [submitted, setSubmitted] = useState(false)
-  const [alerts, setAlerts] = useState(DEMO_ALERTS)
+  const [alerts, setAlerts] = useState<AlertItem[]>(DEMO_ALERTS)
 
-  const handleCreate = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 4000)
-    setQuery('')
-    setEmail('')
-    setTargetPrice('')
+    if (!query || !email || !targetPrice) return
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/alerts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query,
+          email,
+          targetPrice: Number(String(targetPrice).replace(/\D/g, '')),
+          notifyType,
+        }),
+      })
+      if (!res.ok) throw new Error('Gagal menyimpan alert')
+      const json = await res.json()
+      setAlerts(prev => [...prev, {
+        id: json.data?.id ?? Date.now(),
+        product: query,
+        currentPrice: 0,
+        targetPrice: Number(String(targetPrice).replace(/\D/g, '')),
+        platform: 'Semua Platform',
+        notifyType,
+        active: true,
+      }])
+      setSubmitted(true)
+      setTimeout(() => setSubmitted(false), 5000)
+      setQuery('')
+      setEmail('')
+      setTargetPrice('')
+    } catch {
+      setError('Terjadi kesalahan. Coba lagi.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const removeAlert = (id: number) => setAlerts(prev => prev.filter(a => a.id !== id))
+  const removeAlert = (id: string | number) => setAlerts(prev => prev.filter(a => a.id !== id))
 
   return (
     <div className="pt-[92px] min-h-screen" style={{ background: 'var(--bg-primary)' }}>
@@ -120,7 +150,7 @@ export default function AlertPage() {
                   <Link href="/cari" style={{ color: 'var(--brand)', textDecoration: 'none' }}>
                     cari produk
                   </Link>
-                  {' '}dan klik tombol "Pantau Harga" di halaman produk.
+                  {' '}dan klik tombol {'"'}Pantau Harga{'"'} di halaman produk.
                 </p>
               </div>
 
@@ -191,13 +221,18 @@ export default function AlertPage() {
                 />
               </div>
 
-              <button type="submit"
+              {error && (
+                <p style={{ fontSize: 12, color: '#f87171', textAlign: 'center', margin: 0 }}>{error}</p>
+              )}
+              <button type="submit" disabled={loading}
                 style={{
-                  width: '100%', padding: '12px', borderRadius: 12, border: 'none', cursor: 'pointer',
-                  background: 'var(--brand)', color: '#fff', fontWeight: 700, fontSize: 14,
+                  width: '100%', padding: '12px', borderRadius: 12, border: 'none', cursor: loading ? 'wait' : 'pointer',
+                  background: loading ? 'var(--bg-hover)' : 'var(--brand)', color: loading ? 'var(--text-muted)' : '#fff',
+                  fontWeight: 700, fontSize: 14,
                   fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  transition: 'all 0.15s',
                 }}>
-                <Bell size={15} /> Aktifkan Alert
+                <Bell size={15} /> {loading ? 'Menyimpan...' : 'Aktifkan Alert'}
               </button>
               <p style={{ fontSize: 11, textAlign: 'center', color: 'var(--text-muted)', margin: 0 }}>
                 Gratis · Bisa dibatalkan kapan saja · Tidak ada spam
@@ -213,7 +248,9 @@ export default function AlertPage() {
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {alerts.map(alert => {
-              const pct = Math.round(100 * (alert.currentPrice - alert.targetPrice) / alert.currentPrice)
+              const pct = alert.currentPrice > 0
+                ? Math.round(100 * (alert.currentPrice - alert.targetPrice) / alert.currentPrice)
+                : 0
               return (
                 <div key={alert.id}
                   style={{

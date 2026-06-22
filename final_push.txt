@@ -1,0 +1,3 @@
+FINAL PUSH - 6/6/2026 10:51:33 PM
+Git found: 
+ERROR: git still not found after winget

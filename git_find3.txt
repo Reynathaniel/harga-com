@@ -1,0 +1,13 @@
+Searching for git.exe...
+Not found: C:\Users\ASUS\AppData\Local\GitHubDesktop
+=== C:\Users\ASUS\AppData\Local\Programs ===
+=== C:\Program Files ===
+=== C:\Program Files (x86) ===
+Not found: C:\Users\ASUS\scoop
+Not found: C:\ProgramData\scoop
+Not found: C:\tools
+=== C:\Users\ASUS\AppData\Roaming ===
+Not found: D:\tools
+=== PATH ===
+C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\dotnet\;C:\Users\ASUS\AppData\Local\Microsoft\WindowsApps;C:\Users\ASUS\AppData\Local\GitHubDesktop\bin
+=== DONE ===

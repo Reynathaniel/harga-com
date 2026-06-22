@@ -1,0 +1,127 @@
+import type { Platform } from './types'
+
+export const PLATFORMS: Record<string, Platform> = {
+  tokopedia: {
+    id: 'tokopedia',
+    name: 'Tokopedia',
+    shortName: 'Tokped',
+    color: '#42b549',
+    bgColor: '#e8f5e9',
+    logo: '/logos/tokopedia.svg',
+    affiliateBase: 'https://tokopedia.com/product/',
+    cashbackPct: 5,
+  },
+  shopee: {
+    id: 'shopee',
+    name: 'Shopee',
+    shortName: 'Shopee',
+    color: '#ee4d2d',
+    bgColor: '#fce8e4',
+    logo: '/logos/shopee.svg',
+    affiliateBase: 'https://shopee.co.id/product/',
+    cashbackPct: 7,
+  },
+  lazada: {
+    id: 'lazada',
+    name: 'Lazada',
+    shortName: 'Lazada',
+    color: '#0f146d',
+    bgColor: '#e8e9f8',
+    logo: '/logos/lazada.svg',
+    affiliateBase: 'https://lazada.co.id/product/',
+    cashbackPct: 6,
+  },
+  bukalapak: {
+    id: 'bukalapak',
+    name: 'Bukalapak',
+    shortName: 'BL',
+    color: '#e31e52',
+    bgColor: '#fce4eb',
+    logo: '/logos/bukalapak.svg',
+    affiliateBase: 'https://bukalapak.com/product/',
+    cashbackPct: 4,
+  },
+  blibli: {
+    id: 'blibli',
+    name: 'Blibli',
+    shortName: 'Blibli',
+    color: '#0095da',
+    bgColor: '#e0f4fd',
+    logo: '/logos/blibli.svg',
+    affiliateBase: 'https://blibli.com/product/',
+    cashbackPct: 5,
+  },
+  tiktok: {
+    id: 'tiktok',
+    name: 'TikTok Shop',
+    shortName: 'TikTok',
+    color: '#fe2c55',
+    bgColor: '#ffe8ec',
+    logo: '/logos/tiktok.svg',
+    affiliateBase: 'https://tiktok.com/shop/product/',
+    cashbackPct: 8,
+  },
+  amazon: {
+    id: 'amazon',
+    name: 'Amazon',
+    shortName: 'Amazon',
+    color: '#ff9900',
+    bgColor: '#fff3e0',
+    logo: '/logos/amazon.svg',
+    affiliateBase: 'https://amazon.com/dp/',
+    cashbackPct: 4,
+  },
+  alibaba: {
+    id: 'alibaba',
+    name: 'Alibaba',
+    shortName: 'Alibaba',
+    color: '#ff6a00',
+    bgColor: '#fff0e6',
+    logo: '/logos/alibaba.svg',
+    affiliateBase: 'https://www.alibaba.com/product-detail/',
+    cashbackPct: 3,
+  },
+  aliexpress: {
+    id: 'aliexpress',
+    name: 'AliExpress',
+    shortName: 'AliExp',
+    color: '#e62e04',
+    bgColor: '#ffeee9',
+    logo: '/logos/aliexpress.svg',
+    affiliateBase: 'https://www.aliexpress.com/item/',
+    cashbackPct: 5,
+  },
+  olx: {
+    id: 'olx',
+    name: 'OLX',
+    shortName: 'OLX',
+    color: '#6d3ec1',
+    bgColor: '#ede8f8',
+    logo: '/logos/olx.svg',
+    affiliateBase: 'https://olx.co.id/d/',
+    cashbackPct: 2,
+  },
+  carousell: {
+    id: 'carousell',
+    name: 'Carousell',
+    shortName: 'Crsl',
+    color: '#e0174e',
+    bgColor: '#fde8ee',
+    logo: '/logos/carousell.svg',
+    affiliateBase: 'https://carousell.co.id/p/',
+    cashbackPct: 2,
+  },
+}
+
+export const PLATFORM_ORDER: string[] = [
+  'tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak',
+  'amazon', 'aliexpress', 'alibaba', 'olx', 'carousell',
+]
+
+export const PLATFORM_PRIMARY: string[] = [
+  'tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak',
+]
+
+export const PLATFORM_INTL: string[] = [
+  'amazon', 'aliexpress', 'alibaba', 'olx', 'carousell',
+]
