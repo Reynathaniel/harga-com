@@ -318,4 +318,10 @@ export default function AlertPage() {
               textDecoration: 'none',
             }}>
             Pelajari Cashback →
-          <
+          </Link>
+        </div>
+
+      </div>
+    </div>
+  )
+}
