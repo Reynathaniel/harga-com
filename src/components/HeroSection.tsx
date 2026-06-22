@@ -4,13 +4,17 @@ import { SearchAutocomplete } from '@/components/SearchAutocomplete'
 
 const TYPEWRITER_WORDS = [
   'iPhone 15 Pro Max',
-  'Samsung Galaxy S24',
-  'Laptop ASUS ROG',
+  'Samsung Galaxy S24 Ultra',
+  'Laptop ASUS ROG Strix',
   'AirPods Pro 2',
-  'PlayStation 5',
+  'PlayStation 5 Slim',
   'Dyson V15 Detect',
-  'Nike Air Force 1',
-  'Apple Watch Ultra',
+  'Nike Air Jordan 1',
+  'Apple Watch Ultra 2',
+  'Xiaomi 14 Pro',
+  'GoPro Hero 12',
+  'Canon EOS R50',
+  'Kindle Paperwhite',
 ]
 
 function TypewriterSearch() {
@@ -53,7 +57,7 @@ function TypewriterSearch() {
         </button>
       </div>
       <p className="text-xs text-center text-[var(--text-muted)]">
-        Atau tempel link dari Tokopedia, Shopee, Lazada, dll
+        Tempel link dari Tokopedia, Shopee, Lazada, TikTok, Amazon, AliExpress, dll
       </p>
     </div>
   )

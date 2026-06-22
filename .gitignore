@@ -30,3 +30,9 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local utility / log files (not needed in repo)
+get_vercel_token.py
+vercel-env-log.txt
+batch-log.txt
+hargacom-knowledge.docx

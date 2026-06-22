@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import type { PlatformId } from '@/lib/types'
 import { PLATFORMS } from '@/lib/platforms'
 
@@ -6,6 +7,12 @@ interface PlatformBadgeProps {
   size?: 'sm' | 'md' | 'lg'
   showName?: boolean
   variant?: 'pill' | 'dot' | 'icon'
+}
+
+const sizeMap = {
+  sm: { pill: 'text-[10px] px-1.5 py-0.5 gap-1',  dot: 'w-5 h-5',  icon: 'w-6 h-6',  img: 14 },
+  md: { pill: 'text-xs px-2 py-1 gap-1.5',          dot: 'w-6 h-6',  icon: 'w-8 h-8',  img: 18 },
+  lg: { pill: 'text-sm px-3 py-1.5 gap-2',          dot: 'w-8 h-8',  icon: 'w-11 h-11', img: 24 },
 }
 
 export function PlatformBadge({
@@ -17,20 +24,29 @@ export function PlatformBadge({
   const platform = PLATFORMS[platformId]
   if (!platform) return null
 
-  const sizeMap = {
-    sm: { pill: 'text-[10px] px-1.5 py-0.5', dot: 'w-4 h-4 text-[8px]', icon: 'w-5 h-5 text-[9px]' },
-    md: { pill: 'text-xs px-2 py-1',          dot: 'w-5 h-5 text-[9px]', icon: 'w-7 h-7 text-[11px]' },
-    lg: { pill: 'text-sm px-3 py-1.5',        dot: 'w-6 h-6 text-xs',   icon: 'w-9 h-9 text-sm' },
-  }
+  const sz = sizeMap[size]
+  const bg = platformId === 'tiktok' ? '#010101' : platform.color
+  const logoSrc = `/logos/${platformId}.svg`
+
+  const Logo = ({ s }: { s: number }) => (
+    <Image
+      src={logoSrc}
+      alt={platform.name}
+      width={s}
+      height={s}
+      className="rounded-sm object-contain"
+      unoptimized
+    />
+  )
 
   if (variant === 'dot') {
     return (
       <div
-        className={`${sizeMap[size].dot} rounded-full flex items-center justify-center font-bold text-white shrink-0`}
-        style={{ background: platformId === 'tiktok' ? '#1a1a1a' : platform.color }}
+        className={`${sz.dot} rounded-full flex items-center justify-center font-bold text-white shrink-0 overflow-hidden`}
+        style={{ background: bg }}
         title={platform.name}
       >
-        {platform.shortName[0]}
+        <Logo s={sz.img} />
       </div>
     )
   }
@@ -38,11 +54,11 @@ export function PlatformBadge({
   if (variant === 'icon') {
     return (
       <div
-        className={`${sizeMap[size].icon} rounded-xl flex items-center justify-center font-bold text-white shrink-0`}
-        style={{ background: platformId === 'tiktok' ? '#1a1a1a' : platform.color }}
+        className={`${sz.icon} rounded-xl flex items-center justify-center font-bold text-white shrink-0 overflow-hidden`}
+        style={{ background: bg }}
         title={platform.name}
       >
-        {platform.shortName.slice(0, 2)}
+        <Logo s={sz.img} />
       </div>
     )
   }
@@ -50,10 +66,12 @@ export function PlatformBadge({
   // pill variant
   return (
     <span
-      className={`inline-flex items-center gap-1 font-semibold rounded-full text-white ${sizeMap[size].pill}`}
-      style={{ background: platformId === 'tiktok' ? '#1a1a1a' : platform.color }}
+      className={`inline-flex items-center font-semibold rounded-full text-white ${sz.pill}`}
+      style={{ background: bg }}
     >
-      <span className="font-bold">{platform.shortName[0]}</span>
+      <span className="flex-shrink-0 overflow-hidden rounded-sm">
+        <Logo s={sz.img} />
+      </span>
       {showName && <span>{platform.name}</span>}
     </span>
   )

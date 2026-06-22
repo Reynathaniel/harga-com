@@ -3,11 +3,18 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
-  "regions": ["sin1"],
   "crons": [
     {
-      "path": "/api/ping",
-      "schedule": "0 6 */3 * *"
+      "path": "/api/scraper/cron",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/scraper/cron-intl",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/scrape",
+      "schedule": "0 23 * * *"
     }
   ]
 }

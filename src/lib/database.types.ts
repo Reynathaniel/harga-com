@@ -355,6 +355,46 @@ export interface Database {
         }
         Update: Partial<Database['public']['Tables']['watchlist']['Insert']>
       }
+
+      price_alerts: {
+        Row: {
+          id: string
+          query: string
+          email: string
+          target_price: number
+          notify_type: string
+          active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          query: string
+          email: string
+          target_price: number
+          notify_type?: string
+          active?: boolean
+          created_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['price_alerts']['Insert']>
+      }
+
+      waitlist: {
+        Row: {
+          id: string
+          email: string
+          name: string | null
+          source: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          email: string
+          name?: string | null
+          source?: string | null
+          created_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['waitlist']['Insert']>
+      }
     }
 
     Views: {
@@ -405,6 +445,8 @@ export type ReferralClickRow      = Database['public']['Tables']['referral_click
 export type ReferralCommissionRow = Database['public']['Tables']['referral_commissions']['Row']
 export type CommissionSettingsRow = Database['public']['Tables']['commission_settings']['Row']
 export type CheckoutIntentRow     = Database['public']['Tables']['checkout_intents']['Row']
+export type PriceAlertRow         = Database['public']['Tables']['price_alerts']['Row']
+export type WaitlistRow           = Database['public']['Tables']['waitlist']['Row']
 
 // ── Joined / enriched types used in the app ───────────────────────
 export interface OfferWithMerchant extends OfferRow {

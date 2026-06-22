@@ -1,0 +1,40 @@
+name: Scrape Price Data
+
+on:
+  # Schedule disabled — Vercel cron (vercel.json) handles automated scraping.
+  # Use workflow_dispatch for manual runs.
+  workflow_dispatch:
+    inputs:
+      query:
+        description: 'Specific query to scrape (leave empty for default rotation)'
+        required: false
+        default: ''
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install tsx + supabase-js
+        run: npm install -g tsx && npm install @supabase/supabase-js
+
+      - name: Run scraper
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SCRAPE_QUERY: ${{ github.event.inputs.query }}
+        run: node scripts/scrape-cron.mjs
+
+      - name: Notify Vercel to revalidate
+        if: success()
+        run: |
+          curl -s -X POST "https://harga-com.vercel.app/api/ping" \
+            -H "x-scraper-secret: ${{ secrets.SCRAPER_SECRET }}" \
+            --max-time 10 || true

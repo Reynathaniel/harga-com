@@ -21,6 +21,7 @@ interface SearchAutocompleteProps {
   initialValue?: string
   onSearch?: (q: string) => void
   className?: string
+  extraParams?: Record<string, string>
 }
 
 export function SearchAutocomplete({
@@ -28,6 +29,7 @@ export function SearchAutocomplete({
   initialValue = '',
   onSearch,
   className,
+  extraParams = {},
 }: SearchAutocompleteProps) {
   const router = useRouter()
   const [query, setQuery] = useState(initialValue)
@@ -84,7 +86,8 @@ export function SearchAutocomplete({
     if (onSearch) {
       onSearch(term)
     } else {
-      router.push(`/cari?q=${encodeURIComponent(term)}`)
+      const params = new URLSearchParams({ q: term, ...extraParams })
+      router.push(`/cari?${params.toString()}`)
     }
   }
 
@@ -122,7 +125,7 @@ export function SearchAutocomplete({
           }}
           placeholder={
             size === 'hero'
-              ? "Cari iPhone 15 Pro, Samsung S24, atau tempel link produk..."
+              ? "Cari apa saja — baru atau bekas..."
               : "Cari produk atau tempel URL..."
           }
           className={cn(
@@ -151,7 +154,7 @@ export function SearchAutocomplete({
           {isUrl ? (
             <><ScanLine size={14} />Analisa</>
           ) : (
-            <>Bandingkan</>
+            <>Cari Harga</>
           )}
         </button>
       </div>
@@ -173,7 +176,7 @@ export function SearchAutocomplete({
                 >
                   <Search size={14} className="text-[var(--text-muted)] shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm text-white truncate">{r.name}</div>
+                    <div className="text-sm text-[var(--text-primary)] truncate">{r.name}</div>
                     <div className="text-[10px] text-[var(--text-muted)]">
                       {r.category} · mulai {formatPrice(r.minPrice)}
                     </div>

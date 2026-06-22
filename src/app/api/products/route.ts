@@ -15,6 +15,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getProducts } from '@/lib/db/products'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
 
@@ -44,12 +47,14 @@ export async function GET(request: NextRequest) {
         offset,
         hasMore:  offset + limit < result.total,
       },
+    }, {
+      headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
     })
   } catch (err) {
     console.error('[GET /api/products]', err)
     return NextResponse.json(
       { success: false, error: 'Gagal mengambil data produk' },
-      { status: 500 }
+      { status: 500, headers: { 'Cache-Control': 'no-store' } }
     )
   }
 }

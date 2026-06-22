@@ -1,4 +1,7 @@
-export type PlatformId = 'tokopedia' | 'shopee' | 'lazada' | 'bukalapak' | 'blibli' | 'tiktok'
+export type PlatformId =
+  | 'tokopedia' | 'shopee' | 'lazada' | 'bukalapak' | 'blibli' | 'tiktok'
+  | 'amazon' | 'alibaba' | 'aliexpress' | 'jd'
+  | 'olx' | 'carousell'
 
 export interface Platform {
   id: PlatformId
@@ -26,12 +29,16 @@ export interface PriceListing {
   url: string
   affiliateUrl: string
   imageUrl: string
+  // Zero-storage media: URLs only, files stay on platform CDNs
+  videoUrl?: string
+  videoThumb?: string
+  condition?: 'new' | 'used'
   updatedAt: Date
 }
 
 export interface PriceHistory {
   date: Date
-  prices: Record<PlatformId, number | null>
+  prices: Partial<Record<PlatformId, number | null>>
 }
 
 export interface Product {

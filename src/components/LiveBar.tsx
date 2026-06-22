@@ -1,21 +1,42 @@
 'use client'
 
-const LIVE_DROPS = [
-  { name: 'Sony WH-1000XM5', drop: '-12.5%', platform: 'Shopee', price: 'Rp 3.990.000' },
-  { name: 'iPhone 15 128GB', drop: '-8.2%', platform: 'Tokopedia', price: 'Rp 12.499.000' },
-  { name: 'Dyson V15 Detect', drop: '-15.3%', platform: 'Lazada', price: 'Rp 6.999.000' },
-  { name: 'Samsung Galaxy S24', drop: '-6.8%', platform: 'Blibli', price: 'Rp 11.999.000' },
-  { name: 'Nintendo Switch OLED', drop: '-9.1%', platform: 'TikTok Shop', price: 'Rp 3.899.000' },
-  { name: 'MacBook Air M2', drop: '-5.4%', platform: 'Tokopedia', price: 'Rp 14.999.000' },
-  { name: 'ASUS ROG Zephyrus G14', drop: '-11.2%', platform: 'Shopee', price: 'Rp 18.499.000' },
-  { name: 'Xiaomi 14 Ultra', drop: '-7.6%', platform: 'Lazada', price: 'Rp 9.799.000' },
+import { useEffect, useState } from 'react'
+
+interface LiveDrop {
+  name: string
+  drop: string
+  platform: string
+  price: string
+  productId: string
+}
+
+const FALLBACK: LiveDrop[] = [
+  { name: 'Sony WH-1000XM5', drop: '-12.5%', platform: 'Shopee', price: 'Rp 3.990.000', productId: '' },
+  { name: 'iPhone 15 128GB', drop: '-8.2%', platform: 'Tokopedia', price: 'Rp 12.499.000', productId: '' },
+  { name: 'Dyson V15 Detect', drop: '-15.3%', platform: 'Lazada', price: 'Rp 6.999.000', productId: '' },
+  { name: 'Samsung Galaxy S24', drop: '-6.8%', platform: 'Blibli', price: 'Rp 11.999.000', productId: '' },
+  { name: 'Nintendo Switch OLED', drop: '-9.1%', platform: 'TikTok Shop', price: 'Rp 3.899.000', productId: '' },
+  { name: 'MacBook Air M2', drop: '-5.4%', platform: 'Tokopedia', price: 'Rp 14.999.000', productId: '' },
+  { name: 'ASUS ROG Zephyrus G14', drop: '-11.2%', platform: 'Shopee', price: 'Rp 18.499.000', productId: '' },
+  { name: 'Xiaomi 14 Ultra', drop: '-7.6%', platform: 'Lazada', price: 'Rp 9.799.000', productId: '' },
 ]
 
 export function LiveBar() {
-  const items = [...LIVE_DROPS, ...LIVE_DROPS]
+  const [drops, setDrops] = useState<LiveDrop[]>(FALLBACK)
+
+  useEffect(() => {
+    fetch('/api/live-drops')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (Array.isArray(data) && data.length >= 3) setDrops(data)
+      })
+      .catch(() => {/* keep fallback */})
+  }, [])
+
+  const items = [...drops, ...drops]
 
   return (
-    <div className="ticker-dark" style={{ zIndex: 40, position: 'relative' }}>
+    <div className="ticker-dark" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 51 }}>
       {/* LIVE label */}
       <div style={{
         display: 'flex',
@@ -47,7 +68,6 @@ export function LiveBar() {
 
       {/* Scrolling content */}
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-        {/* Fade edges */}
         <div style={{
           position: 'absolute', left: 0, top: 0, bottom: 0, width: 40, zIndex: 1, pointerEvents: 'none',
           background: 'linear-gradient(to right, var(--bg-dark), transparent)',
@@ -78,11 +98,7 @@ export function LiveBar() {
               borderRight: '1px solid rgba(255,255,255,0.07)',
             }}>
               <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>{item.name}</span>
-              <span style={{
-                color: '#4ADE80',
-                fontWeight: 700,
-                fontSize: 11,
-              }}>{item.drop}</span>
+              <span style={{ color: '#4ADE80', fontWeight: 700, fontSize: 11 }}>{item.drop}</span>
               <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10 }}>@</span>
               <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 10 }}>{item.platform}</span>
               <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>{item.price}</span>
