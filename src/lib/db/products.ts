@@ -14,7 +14,8 @@ import {
 } from '../mock-data'
 import type { Product } from '../types'
 import type { ProductRow, OfferWithMerchant } from '../database.types'
-import { adaptDbProductToAppProduct } from './adapters'
+import { adaptDbProductToAppProduct, generateSyntheticHistory } from './adapters'
+import type { PriceHistory, PlatformId } from '../types'
 
 // Map category URL id → DB label
 const CATEGORY_ID_TO_LABEL: Record<string, string> = {
@@ -177,7 +178,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
       if (pErr || !product) throw pErr ?? new Error('Not found')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return await enrichProductWithOffers(db as any, product)
+      return await enrichProductWithOffers(db as any, product, true)
     } catch (err) {
       console.error('[db/products] getProductBySlug error, falling back to mock:', err)
     }
@@ -202,7 +203,7 @@ export async function getProductById(id: string): Promise<Product | null> {
 
       if (product) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return await enrichProductWithOffers(db as any, product as ProductRow)
+        return await enrichProductWithOffers(db as any, product as ProductRow, true)
       }
     } catch (err) {
       console.error('[db/products] getProductById error, falling back to mock:', err)
@@ -345,21 +346,18 @@ export async function getPromoProducts(limit = 8): Promise<Product[]> {
   return MOCK_PRODUCTS.slice(0, limit).map(p => p as unknown as Product)
 }
 
-// Internal: enrich ProductRow with its offers
+// getPriceHistory — fetch real price history for a product from Supabase
+// Queries price_history joined via offers → groups by day, takes min price per platform per day
+// Falls back to generateSyntheticHistory if no real data found or Supabase unreachable.
 
-async function enrichProductWithOffers(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  db: any,
-  product: ProductRow
-): Promise<Product> {
-  const { data: offerRows } = await db
-    .from('offers')
-    .select('*, merchant:merchants(*)')
-    .eq('product_id', product.id)
-    .order('price', { ascending: true })
+export async function getPriceHistory(productId: string, days = 30): Promise<PriceHistory[]> {
+  const db = tryGetServerClient()
 
-  // Filter out offers with null merchants (orphaned FK)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const offers: OfferWithMerchant[] = (offerRows ?? [] as any[]).filter((o: any) => o.merchant != null)
-  return adaptDbProductToAppProduct(product, offers)
-}
+  if (db) {
+    try {
+      // Compute the cutoff date
+      const since = new Date()
+      since.setDate(since.getDate() - days)
+      since.setHours(0, 0, 0, 0)
+
+      // F
