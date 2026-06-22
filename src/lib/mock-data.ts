@@ -966,14 +966,16 @@ export const TRENDING_SEARCHES = [
 ]
 
 export const CATEGORIES = [
-  { id: 'elektronik', label: 'Elektronik', icon: '📱', count: 124500 },
-  { id: 'fashion', label: 'Fashion', icon: '👟', count: 89200 },
-  { id: 'rumah-tangga', label: 'Rumah Tangga', icon: '🏠', count: 67800 },
-  { id: 'gaming', label: 'Gaming', icon: '🎮', count: 45300 },
-  { id: 'kecantikan', label: 'Kecantikan', icon: '💄', count: 98700 },
-  { id: 'otomotif', label: 'Otomotif', icon: '🚗', count: 34100 },
-  { id: 'olahraga', label: 'Olahraga', icon: '⚽', count: 56200 },
-  { id: 'buku', label: 'Buku', icon: '📚', count: 23400 },
+  { id: 'elektronik',  label: 'Elektronik',   icon: '📱', count: 124500 },
+  { id: 'fashion',     label: 'Fashion',       icon: '👟', count: 89200  },
+  { id: 'rumah-tangga',label: 'Rumah Tangga',  icon: '🏠', count: 67800  },
+  { id: 'gaming',      label: 'Gaming',        icon: '🎮', count: 45300  },
+  { id: 'kecantikan',  label: 'Kecantikan',    icon: '💄', count: 98700  },
+  { id: 'otomotif',    label: 'Otomotif',      icon: '🚗', count: 34100  },
+  { id: 'olahraga',    label: 'Olahraga',      icon: '⚽', count: 56200  },
+  { id: 'buku',        label: 'Buku',          icon: '📚', count: 23400  },
+  { id: 'motor-bekas', label: 'Motor Bekas',   icon: '🏍️', count: 20     },
+  { id: 'mobil-bekas', label: 'Mobil Bekas',   icon: '🚙', count: 25     },
 ]
 
 export const STATS = {
