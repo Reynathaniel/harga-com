@@ -27,6 +27,8 @@ const CATEGORY_ID_TO_LABEL: Record<string, string> = {
   'olahraga':     'Olahraga',
   'lainnya':      'Lainnya',
   'buku':         'Buku',
+  'motor-bekas':  'Motor Bekas',
+  'mobil-bekas':  'Mobil Bekas',
 }
 
 // Types
