@@ -1,10 +1,10 @@
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
-
 export const metadata = {
   title: 'Cari Produk — Bandingkan Harga Terbaik | Harga.com',
-  description: 'Cari dan bandingkan harga produk dari Tokopedia, Shopee, Lazada, Blibli, TikTok Shop dan marketplace lainnya. Filter berdasarkan kategori, platform, harga, dan kondisi barang.',
+  description: 'Cari dan bandingkan harga produk dari Tokopedia, Shopee, Lazada, Blibli, TikTok Shop, dan marketplace lainnya di Indonesia.',
 }
+
+export const revalidate = 0
 
 import { SearchAutocomplete } from '@/components/SearchAutocomplete'
 import { ProductCard } from '@/components/ProductCard'
@@ -419,4 +419,16 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               )}
               {products.length >= PAGE_SIZE && offset + PAGE_SIZE < total && (
                 <Link href={buildHref({ offset: String(offset + PAGE_SIZE) })}
-                  className="group ml-auto px-8 py-2.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-amber-500/35 hover:bg-[var(--bg-hover)] rounded-2xl text-sm fon
+                  className="group ml-auto px-8 py-2.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-amber-500/35 hover:bg-[var(--bg-hover)] rounded-2xl text-sm font-medium transition-all flex items-center gap-2">
+                  <Package size={16} className="group-hover:animate-bounce" />
+                  Muat Lebih Banyak
+                </Link>
+              )}
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
