@@ -23,12 +23,12 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
     setLoading(true)
     setError('')
     try {
-      // POST to our API — gracefully ignore failures (API may not exist yet)
-      await fetch('/api/waitlist', {
+      const res = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, name }),
-      }).catch(() => null)
+      })
+      if (!res.ok) throw new Error('Server error')
       setDone(true)
     } catch {
       setError('Ups, ada masalah. Coba lagi ya.')
@@ -218,3 +218,4 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
     </>
   )
 }
+                                   
