@@ -71,25 +71,60 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
       const slug = slugify(listing.title)
       if (!slug) { skipped++; continue }
 
-      // 1. Upsert product
-      const { data: product, error: pErr } = await anyDb
+      // 1. Find or create product — only write image fields on first insert, never overwrite
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: existing } = await anyDb
         .from('products')
-        .upsert({
-          slug,
+        .select('id, images, image_url')
+        .eq('slug', slug)
+        .maybeSingle()
+
+      let product: { id: string } | null = null
+
+      if (existing) {
+        // Update non-image metadata; preserve existing images to avoid mismatch
+        const hasImage = (existing.images?.length ?? 0) > 0 || existing.image_url
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const patch: Record<string, any> = {
           name:           listing.title,
           brand:          listing.brand    ?? null,
           category:       listing.category ?? null,
-          image_url:      listing.imageUrl,
-          images:         [listing.imageUrl],
           tags:           [],
           specifications: listing.specs ?? {},
           updated_at:     now,
-        }, { onConflict: 'slug' })
-        .select('id')
-        .single()
+        }
+        if (!hasImage && listing.imageUrl) {
+          patch.image_url = listing.imageUrl
+          patch.images    = [listing.imageUrl]
+        }
+        const { error: uErr } = await anyDb.from('products').update(patch).eq('id', existing.id)
+        if (uErr) { console.error('[scraper-save] product update:', uErr.message); errors++; continue }
+        product = existing
+      } else {
+        const { data: inserted, error: pErr } = await anyDb
+          .from('products')
+          .insert({
+            slug,
+            name:           listing.title,
+            brand:          listing.brand    ?? null,
+            category:       listing.category ?? null,
+            image_url:      listing.imageUrl  || null,
+            images:         listing.imageUrl  ? [listing.imageUrl] : [],
+            tags:           [],
+            specifications: listing.specs ?? {},
+            updated_at:     now,
+          })
+          .select('id')
+          .single()
+        if (pErr || !inserted) {
+          console.error('[scraper-save] product insert:', pErr?.message)
+          errors++; continue
+        }
+        product = inserted
+      }
 
-      if (pErr || !product) {
-        console.error('[scraper-save] product upsert:', pErr?.message)
+      if (!product) {
+        console.error('[scraper-save] product upsert:', 'no product returned')
         errors++; continue
       }
 
