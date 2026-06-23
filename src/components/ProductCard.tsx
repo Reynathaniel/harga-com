@@ -37,8 +37,7 @@ export function ProductCard({ product, compact = false }: Props) {
   const savingsPct = priceDiffPercent(cheapest.price, mostExpensive.price)
   const platform = PLATFORMS[cheapest.platformId]
   const cashbackPct = platform?.cashbackPct ?? 0
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isUsed = (cheapest as any).condition === 'used'
+  const isUsed = cheapest.condition === 'used'
 
   const rawImg = product.images?.[0]
   const imgSrc = !imgFailed && rawImg && rawImg.startsWith('http')

@@ -181,8 +181,8 @@ export default async function HomePage() {
             { label: 'Fashion',      icon: '👗',  color: '#F97316', bg: 'rgba(249,115,22,0.10)',  href: '/cari?kategori=fashion' },
             { label: 'Rumah',        icon: '🏠',  color: '#0EA5E9', bg: 'rgba(14,165,233,0.10)',  href: '/cari?kategori=rumah-tangga' },
             { label: 'Hobi & Game', icon: '🎮',  color: '#8B5CF6', bg: 'rgba(139,92,246,0.10)',  href: '/cari?kategori=gaming' },
-            { label: 'Otomotif',     icon: '🚗',  color: '#EF4444', bg: 'rgba(239,68,68,0.10)',   href: '/cari?kategori=otomotif' },
-            { label: 'Gadget',       icon: '📱',  color: '#10B981', bg: 'rgba(16,185,129,0.10)',  href: '/cari?kategori=elektronik' },
+            { label: 'Olahraga',     icon: '⚽',  color: '#EF4444', bg: 'rgba(239,68,68,0.10)',   href: '/cari?kategori=olahraga' },
+            { label: 'Kecantikan',   icon: '💄',  color: '#EC4899', bg: 'rgba(236,72,153,0.10)',  href: '/cari?kategori=kecantikan' },
             { label: 'Motor Bekas',  icon: '🏍️',  color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',  href: '/cari?kategori=motor-bekas' },
             { label: 'Mobil Bekas',  icon: '🚙',  color: '#64748B', bg: 'rgba(100,116,139,0.10)', href: '/cari?kategori=mobil-bekas' },
           ].map(cat => (

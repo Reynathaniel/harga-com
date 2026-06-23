@@ -29,9 +29,11 @@ export function adaptOfferToListing(offer: OfferWithMerchant, fallbackImageUrl?:
     affiliateUrl:  offer.affiliate_url ?? '#',
     imageUrl:      fallbackImageUrl ?? '/placeholder-product.png',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    videoUrl:      (offer as any).video_url  ?? undefined,
+    videoUrl:      (offer as any).video_url   ?? undefined,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    videoThumb:    (offer as any).video_thumb ?? undefined,
+    videoThumb:    (offer as any).video_thumb  ?? undefined,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    condition:     (offer as any).condition   as 'new' | 'used' | undefined,
     updatedAt:     new Date(offer.updated_at),
   }
 }
