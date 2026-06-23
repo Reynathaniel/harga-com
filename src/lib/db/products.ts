@@ -29,10 +29,7 @@ const CATEGORY_ID_TO_LABEL: Record<string, string> = {
   'rumah-tangga': 'Rumah Tangga',
   'gaming':       'Gaming',
   'kecantikan':   'Kecantikan',
-  'otomotif':     'Otomotif',
   'olahraga':     'Olahraga',
-  'lainnya':      'Lainnya',
-  'buku':         'Buku',
   'motor-bekas':  'Motor Bekas',
   'mobil-bekas':  'Mobil Bekas',
 }
@@ -281,7 +278,7 @@ export async function getCategories() {
         })
         return CATEGORIES.map(c => ({
           ...c,
-          count: counts[c.label] ?? c.count,
+          count: Object.prototype.hasOwnProperty.call(counts, c.label) ? counts[c.label] : c.count,
         }))
       }
     } catch { /* fall through */ }
