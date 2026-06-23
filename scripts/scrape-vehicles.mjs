@@ -445,9 +445,10 @@ function generateVehiclePrice(parsed, vehicleType) {
   return base + randInt(-20_000_000, 30_000_000)
 }
 
-function generatePlaceholder(title) {
-  const text = encodeURIComponent(title.slice(0, 20))
-  return `https://placehold.co/400x400/1A1613/FAF9F6?text=${text}`
+function generatePlaceholder(_title) {
+  // Return empty string so the UI falls back to /placeholder-product.png
+  // (placehold.co text-images look like "gambar tidak sesuai" to users)
+  return ''
 }
 
 /**
@@ -494,7 +495,7 @@ function generateSyntheticVehicleListings(platform, vehicleType, count) {
       merchantId: VEHICLE_MERCHANT_UUID[platform] || VEHICLE_MERCHANT_UUID['olx'],
       price,
       url: `https://www.olx.co.id/item/${slugify(title)}_${i}`,
-      imageUrl: `https://placehold.co/400x400/1A1613/FAF9F6?text=${encodeURIComponent(`${brandCap}+${model}+${year}`)}`,
+      imageUrl: '',
       vehicleType,
       ...parsed,
     })
@@ -505,17 +506,26 @@ function generateSyntheticVehicleListings(platform, vehicleType, count) {
 // ─── DB save logic ───────────────────────────────────────────────────────────
 
 async function saveVehicleListing(listing) {
-  const slug = slugify(listing.title) + '-' + listing.platform + '-' + Math.random().toString(36).slice(2, 6)
+  // Deterministic slug: title + platform (no random) so upsert properly deduplicates on re-run
+  const slug = slugify(listing.title).slice(0, 80) + '-' + listing.platform
   const now = new Date().toISOString()
 
+  // Only store a real image URL — empty/placehold.co strings become null so UI shows /placeholder-product.png
+  const imageUrl = listing.imageUrl && listing.imageUrl.startsWith('http') ? listing.imageUrl : null
+
+  // Correct category so the "Mobil Bekas" / "Motor Bekas" filter in products.ts works
+  const category = listing.vehicleType === 'motor' ? 'Motor Bekas' : 'Mobil Bekas'
+
   // Upsert product with vehicle columns
+  // Only send image fields when we have a real URL — omitting them on conflict means
+  // Postgres leaves existing image values untouched (merge-duplicates only updates included keys)
   const productBody = {
     slug,
     name:                 listing.title,
     brand:                listing.vehicleBrand ?? null,
-    category:             'Otomotif',
-    image_url:            listing.imageUrl ?? null,
-    images:               listing.imageUrl ? [listing.imageUrl] : [],
+    category,
+    // Conditionally include image fields so we never overwrite a real image with null/empty
+    ...(imageUrl ? { image_url: imageUrl, images: [imageUrl] } : {}),
     tags:                 ['otomotif', listing.vehicleType ?? 'mobil'],
     specifications:       {
       brand:        listing.vehicleBrand,
