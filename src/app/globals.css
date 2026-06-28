@@ -604,12 +604,18 @@ body {
 .hero-enter-5 { animation: harga-hero-enter 0.72s cubic-bezier(0.22,1,0.36,1) 0.66s both; }
 
 /* Scroll reveal — JS adds .in-view via IntersectionObserver */
+/* Start visible so content shows without JS (progressive enhancement) */
 .reveal {
-  opacity: 0;
-  transform: translateY(30px);
+  opacity: 1;
+  transform: none;
   transition:
     opacity 0.65s cubic-bezier(0.22,1,0.36,1),
     transform 0.65s cubic-bezier(0.22,1,0.36,1);
+}
+/* When JS is ready, hide first then animate in */
+.reveal.js-ready {
+  opacity: 0;
+  transform: translateY(30px);
 }
 .reveal.in-view {
   opacity: 1;
@@ -617,12 +623,18 @@ body {
 }
 
 /* Grid reveal — children stagger in when parent gets .in-view */
+/* Start visible by default — JS will add animation via in-view class */
 .reveal-grid > * {
-  opacity: 0;
-  transform: translateY(22px);
+  opacity: 1;
+  transform: none;
   transition:
     opacity 0.55s cubic-bezier(0.22,1,0.36,1),
     transform 0.55s cubic-bezier(0.22,1,0.36,1);
+}
+/* When JS is ready, children start hidden until in-view */
+.reveal-grid.js-ready > * {
+  opacity: 0;
+  transform: translateY(22px);
 }
 .reveal-grid.in-view > *:nth-child(1)   { opacity: 1; transform: none; transition-delay:   0ms; }
 .reveal-grid.in-view > *:nth-child(2)   { opacity: 1; transform: none; transition-delay:  70ms; }
@@ -639,20 +651,11 @@ body {
   from { opacity: 0; transform: translateY(14px) scale(0.93); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-.stat-pop { opacity: 0; }
+/* Start visible by default */
+.stat-pop { opacity: 1; }
+.stat-pop.js-ready { opacity: 0; }
 .stat-pop.in-view { animation: harga-stat-pop 0.52s cubic-bezier(0.22,1,0.36,1) both; }
 .stat-pop.in-view:nth-child(1) { animation-delay:   0ms; }
 .stat-pop.in-view:nth-child(2) { animation-delay:  90ms; }
 .stat-pop.in-view:nth-child(3) { animation-delay: 180ms; }
-.stat-pop.in-view:nth-child(4) { animation-delay: 270ms; }
-
-/* Reduced motion — respect user preference */
-@media (prefers-reduced-motion: reduce) {
-  .hero-enter-1,.hero-enter-2,.hero-enter-3,.hero-enter-4,.hero-enter-5 {
-    animation: none !important; opacity: 1 !important; transform: none !important;
-  }
-  .reveal,.reveal-grid > *,.stat-pop {
-    opacity: 1 !important; transform: none !important;
-    transition: none !important; animation: none !important;
-  }
-}
+.stat-pop.in-view:nth-child(

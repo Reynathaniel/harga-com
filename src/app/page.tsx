@@ -789,9 +789,5 @@ export default async function HomePage() {
       if(e.isIntersecting){e.target.classList.add('in-view');}
     });
   },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){io.observe(el);});
-})();
-      `}</Script>
-    </div>
-  )
-}
+  document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){
+    // Add js-ready so CSS hides them for the reveal animation

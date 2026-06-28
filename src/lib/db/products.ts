@@ -287,46 +287,40 @@ export async function getCategories() {
   return CATEGORIES
 }
 
-// getPromoProducts — prioritises is_promo=true offers, then falls back to deals_by_discount view
+// getPromoProducts — returns products with the highest discount_pct offers
 
 export async function getPromoProducts(limit = 8): Promise<Product[]> {
   const db = tryGetServerClient()
 
   if (db) {
     try {
-      // First: find product_ids that have at least one is_promo=true offer
+      // Fetch top discounted in-stock offers, sorted by discount_pct DESC
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: promoOffers, error: poErr } = await (db as any)
+      const { data: discountOffers, error: doErr } = await (db as any)
         .from('offers')
-        .select('product_id, price, original_price')
-        .eq('is_promo', true)
+        .select('product_id, discount_pct, price, original_price')
+        .gt('discount_pct', 10)
         .eq('in_stock', true)
+        .order('discount_pct', { ascending: false })
+        .limit(limit * 5) // fetch extra to allow for deduplication
+
+      if (doErr) throw doErr
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const promoOfferRows: any[] = promoOffers ?? []
+      const offerRows: any[] = discountOffers ?? []
 
-      // Sort by discount % descending and deduplicate product_ids
-      const sorted = promoOfferRows
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((o: any) => ({
-          product_id:    o.product_id as string,
-          discountPct:   o.original_price && o.original_price > o.price
-            ? ((o.original_price - o.price) / o.original_price)
-            : 0,
-        }))
-        .sort((a: { discountPct: number }, b: { discountPct: number }) => b.discountPct - a.discountPct)
-
+      // Deduplicate by product_id, keep highest discount per product
       const seenIds = new Set<string>()
       const productIds: string[] = []
-      for (const row of sorted) {
+      for (const row of offerRows) {
         if (!seenIds.has(row.product_id)) {
           seenIds.add(row.product_id)
-          productIds.push(row.product_id)
+          productIds.push(row.product_id as string)
         }
         if (productIds.length >= limit) break
       }
 
-      if (!poErr && productIds.length > 0) {
+      if (productIds.length > 0) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: productRows, error: prErr } = await (db as any)
           .from('products_with_best_offer')
@@ -350,11 +344,13 @@ export async function getPromoProducts(limit = 8): Promise<Product[]> {
         }
       }
 
-      // Fallback: deals_by_discount view (products with any discount)
+      // Secondary fallback: products with best_original_price > best_price
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (db as any)
-        .from('deals_by_discount')
+        .from('products_with_best_offer')
         .select('*')
+        .not('best_original_price', 'is', null)
+        .order('total_reviews', { ascending: false })
         .limit(limit)
 
       if (error) throw error
@@ -373,3 +369,4 @@ export async function getPromoProducts(limit = 8): Promise<Product[]> {
   return MOCK_PRODUCTS.slice(0, limit).map(p => p as unknown as Product)
 }
 
+                                                                                                                                                                                                  

@@ -26,7 +26,7 @@ export function adaptOfferToListing(offer: OfferWithMerchant, fallbackImageUrl?:
     shopVerified:  offer.shop_verified,
     freeShipping:  offer.free_shipping,
     url:           offer.url ?? '#',
-    affiliateUrl:  offer.affiliate_url ?? '#',
+    affiliateUrl:  offer.affiliate_url ?? offer.url ?? '#',
     imageUrl:      fallbackImageUrl ?? '/placeholder-product.png',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     videoUrl:      (offer as any).video_url   ?? undefined,
@@ -111,5 +111,4 @@ export function generateSyntheticHistory(base: number, days = 30) {
     }
     history.push({ date: subDays(new Date(), i), prices })
   }
-  return history
-}
+  return
