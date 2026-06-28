@@ -111,4 +111,5 @@ export function generateSyntheticHistory(base: number, days = 30) {
     }
     history.push({ date: subDays(new Date(), i), prices })
   }
-  return
+  return history
+}
