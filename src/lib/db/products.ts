@@ -368,5 +368,3 @@ export async function getPromoProducts(limit = 8): Promise<Product[]> {
   // Fallback: return top products sorted by reviews as placeholder
   return MOCK_PRODUCTS.slice(0, limit).map(p => p as unknown as Product)
 }
-
-                                                                                                                                                                                                  
