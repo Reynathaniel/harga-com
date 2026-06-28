@@ -40,7 +40,13 @@ export function ProductCard({ product, compact = false }: Props) {
   const isUsed = cheapest.condition === 'used'
 
   const rawImg = product.images?.[0]
-  const isValidImg = !imgFailed && rawImg && rawImg.startsWith('http') && !rawImg.includes('placehold.co') && !rawImg.includes('placeholder')
+  const isValidImg = (
+    !imgFailed &&
+    !!rawImg &&
+    rawImg.startsWith('http') &&
+    !rawImg.includes('placehold.co') &&
+    !rawImg.includes('placeholder')
+  )
   const imgSrc = isValidImg ? rawImg : '/placeholder-product.png'
 
   const platformBg = platform?.id === 'tiktok' ? '#1a1a1a' : (platform?.color ?? '#9c9589')
@@ -142,4 +148,11 @@ export function ProductCard({ product, compact = false }: Props) {
               <TrendingDown size={10} className="shrink-0" style={{ color: 'var(--win)' }} />
               <span className="text-[10px] font-medium" style={{ color: 'var(--win)' }}>
                 Hemat {formatRupiah(savings, true)} vs termahal
-              </sp
+              </span>
+            </div>
+          )}
+        </div>
+      </article>
+    </Link>
+  )
+}
