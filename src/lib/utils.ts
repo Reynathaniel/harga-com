@@ -40,3 +40,29 @@ export function debounce<T extends (...args: Parameters<T>) => void>(fn: T, ms =
     timeout = setTimeout(() => fn(...args), ms)
   }
 }
+
+/**
+ * Cleans marketplace product names by removing promotional prefixes, 
+ * brackets, and keyword-stuffed noise common in Indonesian marketplace listings.
+ */
+export function cleanProductName(name: string): string {
+  return name
+    // Remove bracket prefixes: [Pre Order], [Pengiriman 2 Jul], [Free Ongkir], etc.
+    .replace(/^\[.*?\]\s*/i, '')
+    // Remove common promo prefixes (case-insensitive)
+    .replace(/^(?:Buy|Beli)\s+\d+\s+(?:Get|Dapat)\s+\d+\s*/i, '')
+    .replace(/^(?:Trending|Viral|Terlaris|Best Seller|Hot)\s+/i, '')
+    .replace(/^(?:NEW|BARU|TERBARU|RESMI|OFFICIAL)\s+/i, '')
+    // Strip [Pre-Order] / [PO] anywhere
+    .replace(/\[Pre.?Order\]\s*/gi, '')
+    .replace(/\[Pengiriman[^\]]*\]\s*/gi, '')
+    .replace(/\[.*?Official.*?\]\s*/gi, '')
+    // Remove all-caps promotional noise at the start (e.g. "WAJIB PUNYA")
+    .replace(/^(?:[A-Z ]{6,40})\s+/u, '')
+    // Clean excess whitespace and commas
+    .replace(/\s*,\s*/g, ', ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    // Truncate very long names at a word boundary
+    .slice(0, 120).replace(/\s\S*$/, '')
+}
