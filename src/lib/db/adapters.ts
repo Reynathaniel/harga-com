@@ -105,4 +105,13 @@ export function generateSyntheticHistory(base: number, days = 30) {
       blibli:     Math.round(v() * 1.05 / 1000) * 1000,
       tiktok:     i > 15 ? null : Math.round(v() * 0.91 / 1000) * 1000,
       amazon:     null,
-      alibaba:    nu
+      alibaba:    null,
+      aliexpress: null,
+      jd:         null,
+      olx:        null,
+      carousell:  null,
+    }
+    history.push({ date: subDays(new Date(), i), prices })
+  }
+  return history
+}
