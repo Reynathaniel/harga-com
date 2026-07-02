@@ -10,6 +10,12 @@ import { AlibabaScraper } from './alibaba'
 import { AliexpressScraper } from './aliexpress'
 import { OlxScraper } from './olx'
 import { CarousellScraper } from './carousell'
+// Vehicle-specific scrapers
+import { CarsomeScraper } from './carsome'
+import { Mobil123Scraper } from './mobil123'
+import { MomobilScraper } from './momobil'
+import { OtoScraper } from './oto'
+import { BelanjaMobilScraper } from './belanjamobil'
 import { BaseScraper } from './base'
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -30,8 +36,14 @@ function getRegistry(): Map<string, BaseScraper> {
       ['amazon',     new AmazonScraper()],
       ['alibaba',    new AlibabaScraper()],
       ['aliexpress', new AliexpressScraper()],
-      ['olx',        new OlxScraper()],
-      ['carousell',  new CarousellScraper()],
+      ['olx',          new OlxScraper()],
+      ['carousell',    new CarousellScraper()],
+      // Vehicle marketplaces
+      ['carsome',      new CarsomeScraper()],
+      ['mobil123',     new Mobil123Scraper()],
+      ['momobil',      new MomobilScraper()],
+      ['oto',          new OtoScraper()],
+      ['belanjamobil', new BelanjaMobilScraper()],
     ]
     _registry = new Map(entries)
   }
@@ -63,7 +75,8 @@ export interface OrchestrateResult {
 const INDONESIAN_PLATFORMS = ['tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak']
 const PLATFORM_INTL = ['amazon', 'aliexpress', 'alibaba', 'jd']
 const PLATFORM_USED = ['olx', 'carousell']
-const ALL_PLATFORMS = [...INDONESIAN_PLATFORMS, ...PLATFORM_INTL, ...PLATFORM_USED]
+const PLATFORM_VEHICLE = ['carsome', 'mobil123', 'momobil', 'oto', 'belanjamobil']
+const ALL_PLATFORMS = [...INDONESIAN_PLATFORMS, ...PLATFORM_INTL, ...PLATFORM_USED, ...PLATFORM_VEHICLE]
 
 export async function scrapeAll(opts: OrchestrateOptions): Promise<OrchestrateResult> {
   const start = Date.now()
@@ -136,24 +149,9 @@ export function getRegisteredPlatforms(): string[] {
   return Array.from(getRegistry().keys())
 }
 
-export { INDONESIAN_PLATFORMS, PLATFORM_INTL, PLATFORM_USED, ALL_PLATFORMS }
+export { INDONESIAN_PLATFORMS, PLATFORM_INTL, PLATFORM_USED, PLATFORM_VEHICLE, ALL_PLATFORMS }
 export type { RawListing, ScrapeResult, ScrapeRequest }
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Merge helpers
-// ──────────────────────────────────────────────────────────────────────────────
-
-function mergeListings(results: ScrapeResult[]): RawListing[] {
-  const all: RawListing[] = []
-  for (const r of results) all.push(...r.listings)
-
-  // Deduplicate within the same platform by productId
-  const seen = new Map<string, RawListing>()
-  for (const l of all) {
-    const key = `${l.platformId}:${l.productId}`
-    if (!seen.has(key)) seen.set(key, l)
-  }
-
-  return Array.from(seen.values()).sort((a, b) => a.price - b.price)
-}
-
+// ─────────────
