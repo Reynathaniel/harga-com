@@ -79,12 +79,13 @@ export class OtoScraper extends BaseScraper {
       } catch { /* continue */ }
     }
 
-    // Try JSON-LD schema markup
-    const jsonLdMatches = html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)
+    // Try JSON-LD schema markup (use exec loop for TS target compatibility)
+    const jsonLdRe = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g
     const results: RawListing[] = []
-    for (const m of jsonLdMatches) {
+    let jsonLdMatch: RegExpExecArray | null
+    while ((jsonLdMatch = jsonLdRe.exec(html)) !== null) {
       try {
-        const schema = JSON.parse(m[1])
+        const schema = JSON.parse(jsonLdMatch[1])
         if (schema['@type'] === 'Car' || schema['@type'] === 'Product') {
           const listing = this.parseProduct(schema)
           if (listing) results.push(listing)
