@@ -1082,6 +1082,7 @@ export const CATEGORIES = [
   { id: 'olahraga',    label: 'Olahraga',      icon: '⚽', count: 56200  },
   { id: 'motor-bekas', label: 'Motor Bekas',   icon: '🏍️', count: 84     },
   { id: 'mobil-bekas', label: 'Mobil Bekas',   icon: '🚙', count: 101    },
+  { id: 'lainnya',     label: 'Lainnya',       icon: '📦', count: 20     },
 ]
 
 export const STATS = {
@@ -1104,6 +1105,4 @@ export const LIVE_TICKER_ITEMS = [
   { icon: '💻', name: 'ASUS ROG Zephyrus G14', platform: 'TikTok', price: 21499000, change: -4.4 },
   { icon: '📷', name: 'Instax Mini 12', platform: 'TikTok', price: 819000, change: -6.8 },
   { icon: '👕', name: 'Uniqlo Light Down Jacket', platform: 'TikTok', price: 529000, change: -8.9 },
-  { icon: '📱', name: 'Xiaomi 14 Ultra', platform: 'TikTok', price: 12799000, change: -2.9 },
-]
-  
+  { icon: '📱', name:
