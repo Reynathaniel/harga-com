@@ -31,64 +31,34 @@ export async function GET() {
   }
 
   try {
-    // Fetch recent price_history rows with offer + product + merchant via joins
-    const since = new Date(Date.now() - 14 * 86_400_000).toISOString()
+    // Use SQL function for reliable multi-table join (avoids PostgREST nested join issues)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any).rpc('get_live_drops', {
+      since_days: 14,
+      result_limit: 10,
+    })
 
-    const { data: rows, error } = await supabase
-      .from('price_history')
-      .select(`
-        price,
-        offers (
-          price,
-          product_id,
-          products ( id, name ),
-          merchants ( name )
-        )
-      `)
-      .gte('recorded_at', since)
-      .order('recorded_at', { ascending: false })
-      .limit(100)
-
-    if (error || !rows) {
+    if (error || !data) {
+      console.error('[live-drops] RPC error:', error)
       return NextResponse.json(FALLBACK, { headers })
     }
 
-    // Keep only rows where historical price > current offer price (genuine drop)
-    const seen = new Set<string>()
-    const drops: LiveDrop[] = []
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    for (const row of rows as any[]) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const offer: any = Array.isArray(row.offers) ? row.offers[0] : row.offers
-      if (!offer) continue
-
-      const product = Array.isArray(offer.products) ? offer.products[0] : offer.products
-      const merchant = Array.isArray(offer.merchants) ? offer.merchants[0] : offer.merchants
-      if (!product || !merchant) continue
-
-      const productId: string = product.id
-      if (seen.has(productId)) continue
-      if (offer.price >= row.price) continue  // not actually a drop
-
-      const dropPct = Math.round((row.price - offer.price) / row.price * 1000) / 10
-      seen.add(productId)
-
-      const rawName: string = product.name ?? ''
-      drops.push({
-        name: rawName.length > 45 ? rawName.slice(0, 45) + '…' : rawName,
-        drop: `-${dropPct}%`,
-        platform: merchant.name,
-        price: 'Rp ' + offer.price.toLocaleString('id-ID'),
-        productId,
-      })
-
-      if (drops.length >= 10) break
-    }
+    const drops: LiveDrop[] = (data as any[]).map((row: any) => {
+      const rawName: string = row.product_name ?? ''
+      return {
+        name: rawName.length > 45 ? rawName.slice(0, 45) + '\u2026' : rawName,
+        drop: `-${row.drop_pct}%`,
+        platform: row.platform_name,
+        price: 'Rp ' + Number(row.current_price).toLocaleString('id-ID'),
+        productId: row.product_id,
+      }
+    })
 
     const result = drops.length >= 3 ? drops : FALLBACK
     return NextResponse.json(result, { headers })
-  } catch {
+  } catch (err) {
+    console.error('[live-drops] Unexpected error:', err)
     return NextResponse.json(FALLBACK, { headers })
   }
 }
