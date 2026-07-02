@@ -32,6 +32,7 @@ const CATEGORY_ID_TO_LABEL: Record<string, string> = {
   'olahraga':     'Olahraga',
   'motor-bekas':  'Motor Bekas',
   'mobil-bekas':  'Mobil Bekas',
+  'lainnya':      'Lainnya',
 }
 
 // Types
@@ -365,5 +366,4 @@ export async function getPromoProducts(limit = 8): Promise<Product[]> {
     }
   }
 
-  // Fallback: return top products sorted by reviews as placeholder
-  return MOCK_PRO
+  // Fallback: return top products sorted by reviews as 
