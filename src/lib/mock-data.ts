@@ -1085,8 +1085,8 @@ export const CATEGORIES = [
 ]
 
 export const STATS = {
-  totalProducts: '4.2 Juta',
-  platforms: 12,
+  totalProducts: '2.900',
+  platforms: 17,
   updateInterval: '4 Jam',
   totalUsers: '128K',
   cashbackPaid: 'Rp 2.3 M',
