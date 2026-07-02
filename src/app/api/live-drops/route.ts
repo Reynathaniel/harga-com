@@ -55,7 +55,7 @@ export async function GET() {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const drops: LiveDrop[] = (data as any[]).map((row: any) => {
-      const rawName: string = row.product_name ?? ''
+      const rawName: string = cleanProductName(row.product_name ?? '')
       return {
         name: rawName.length > 45 ? rawName.slice(0, 45) + '\u2026' : rawName,
         drop: `-${row.drop_pct}%`,
