@@ -53,8 +53,25 @@ export default async function ProductPage({ params }: { params: { id: string } }
   const cheapestPlatform = PLATFORMS[cheapest.platformId] ?? { name: cheapest.platformId, cashbackPct: 0, color: '#f59e0b' }
   const cashbackAmount = Math.round(cheapest.price * cheapestPlatform.cashbackPct / 100)
 
-  const { products: related } = await getProducts({ category: product.category, limit: 8 })
-  const relatedFiltered = related.filter(p => p.id !== product.id).slice(0, 6)
+  // Related products: same category, similar price range (20% - 500% of current), sorted by popularity
+  // Avoid showing completely unrelated cheap items (e.g., Alibaba Rp 3rb when viewing iPhone)
+  const minRelatedPrice = cheapest.price * 0.2
+  const maxRelatedPrice = cheapest.price * 5
+  const { products: related } = await getProducts({
+    category: product.category,
+    limit: 20,
+    sort: 'popular',
+    minPrice: minRelatedPrice > 10_000 ? minRelatedPrice : undefined,
+    maxPrice: maxRelatedPrice < 500_000_000 ? maxRelatedPrice : undefined,
+  })
+  const relatedFiltered = related
+    .filter(p => p.id !== product.id)
+    .filter(p => {
+      // Exclude products from Alibaba/AliExpress if price < Rp 50.000 (likely irrelevant)
+      const lowestP = Math.min(...p.listings.map(l => l.price))
+      return lowestP >= 1000 // at least Rp 1.000
+    })
+    .slice(0, 6)
 
   return (
     <div className="pt-[88px] min-h-screen">
@@ -299,23 +316,4 @@ export default async function ProductPage({ params }: { params: { id: string } }
                 <p className="text-sm text-[var(--text-muted)]">Dari kategori {product.category}</p>
               </div>
               <Link href={"/cari?kategori=" + product.category.toLowerCase().replace(/\s+/g, '-')}
-                className="text-sm text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors">
-                Lihat semua <ChevronRight size={14} />
-              </Link>
-            </div>
-            <div className="hidden sm:grid grid-cols-3 lg:grid-cols-4 gap-4">
-              {relatedFiltered.slice(0, 4).map(p => <ProductCard key={p.id} product={p} />)}
-            </div>
-            <div className="sm:hidden flex gap-3 scroll-x-hidden pb-3 -mx-4 px-4">
-              {relatedFiltered.map(p => (
-                <div key={p.id} className="shrink-0 w-44">
-                  <ProductCard product={p} compact />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
+                className="text-sm text-amber-400 
