@@ -9,10 +9,10 @@ export const revalidate = 0
 import { SearchAutocomplete } from '@/components/SearchAutocomplete'
 import { ProductCard } from '@/components/ProductCard'
 import { getProducts, getCategories } from '@/lib/db/products'
-import { PLATFORMS } from '@/lib/platforms'
+import { PLATFORMS, PLATFORM_VEHICLE } from '@/lib/platforms'
 import { formatRupiah } from '@/lib/utils'
 import { tryGetServerClient } from '@/lib/supabase'
-import { SlidersHorizontal, TrendingDown, Package, Sparkles, Search, Clock } from 'lucide-react'
+import { SlidersHorizontal, TrendingDown, Package, Sparkles, Search, Clock, Car } from 'lucide-react'
 import Link from 'next/link'
 
 interface SearchPageProps {
@@ -59,7 +59,21 @@ const PRICE_PRESETS = [
   { label: 'Di atas 15Jt',   min: 15000000, max: 999999999 },
 ]
 
-function EmptyState({ query }: { query: string }) {
+const VEHICLE_PRICE_PRESETS = [
+  { label: 'Di bawah 50Jt',   min: 0,          max: 50000000  },
+  { label: '50Jt - 100Jt',    min: 50000000,   max: 100000000 },
+  { label: '100Jt - 200Jt',   min: 100000000,  max: 200000000 },
+  { label: '200Jt - 500Jt',   min: 200000000,  max: 500000000 },
+  { label: 'Di atas 500Jt',   min: 500000000,  max: 999999999 },
+]
+
+const VEHICLE_CATEGORIES = ['mobil-bekas', 'motor-bekas']
+
+function EmptyState({ query, isVehicle }: { query: string; isVehicle: boolean }) {
+  const suggestions = isVehicle
+    ? ['Toyota Avanza', 'Honda Jazz', 'Suzuki Ertiga', 'Daihatsu Xenia', 'Toyota Kijang']
+    : ['iPhone 15', 'Samsung S24', 'Laptop Gaming', 'Sepatu Nike', 'PS5']
+
   return (
     <div className="text-center py-20 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl fade-in">
       <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-6 opacity-50">
@@ -73,10 +87,12 @@ function EmptyState({ query }: { query: string }) {
         {query ? 'Produk "' + query + '" tidak ditemukan' : 'Tidak ada produk'}
       </h3>
       <p className="text-[var(--text-secondary)] text-sm mb-6 max-w-sm mx-auto">
-        Coba kata kunci lain, atau gunakan URL produk langsung dari marketplace
+        {isVehicle
+          ? 'Coba kata kunci merk atau model kendaraan, misalnya "Toyota" atau "Honda Brio"'
+          : 'Coba kata kunci lain, atau gunakan URL produk langsung dari marketplace'}
       </p>
       <div className="flex flex-wrap gap-2 justify-center mb-6">
-        {['iPhone 15', 'Samsung S24', 'Laptop Gaming', 'Sepatu Nike', 'PS5'].map(s => (
+        {suggestions.map(s => (
           <Link key={s} href={'/cari?q=' + encodeURIComponent(s)}
             className="px-3 py-1.5 text-xs bg-[var(--bg-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--brand)] hover:border-amber-500/40 rounded-full transition-colors">
             {s}
@@ -103,6 +119,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const offset   = searchParams.offset ? Number(searchParams.offset) : 0
   const PAGE_SIZE = 40
 
+  const isVehicleCategory = VEHICLE_CATEGORIES.includes(category)
+  const vehiclePlatformIds = new Set(PLATFORM_VEHICLE)
+
   const [{ products, total, source }, categories, priceDropCount] = await Promise.all([
     getProducts({
       query,
@@ -120,7 +139,16 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   ])
   const activeCategory = categories.find(c => c.id === category)
   const activePlatform = platform ? PLATFORMS[platform] : null
-  const platformList = Object.values(PLATFORMS)
+  const allPlatforms = Object.values(PLATFORMS)
+
+  // Smart platform groups:
+  // - Vehicle categories: show vehicle platforms
+  // - Regular categories/all: show regular marketplaces only
+  const regularPlatforms = allPlatforms.filter(p => !vehiclePlatformIds.has(p.id))
+  const vehiclePlatforms = allPlatforms.filter(p => vehiclePlatformIds.has(p.id))
+  const activePlatformList = isVehicleCategory ? vehiclePlatforms : regularPlatforms
+
+  const pricePresets = isVehicleCategory ? VEHICLE_PRICE_PRESETS : PRICE_PRESETS
 
   const buildHref = (overrides: Record<string, string | undefined>) => {
     const params = new URLSearchParams()
@@ -152,13 +180,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       {/* Category tabs */}
       <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-primary)] overflow-x-auto">
         <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-2 whitespace-nowrap">
-          <Link href={buildHref({ kategori: undefined })}
+          <Link href={buildHref({ kategori: undefined, platform: undefined })}
             className={'px-3 py-1.5 text-xs rounded-full border transition-colors shrink-0 font-medium ' +
               (!category ? 'bg-amber-500 text-white border-amber-500' : 'text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-amber-500/40 hover:text-[var(--brand)]')}>
             Semua
           </Link>
           {categories.map(cat => (
-            <Link key={cat.id} href={buildHref({ kategori: cat.id })}
+            <Link key={cat.id} href={buildHref({ kategori: cat.id, platform: undefined })}
               className={'flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-colors shrink-0 font-medium ' +
                 (category === cat.id ? 'bg-amber-500 text-white border-amber-500' : 'text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-amber-500/40 hover:text-[var(--brand)]')}>
               <span>{cat.icon}</span>
@@ -192,10 +220,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       </div>
 
-      {/* Platform filter tabs */}
+      {/* Platform filter tabs — smart: vehicle platforms only shown for vehicle categories */}
       <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-primary)] overflow-x-auto">
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-1.5 whitespace-nowrap">
-          <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mr-1 shrink-0">
+          <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mr-1 shrink-0 flex items-center gap-1">
+            {isVehicleCategory && <Car size={10} />}
             Platform:
           </span>
           <Link
@@ -206,7 +235,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:border-amber-500/30 hover:text-[var(--brand)]')}>
             Semua
           </Link>
-          {platformList.map(p => {
+          {activePlatformList.map(p => {
             const isActive = platform === p.id
             const bg = p.id === 'tiktok' ? '#1a1a1a' : p.color
             return (
@@ -219,12 +248,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     : 'text-[var(--text-muted)] border-[var(--border-subtle)] hover:text-[var(--brand)]')}
                 style={isActive ? { background: bg, borderColor: bg } : {}}
               >
-                <span
-                  className="w-3 h-3 rounded-full shrink-0"
-                  style={{ background: bg }}
-                />
+                <span className="w-3 h-3 rounded-full shrink-0" style={{ background: bg }} />
                 {p.name}
-                <span className="text-[9px] opacity-60">CB {p.cashbackPct}%</span>
+                {!isVehicleCategory && <span className="text-[9px] opacity-60">CB {p.cashbackPct}%</span>}
               </Link>
             )
           })}
@@ -246,7 +272,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               </div>
 
               <div>
-                <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-3">Platform</div>
+                <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-3 flex items-center gap-1">
+                  {isVehicleCategory && <Car size={10} />}
+                  Platform
+                </div>
                 <div className="space-y-1.5">
                   <Link
                     href={buildHref({ platform: undefined })}
@@ -257,7 +286,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     </span>
                     Semua Platform
                   </Link>
-                  {platformList.map(p => (
+                  {activePlatformList.map(p => (
                     <Link key={p.id} href={buildHref({ platform: p.id })}
                       className={'flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-xs transition-colors ' +
                         (platform === p.id ? 'bg-amber-500/10 text-amber-400 font-semibold' : 'text-[var(--text-secondary)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]')}>
@@ -266,7 +295,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                         {p.shortName.slice(0, 2)}
                       </div>
                       <span className="flex-1">{p.name}</span>
-                      <span className="text-[10px] text-amber-400 font-medium">{p.cashbackPct}%</span>
+                      {!isVehicleCategory && <span className="text-[10px] text-amber-400 font-medium">{p.cashbackPct}%</span>}
                     </Link>
                   ))}
                 </div>
@@ -275,7 +304,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <div>
                 <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-3">Rentang Harga</div>
                 <div className="space-y-1">
-                  {PRICE_PRESETS.map(preset => (
+                  {pricePresets.map(preset => (
                     <Link key={preset.label}
                       href={buildHref({ min: String(preset.min), max: String(preset.max), offset: undefined })}
                       className={'block w-full text-left text-xs px-3 py-2 rounded-xl transition-colors ' +
@@ -286,7 +315,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     </Link>
                   ))}
                 </div>
-                {/* Custom price range — uses native form GET to push params into URL */}
+                {/* Custom price range */}
                 <form action="/cari" method="get" className="flex gap-2 mt-2 items-center">
                   {query     && <input type="hidden" name="q"        value={query} />}
                   {category  && <input type="hidden" name="kategori" value={category} />}
@@ -304,18 +333,30 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 </form>
               </div>
 
-              {/* Rating & quick-filters — coming soon */}
-              <div className="rounded-xl border border-[var(--border-subtle)] px-3 py-3 space-y-2">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
-                  <Clock size={10} /> Segera hadir
-                </div>
-                {['Rating Minimal', 'Gratis Ongkir', 'Toko Resmi'].map(label => (
-                  <div key={label} className="flex items-center gap-2 opacity-40 select-none">
-                    <div className="w-3 h-3 rounded border border-[var(--border)] bg-[var(--bg-hover)]" />
-                    <span className="text-xs text-[var(--text-muted)]">{label}</span>
+              {!isVehicleCategory && (
+                <div className="rounded-xl border border-[var(--border-subtle)] px-3 py-3 space-y-2">
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
+                    <Clock size={10} /> Segera hadir
                   </div>
-                ))}
-              </div>
+                  {['Rating Minimal', 'Gratis Ongkir', 'Toko Resmi'].map(label => (
+                    <div key={label} className="flex items-center gap-2 opacity-40 select-none">
+                      <div className="w-3 h-3 rounded border border-[var(--border)] bg-[var(--bg-hover)]" />
+                      <span className="text-xs text-[var(--text-muted)]">{label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {isVehicleCategory && (
+                <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 px-3 py-3">
+                  <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-2 flex items-center gap-1">
+                    <Car size={10} /> Kendaraan
+                  </div>
+                  <p className="text-[10px] text-[var(--text-muted)] leading-relaxed">
+                    Data dari Carsome, Mobil123, Momobil, OTO.com, dan BelanjaMobil. Harga termasuk unit bekas terverifikasi dealer.
+                  </p>
+                </div>
+              )}
 
               <div className="text-[10px] text-[var(--text-muted)] flex items-center gap-1.5 pt-1 border-t border-[var(--border-subtle)]">
                 <span className={'w-1.5 h-1.5 rounded-full shrink-0 ' + (source === 'supabase' ? 'bg-green-400' : 'bg-amber-400')} />
@@ -406,7 +447,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 {products.map(p => <ProductCard key={p.id} product={p} />)}
               </div>
             ) : (
-              <EmptyState query={query} />
+              <EmptyState query={query} isVehicle={isVehicleCategory} />
             )}
 
             {/* Pagination */}
