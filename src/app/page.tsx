@@ -22,6 +22,7 @@ async function getTrendingProducts() {
     const { data, error } = await db
       .from('products_with_best_offer')
       .select('id, name, slug, image_url, best_price, total_reviews')
+      .order('offer_count', { ascending: false })
       .order('total_reviews', { ascending: false, nullsFirst: false })
       .limit(8)
     if (error || !data || data.length === 0) return []
@@ -793,9 +794,4 @@ export default async function HomePage() {
     // Add js-ready so CSS hides them for the reveal animation
     el.classList.add('js-ready');
     io.observe(el);
-  });
-})();
-      `}</Script>
-    </div>
-  )
-}
+  
