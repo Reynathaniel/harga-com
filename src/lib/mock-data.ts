@@ -1085,9 +1085,9 @@ export const CATEGORIES = [
 ]
 
 export const STATS = {
-  totalProducts: '2.400',
+  totalProducts: '2.300+',
   platforms: 17,
-  updateInterval: '4 Jam',
+  updateInterval: '8 Jam',
   totalUsers: '128K',
   cashbackPaid: 'Rp 2.3 M',
 }
@@ -1106,3 +1106,4 @@ export const LIVE_TICKER_ITEMS = [
   { icon: '👕', name: 'Uniqlo Light Down Jacket', platform: 'TikTok', price: 529000, change: -8.9 },
   { icon: '📱', name: 'Xiaomi 14 Ultra', platform: 'TikTok', price: 12799000, change: -2.9 },
 ]
+  
