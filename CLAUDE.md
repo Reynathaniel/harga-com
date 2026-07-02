@@ -41,7 +41,7 @@ The canonical app type is `Product` in `src/lib/types.ts`. DB rows are converted
 | Table | Purpose |
 |-------|---------|
 | `products` | 2,935 rows — name, slug, category, brand, images |
-| `offers` | 16,176 active rows — product_id, merchant_id, price, discount_pct, free_shipping, shop_verified |
+| `offers` | 17,620 rows — product_id, merchant_id, price, discount_pct, free_shipping, shop_verified |
 | `merchants` | 17 rows — one per platform (tokopedia, shopee, lazada, …, carsome, mobil123, oto, momobil, belanjakendaraan) |
 | `price_history` | offer_id, price, recorded_at — appended each scrape run |
 | `price_alerts` | query, email, target_price, notify_type, active, created_at — user price alert subscriptions |
@@ -118,9 +118,11 @@ Local: copy values from `.env.local`. On Vercel, these must be set in project en
 
 ## Known issues / incomplete areas
 
-- Vehicle platform scrapers (Carsome, Mobil123, Momobil, OTO, BelanjaMobil) haven't run yet — vehicle search shows OLX/Carousell real listings + Tokopedia/Shopee bulk-imported vehicle products
-- `/alert` sends notifications via email/WA UI only — no actual sending logic (stored in DB, trigger not implemented)
-- Price history chart uses synthetic data when no real `price_history` rows exist for a product (synthetic is now platform-aware and always shows something)
+- Vehicle platform scrapers (Carsome, Mobil123, Momobil, OTO, BelanjaMobil) haven't run yet — vehicle search shows OLX/Carousell real listings only
+- `/alert` stores alerts in `price_alerts` table but no email/WA sending is implemented yet
+- Price history chart uses synthetic data when no real `price_history` rows exist for a product (platform-aware, always shows something)
+- ~5,700 offers use Tokopedia/Shopee search URLs (`/search?q=`) instead of direct product URLs — "Beli Sekarang" on those opens a search page
+- Mobil/Motor Bekas listings have no product images (OLX/Carousell don't expose image URLs in their listing JSON)
 
 ## File edit safety
 
