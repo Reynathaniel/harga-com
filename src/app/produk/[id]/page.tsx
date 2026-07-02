@@ -31,9 +31,23 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   const sorted = lowestListingFirst(product.listings)
   const cheapest = sorted[0]
   const priceStr = cheapest ? ` — mulai Rp${Math.round(cheapest.price).toLocaleString('id')}` : ''
+  const title = `${product.name}${priceStr} | Harga.com`
+  const description = `Bandingkan harga ${product.name} dari Tokopedia, Shopee, Lazada dan platform lainnya. Temukan harga terbaik dan cashback otomatis di Harga.com.`
+  const image = product.images?.[0] ?? '/placeholder-product.png'
   return {
-    title: `${product.name}${priceStr} | Harga.com`,
-    description: `Bandingkan harga ${product.name} dari Tokopedia, Shopee, Lazada dan platform lainnya. Temukan harga terbaik dan cashback otomatis di Harga.com.`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: image.startsWith('http') ? [{ url: image, width: 800, height: 800 }] : [],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   }
 }
 
