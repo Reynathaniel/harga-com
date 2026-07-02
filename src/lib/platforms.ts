@@ -132,4 +132,51 @@ export const PLATFORMS: Record<string, Platform> = {
     cashbackPct: 0,
   },
   momobil: {
-    id
+    id: 'momobil',
+    name: 'Momobil',
+    shortName: 'Momobil',
+    color: '#00a65a',
+    bgColor: '#e6f7ef',
+    logo: '/logos/momobil.svg',
+    affiliateBase: 'https://www.momobil.id/mobil/',
+    cashbackPct: 0,
+  },
+  oto: {
+    id: 'oto',
+    name: 'OTO.com',
+    shortName: 'OTO',
+    color: '#cc2200',
+    bgColor: '#fce8e6',
+    logo: '/logos/oto.svg',
+    affiliateBase: 'https://www.oto.com/jual-mobil-bekas/',
+    cashbackPct: 0,
+  },
+  belanjamobil: {
+    id: 'belanjamobil',
+    name: 'BelanjaMobil',
+    shortName: 'BM',
+    color: '#ff6600',
+    bgColor: '#fff0e6',
+    logo: '/logos/belanjamobil.svg',
+    affiliateBase: 'https://belanjamobil.co.id/mobil/',
+    cashbackPct: 0,
+  },
+}
+
+export const PLATFORM_ORDER: string[] = [
+  'tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak',
+  'amazon', 'aliexpress', 'alibaba', 'olx', 'carousell',
+  'carsome', 'mobil123', 'momobil', 'oto', 'belanjamobil',
+]
+
+export const PLATFORM_PRIMARY: string[] = [
+  'tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak',
+]
+
+export const PLATFORM_INTL: string[] = [
+  'amazon', 'aliexpress', 'alibaba', 'olx', 'carousell',
+]
+
+export const PLATFORM_VEHICLE: string[] = [
+  'carsome', 'mobil123', 'momobil', 'oto', 'belanjamobil', 'olx', 'carousell',
+]
