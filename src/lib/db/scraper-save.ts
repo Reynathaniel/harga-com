@@ -177,4 +177,19 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
         .single()
 
       if (!lastH || lastH.price !== listing.price) {
-        await anyDb.from('price_history').insert(
+        await anyDb.from('price_history').insert({
+          offer_id:    offer.id,
+          price:       listing.price,
+          recorded_at: now,
+        })
+      }
+
+      upserted++
+    } catch (err) {
+      console.error('[scraper-save] unexpected error:', err)
+      errors++
+    }
+  }
+
+  return { upserted, skipped, errors, durationMs: Date.now() - start }
+}
