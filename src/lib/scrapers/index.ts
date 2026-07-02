@@ -154,4 +154,18 @@ export type { RawListing, ScrapeResult, ScrapeRequest }
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Merge helpers
-// ─────────────
+// ──────────────────────────────────────────────────────────────────────────────
+
+function mergeListings(results: ScrapeResult[]): RawListing[] {
+  const all: RawListing[] = []
+  for (const r of results) all.push(...r.listings)
+
+  // Deduplicate within the same platform by productId
+  const seen = new Map<string, RawListing>()
+  for (const l of all) {
+    const key = `${l.platformId}:${l.productId}`
+    if (!seen.has(key)) seen.set(key, l)
+  }
+
+  return Array.from(seen.values()).sort((a, b) => a.price - b.price)
+}
