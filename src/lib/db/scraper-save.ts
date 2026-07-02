@@ -8,6 +8,7 @@
 
 import { tryGetServerClient } from '../supabase'
 import type { RawListing } from '../scrapers/types'
+import { cleanProductName } from '../utils'
 
 // Merchant UUID map (matches seeded rows in DB)
 const MERCHANT_ID: Record<string, string> = {
@@ -92,7 +93,7 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
         const hasImage = (existing.images?.length ?? 0) > 0 || existing.image_url
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const patch: Record<string, any> = {
-          name:           listing.title,
+          name:           cleanProductName(listing.title),
           brand:          listing.brand    ?? null,
           category:       listing.category ?? null,
           tags:           [],
@@ -111,7 +112,7 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
           .from('products')
           .insert({
             slug,
-            name:           listing.title,
+            name:           cleanProductName(listing.title),
             brand:          listing.brand    ?? null,
             category:       listing.category ?? null,
             image_url:      listing.imageUrl  || null,
