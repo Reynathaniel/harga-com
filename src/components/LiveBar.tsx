@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
 interface LiveDrop {
   name: string
@@ -86,24 +87,33 @@ export function LiveBar() {
           height: '100%',
           willChange: 'transform',
         }}>
-          {items.map((item, i) => (
-            <span key={i} style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '0 24px',
-              whiteSpace: 'nowrap',
-              fontSize: 12,
-              fontFamily: 'var(--font-ui)',
-              borderRight: '1px solid rgba(255,255,255,0.07)',
-            }}>
-              <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>{item.name}</span>
-              <span style={{ color: '#4ADE80', fontWeight: 700, fontSize: 11 }}>{item.drop}</span>
-              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10 }}>@</span>
-              <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 10 }}>{item.platform}</span>
-              <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>{item.price}</span>
-            </span>
-          ))}
+          {items.map((item, i) => {
+            const inner = (
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '0 24px',
+                whiteSpace: 'nowrap',
+                fontSize: 12,
+                fontFamily: 'var(--font-ui)',
+                borderRight: '1px solid rgba(255,255,255,0.07)',
+              }}>
+                <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>{item.name}</span>
+                <span style={{ color: '#4ADE80', fontWeight: 700, fontSize: 11 }}>{item.drop}</span>
+                <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10 }}>@</span>
+                <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 10 }}>{item.platform}</span>
+                <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>{item.price}</span>
+              </span>
+            )
+            return item.productId ? (
+              <Link key={i} href={`/produk/${item.productId}`} style={{ textDecoration: 'none', display: 'contents' }}>
+                {inner}
+              </Link>
+            ) : (
+              <span key={i} style={{ display: 'contents' }}>{inner}</span>
+            )
+          })}
         </div>
       </div>
     </div>
