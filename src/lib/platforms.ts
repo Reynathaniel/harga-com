@@ -111,17 +111,12 @@ export const PLATFORMS: Record<string, Platform> = {
     affiliateBase: 'https://carousell.co.id/p/',
     cashbackPct: 2,
   },
-}
-
-export const PLATFORM_ORDER: string[] = [
-  'tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak',
-  'amazon', 'aliexpress', 'alibaba', 'olx', 'carousell',
-]
-
-export const PLATFORM_PRIMARY: string[] = [
-  'tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak',
-]
-
-export const PLATFORM_INTL: string[] = [
-  'amazon', 'aliexpress', 'alibaba', 'olx', 'carousell',
-]
+  // ── Vehicle Marketplaces ──────────────────────────────────────────────────
+  carsome: {
+    id: 'carsome',
+    name: 'Carsome',
+    shortName: 'Carsome',
+    color: '#e63325',
+    bgColor: '#fdecea',
+    logo: '/logos/carsome.svg',
+    affiliateBase: 'https://www.carsome.id/beli/mobil
