@@ -360,7 +360,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
               <div className="text-[10px] text-[var(--text-muted)] flex items-center gap-1.5 pt-1 border-t border-[var(--border-subtle)]">
                 <span className={'w-1.5 h-1.5 rounded-full shrink-0 ' + (source === 'supabase' ? 'bg-green-400' : 'bg-amber-400')} />
-                {source === 'supabase' ? 'Data live dari Supabase' : 'Mode demo (mock data)'}
+                {source === 'supabase' ? 'Harga diperbarui otomatis' : 'Mode demo'}
               </div>
             </div>
           </aside>
