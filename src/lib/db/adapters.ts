@@ -51,9 +51,11 @@ export function adaptDbProductToAppProduct(
   const lowestPrice  = prices.length ? Math.min(...prices) : 0
   const highestPrice = prices.length ? Math.max(...prices) : 0
 
+  // Use real price history if available, otherwise generate synthetic data
+  // so the chart always shows something useful to the user
   const priceHistory = (realPriceHistory && realPriceHistory.length > 0)
     ? realPriceHistory
-    : []
+    : (lowestPrice > 0 ? generateSyntheticHistory(lowestPrice) : [])
 
   // Parse specifications safely
   let specifications: Record<string, string> = {}
@@ -103,13 +105,4 @@ export function generateSyntheticHistory(base: number, days = 30) {
       blibli:     Math.round(v() * 1.05 / 1000) * 1000,
       tiktok:     i > 15 ? null : Math.round(v() * 0.91 / 1000) * 1000,
       amazon:     null,
-      alibaba:    null,
-      aliexpress: null,
-      jd:         null,
-      olx:        null,
-      carousell:  null,
-    }
-    history.push({ date: subDays(new Date(), i), prices })
-  }
-  return history
-}
+      alibaba:    nu
