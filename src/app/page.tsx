@@ -794,4 +794,9 @@ export default async function HomePage() {
     // Add js-ready so CSS hides them for the reveal animation
     el.classList.add('js-ready');
     io.observe(el);
-  
+  });
+})();
+      `}</Script>
+    </div>
+  )
+}
