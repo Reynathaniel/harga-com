@@ -91,6 +91,16 @@ export const PLATFORMS: Record<string, Platform> = {
     affiliateBase: 'https://www.aliexpress.com/item/',
     cashbackPct: 5,
   },
+  jd: {
+    id: 'jd',
+    name: 'JD.id',
+    shortName: 'JD',
+    color: '#e1251b',
+    bgColor: '#fdecea',
+    logo: '/logos/jd.svg',
+    affiliateBase: 'https://www.jd.id/product/',
+    cashbackPct: 3,
+  },
   olx: {
     id: 'olx',
     name: 'OLX',
