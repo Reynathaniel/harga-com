@@ -55,7 +55,7 @@ export function adaptDbProductToAppProduct(
   // so the chart always shows something useful to the user
   const priceHistory = (realPriceHistory && realPriceHistory.length > 0)
     ? realPriceHistory
-    : (lowestPrice > 0 ? generateSyntheticHistory(lowestPrice) : [])
+    : (lowestPrice > 0 ? generateSyntheticHistory(lowestPrice, 30, listings.map(l => l.platformId)) : [])
 
   // Parse specifications safely
   let specifications: Record<string, string> = {}
@@ -92,25 +92,24 @@ export function adaptDbProductToAppProduct(
 // ── generateSyntheticHistory ────────────────────────────────────────
 // Used when real price history is not yet populated in DB
 
-export function generateSyntheticHistory(base: number, days = 30) {
+export function generateSyntheticHistory(base: number, days = 30, platformIds?: string[]) {
   const history = []
+  // Default to the main marketplaces if no specific platforms provided
+  const activePlatforms = platformIds && platformIds.length > 0 ? platformIds : ['tokopedia', 'shopee', 'lazada']
 
   for (let i = days; i >= 0; i--) {
     const v = () => base * (0.87 + Math.random() * 0.22)
-    const prices: Partial<Record<PlatformId, number | null>> = {
-      tokopedia:  i % 7 === 0 ? null : Math.round(v() / 1000) * 1000,
-      shopee:     Math.round(v() * 0.94 / 1000) * 1000,
-      lazada:     Math.round(v() * 1.02 / 1000) * 1000,
-      bukalapak:  i > 20 ? null : Math.round(v() * 0.97 / 1000) * 1000,
-      blibli:     Math.round(v() * 1.05 / 1000) * 1000,
-      tiktok:     i > 15 ? null : Math.round(v() * 0.91 / 1000) * 1000,
-      amazon:     null,
-      alibaba:    null,
-      aliexpress: null,
-      jd:         null,
-      olx:        null,
-      carousell:  null,
-    }
+    const prices: Partial<Record<PlatformId, number | null>> = {}
+
+    // Generate prices for each active platform with slight variation
+    activePlatforms.forEach((pid, idx) => {
+      const multipliers = [1.00, 0.94, 1.02, 0.97, 1.05, 0.91, 1.08, 0.96]
+      const mult = multipliers[idx % multipliers.length]
+      // Occasionally skip a data point to simulate real scraping gaps
+      const skip = (i + idx) % (7 + idx * 2) === 0
+      ;(prices as Record<string, number | null>)[pid] = skip ? null : Math.round(v() * mult / 1000) * 1000
+    })
+
     history.push({ date: subDays(new Date(), i), prices })
   }
   return history
