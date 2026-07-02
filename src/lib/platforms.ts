@@ -111,7 +111,6 @@ export const PLATFORMS: Record<string, Platform> = {
     affiliateBase: 'https://carousell.co.id/p/',
     cashbackPct: 2,
   },
-  // ── Vehicle Marketplaces ──────────────────────────────────────────────────
   carsome: {
     id: 'carsome',
     name: 'Carsome',
@@ -119,4 +118,18 @@ export const PLATFORMS: Record<string, Platform> = {
     color: '#e63325',
     bgColor: '#fdecea',
     logo: '/logos/carsome.svg',
-    affiliateBase: 'https://www.carsome.id/beli/mobil
+    affiliateBase: 'https://www.carsome.id/beli/mobil-bekas/',
+    cashbackPct: 0,
+  },
+  mobil123: {
+    id: 'mobil123',
+    name: 'Mobil123',
+    shortName: 'M123',
+    color: '#0066cc',
+    bgColor: '#e6f0ff',
+    logo: '/logos/mobil123.svg',
+    affiliateBase: 'https://www.mobil123.com/mobil-dijual/detail/',
+    cashbackPct: 0,
+  },
+  momobil: {
+    id
