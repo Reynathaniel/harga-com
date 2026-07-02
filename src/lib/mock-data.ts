@@ -1086,7 +1086,7 @@ export const CATEGORIES = [
 ]
 
 export const STATS = {
-  totalProducts: '2.300+',
+  totalProducts: '2.400',
   platforms: 17,
   updateInterval: '8 Jam',
   totalUsers: '128K',
@@ -1105,4 +1105,5 @@ export const LIVE_TICKER_ITEMS = [
   { icon: '💻', name: 'ASUS ROG Zephyrus G14', platform: 'TikTok', price: 21499000, change: -4.4 },
   { icon: '📷', name: 'Instax Mini 12', platform: 'TikTok', price: 819000, change: -6.8 },
   { icon: '👕', name: 'Uniqlo Light Down Jacket', platform: 'TikTok', price: 529000, change: -8.9 },
-  { icon: '📱', name:
+  { icon: '📱', name: 'Xiaomi 14 Ultra', platform: 'TikTok', price: 12799000, change: -2.9 },
+]
