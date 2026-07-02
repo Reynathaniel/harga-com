@@ -1085,7 +1085,7 @@ export const CATEGORIES = [
 ]
 
 export const STATS = {
-  totalProducts: '2.900',
+  totalProducts: '2.400',
   platforms: 17,
   updateInterval: '4 Jam',
   totalUsers: '128K',
