@@ -5,7 +5,8 @@
  * 1. Product alert: { productId, targetPrice, email?, platforms? }
  * 2. Query alert:   { query, targetPrice, email, notifyType? }
  *
- * Stores to Supabase `price_alerts` or `watchlist` table.
+ * Stores to Supabase `price_alerts` table.
+ * Table schema: id, query, email, target_price, notify_type, active, created_at
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -45,14 +46,26 @@ export async function POST(request: NextRequest) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data, error } = await (db as any)
           .from('price_alerts')
-          .insert({ query, email: email || null, target_price: targetPrice, notify_type: notifyType, is_active: true })
+          .insert({ query, email, target_price: targetPrice, notify_type: notifyType, active: true })
           .select()
           .single()
 
         if (error) throw error
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return NextResponse.json({ success: true, data: data as any })
+        const row = data as any
+        return NextResponse.json({
+          success: true,
+          data: {
+            id:          row.id,
+            query:       row.query,
+            email:       row.email,
+            targetPrice: row.target_price,
+            notifyType:  row.notify_type,
+            active:      row.active,
+            createdAt:   row.created_at,
+          },
+        })
       } catch (err) {
         console.error('[POST /api/alerts] DB error (query mode):', err)
         // fall through to mock success
@@ -74,12 +87,12 @@ export async function POST(request: NextRequest) {
     })
   }
 
-  // --- Mode 2: product-based alert ---
-  const { productId, targetPrice, email, phone, platforms } = body as {
+  // --- Mode 2: product-based alert (from product detail page) ---
+  const { productId, targetPrice, email, notifyType, platforms } = body as {
     productId:   string
     targetPrice: number
     email?:      string
-    phone?:      string
+    notifyType?: string
     platforms?:  string[]
   }
 
@@ -105,39 +118,44 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (db) {
+    // Use product name as the query for the price_alerts table
+    const alertQuery = product.name
+    const alertEmail = email || ''
+
+    if (db && alertEmail) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (db as any)
         .from('price_alerts')
         .insert({
-          product_id:   product.id,
-          product_name: product.name,
+          query:        alertQuery,
+          email:        alertEmail,
           target_price: targetPrice,
-          email:        email || null,
-          phone:        phone || null,
-          is_active:    true,
+          notify_type:  notifyType ?? 'email',
+          active:       true,
         })
         .select()
         .single()
 
-      if (error) throw error
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const row = data as any
-      return NextResponse.json({
-        success: true,
-        data: {
-          id:           row.id,
-          productId:    product.id,
-          productName:  product.name,
-          productImage: product.images[0] ?? null,
-          targetPrice:  row.target_price,
-          currentPrice: product.lowestPrice,
-          platforms:    platforms ?? [],
-          active:       true,
-          createdAt:    row.created_at,
-        },
-      })
+      if (!error && data) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const row = data as any
+        return NextResponse.json({
+          success: true,
+          data: {
+            id:           row.id,
+            productId:    product.id,
+            productName:  product.name,
+            productImage: product.images[0] ?? null,
+            targetPrice:  row.target_price,
+            currentPrice: product.lowestPrice,
+            platforms:    platforms ?? [],
+            active:       true,
+            createdAt:    row.created_at,
+          },
+        })
+      } else if (error) {
+        console.error('[POST /api/alerts] DB error (product mode):', error)
+      }
     }
 
     // Mock fallback
@@ -171,4 +189,3 @@ export async function GET() {
     { status: 401 }
   )
 }
-
