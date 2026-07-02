@@ -152,7 +152,7 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
         case 'lowest':  q = q.order('best_price', { ascending: true }); break
         case 'highest': q = q.order('best_price', { ascending: false }); break
         case 'rating':  q = q.order('average_rating', { ascending: false, nullsFirst: false }); break
-        case 'popular': q = q.order('total_reviews', { ascending: false }); break
+        case 'popular': q = q.order('offer_count', { ascending: false }).order('total_reviews', { ascending: false, nullsFirst: false }); break
         case 'newest':  q = q.order('created_at', { ascending: false }); break
       }
 
@@ -366,5 +366,4 @@ export async function getPromoProducts(limit = 8): Promise<Product[]> {
   }
 
   // Fallback: return top products sorted by reviews as placeholder
-  return MOCK_PRODUCTS.slice(0, limit).map(p => p as unknown as Product)
-}
+  return MOCK_PRO
