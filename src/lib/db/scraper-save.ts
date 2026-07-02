@@ -11,18 +11,24 @@ import type { RawListing } from '../scrapers/types'
 
 // Merchant UUID map (matches seeded rows in DB)
 const MERCHANT_ID: Record<string, string> = {
-  tokopedia:  '00000000-0000-0000-0000-000000000001',
-  shopee:     '00000000-0000-0000-0000-000000000002',
-  lazada:     '00000000-0000-0000-0000-000000000003',
-  bukalapak:  '00000000-0000-0000-0000-000000000004',
-  blibli:     '00000000-0000-0000-0000-000000000005',
-  tiktok:     '00000000-0000-0000-0000-000000000006',
-  amazon:     '00000000-0000-0000-0000-000000000007',
-  aliexpress: '00000000-0000-0000-0000-000000000008',
-  alibaba:    '00000000-0000-0000-0000-000000000009',
-  jd:         '00000000-0000-0000-0000-000000000010',
-  olx:        '00000000-0000-0000-0000-000000000011',
-  carousell:  '00000000-0000-0000-0000-000000000012',
+  tokopedia:    '00000000-0000-0000-0000-000000000001',
+  shopee:       '00000000-0000-0000-0000-000000000002',
+  lazada:       '00000000-0000-0000-0000-000000000003',
+  bukalapak:    '00000000-0000-0000-0000-000000000004',
+  blibli:       '00000000-0000-0000-0000-000000000005',
+  tiktok:       '00000000-0000-0000-0000-000000000006',
+  amazon:       '00000000-0000-0000-0000-000000000007',
+  aliexpress:   '00000000-0000-0000-0000-000000000008',
+  alibaba:      '00000000-0000-0000-0000-000000000009',
+  jd:           '00000000-0000-0000-0000-000000000010',
+  olx:          '00000000-0000-0000-0000-000000000011',
+  carousell:    '00000000-0000-0000-0000-000000000012',
+  // Vehicle marketplaces
+  carsome:      '00000000-0000-0000-0000-000000000013',
+  mobil123:     '00000000-0000-0000-0000-000000000014',
+  momobil:      '00000000-0000-0000-0000-000000000015',
+  oto:          '00000000-0000-0000-0000-000000000016',
+  belanjamobil: '00000000-0000-0000-0000-000000000017',
 }
 
 function slugify(text: string): string {
@@ -171,20 +177,4 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
         .single()
 
       if (!lastH || lastH.price !== listing.price) {
-        await anyDb.from('price_history').insert({
-          offer_id:    offer.id,
-          price:       listing.price,
-          recorded_at: now,
-        })
-      }
-
-      upserted++
-    } catch (err) {
-      console.error('[scraper-save] unexpected error:', err)
-      errors++
-    }
-  }
-
-  return { upserted, skipped, errors, durationMs: Date.now() - start }
-}
-
+        await anyDb.from('price_history').insert(
