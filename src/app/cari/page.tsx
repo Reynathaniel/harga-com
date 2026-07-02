@@ -1,10 +1,39 @@
 export const dynamic = 'force-dynamic'
-export const metadata = {
-  title: 'Cari Produk — Bandingkan Harga Terbaik | Harga.com',
-  description: 'Cari dan bandingkan harga produk dari Tokopedia, Shopee, Lazada, Blibli, TikTok Shop, dan marketplace lainnya di Indonesia.',
+export const revalidate = 0
+
+const CATEGORY_LABELS: Record<string, string> = {
+  'elektronik': 'Elektronik',
+  'fashion': 'Fashion',
+  'rumah-tangga': 'Rumah Tangga',
+  'gaming': 'Gaming',
+  'kecantikan': 'Kecantikan & Perawatan',
+  'olahraga': 'Olahraga & Outdoor',
+  'motor-bekas': 'Motor Bekas',
+  'mobil-bekas': 'Mobil Bekas',
 }
 
-export const revalidate = 0
+export function generateMetadata({ searchParams }: { searchParams: Record<string, string> }) {
+  const q = searchParams?.q ?? ''
+  const kategori = searchParams?.kategori ?? ''
+  const categoryLabel = kategori ? (CATEGORY_LABELS[kategori] ?? kategori) : ''
+
+  if (q) {
+    return {
+      title: `Harga "${q}" — Bandingkan dari Semua Marketplace | Harga.com`,
+      description: `Bandingkan harga ${q} dari Tokopedia, Shopee, Lazada, Blibli, dan marketplace lainnya. Temukan harga terbaik dan hemat lebih banyak di Harga.com.`,
+    }
+  }
+  if (categoryLabel) {
+    return {
+      title: `${categoryLabel} — Harga Terbaik dari Semua Marketplace | Harga.com`,
+      description: `Temukan produk ${categoryLabel} terbaik dari Tokopedia, Shopee, Lazada dan 14+ marketplace Indonesia. Bandingkan harga dan cashback di Harga.com.`,
+    }
+  }
+  return {
+    title: 'Cari Produk — Bandingkan Harga Terbaik | Harga.com',
+    description: 'Cari dan bandingkan harga produk dari Tokopedia, Shopee, Lazada, Blibli, TikTok Shop, dan marketplace lainnya di Indonesia.',
+  }
+}
 
 import { SearchAutocomplete } from '@/components/SearchAutocomplete'
 import { ProductCard } from '@/components/ProductCard'
