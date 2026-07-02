@@ -6,7 +6,7 @@ import { TrendingDown } from 'lucide-react'
 import { PlatformBadge } from '@/components/PlatformBadge'
 import type { Product } from '@/lib/types'
 import { PLATFORMS } from '@/lib/platforms'
-import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
+import { formatRupiah, lowestListingFirst, priceDiffPercent, cleanProductName } from '@/lib/utils'
 
 interface Props {
   product: Product
@@ -103,7 +103,7 @@ export function ProductCard({ product, compact = false }: Props) {
             </p>
           )}
           <p className="text-[13px] font-medium text-[var(--text-primary)] leading-snug line-clamp-2 min-h-[2.5em] mb-2">
-            {product.name}
+            {cleanProductName(product.name)}
           </p>
 
           {/* Price */}
