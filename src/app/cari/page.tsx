@@ -153,7 +153,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const PAGE_SIZE = 40
 
   const isVehicleCategory = VEHICLE_CATEGORIES.includes(category)
+  const isPropertyCategory = PROPERTY_CATEGORIES.includes(category)
   const vehiclePlatformIds = new Set(PLATFORM_VEHICLE)
+  const propertyPlatformIds = new Set(['olx', 'carousell'])
 
   const [{ products, total, source }, categories, priceDropCount] = await Promise.all([
     getProducts({
@@ -176,12 +178,25 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   // Smart platform groups:
   // - Vehicle categories: show vehicle platforms
+  // - Property categories: show OLX/Carousell only
   // - Regular categories/all: show regular marketplaces only
-  const regularPlatforms = allPlatforms.filter(p => !vehiclePlatformIds.has(p.id))
+  const regularPlatforms = allPlatforms.filter(p => !vehiclePlatformIds.has(p.id) && !propertyPlatformIds.has(p.id))
   const vehiclePlatforms = allPlatforms.filter(p => vehiclePlatformIds.has(p.id))
-  const activePlatformList = isVehicleCategory ? vehiclePlatforms : regularPlatforms
+  const propertyPlatforms = allPlatforms.filter(p => propertyPlatformIds.has(p.id))
+  const activePlatformList = isVehicleCategory ? vehiclePlatforms
+    : isPropertyCategory ? propertyPlatforms
+    : regularPlatforms
 
-  const pricePresets = isVehicleCategory ? VEHICLE_PRICE_PRESETS : PRICE_PRESETS
+  const PROPERTY_PRICE_PRESETS = [
+    { label: '< 500jt',    min: undefined, max: 500_000_000 },
+    { label: '500jt–1M',   min: 500_000_000, max: 1_000_000_000 },
+    { label: '1M–3M',      min: 1_000_000_000, max: 3_000_000_000 },
+    { label: '3M–5M',      min: 3_000_000_000, max: 5_000_000_000 },
+    { label: '> 5M',       min: 5_000_000_000, max: undefined },
+  ]
+  const pricePresets = isVehicleCategory ? VEHICLE_PRICE_PRESETS
+    : isPropertyCategory ? PROPERTY_PRICE_PRESETS
+    : PRICE_PRESETS
 
   const buildHref = (overrides: Record<string, string | undefined>) => {
     const params = new URLSearchParams()
