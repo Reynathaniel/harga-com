@@ -315,7 +315,7 @@ export default async function HomePage() {
             }
           />
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-            {trendingProducts.map((p: { id: string; name: string; image_url: string | null; best_price: number; click_count: number }) => (
+            {trendingProducts.map((p: { id: string; slug: string; name: string; image_url: string | null; best_price: number; click_count: number }) => (
               <Link key={p.id} href={'/produk/' + (p.slug || p.id)}
                 className="group rounded-xl overflow-hidden transition-all"
                 style={{
