@@ -161,9 +161,27 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
 
       if (error) throw error
 
-      const products = await Promise.all(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (data ?? []).map((row: any) => enrichProductWithOffers(db, row as ProductRow))
+      // Batch-fetch all offers for the page in one query (avoids N+1)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const rows = (data ?? []) as any[]
+      const pageIds = rows.map((r: any) => r.id as string)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: allOffers } = await (db as any)
+        .from('offers')
+        .select('*, merchant:merchants(*)')
+        .in('product_id', pageIds)
+        .eq('in_stock', true)
+        .order('price', { ascending: true })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const offersByProduct: Record<string, any[]> = {}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;((allOffers as any[]) ?? []).forEach((o: any) => {
+        if (!offersByProduct[o.product_id]) offersByProduct[o.product_id] = []
+        offersByProduct[o.product_id].push(o)
+      })
+
+      const products = (data ?? []).map((row: any) =>
+        adaptDbProductToAppProduct(row as ProductRow, offersByProduct[row.id] ?? [])
       )
 
       return { products, total: count ?? products.length, source: 'supabase' }
@@ -265,11 +283,13 @@ export async function getCategories() {
 
   if (db) {
     try {
+      // Use a grouped count query instead of fetching all rows
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (db as any)
         .from('products')
-        .select('category')
+        .select('category', { count: 'exact' })
         .not('category', 'is', null)
+        .limit(10000)
 
       if (data) {
         const counts: Record<string, number> = {}
