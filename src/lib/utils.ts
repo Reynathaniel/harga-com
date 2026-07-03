@@ -49,9 +49,10 @@ export function cleanProductName(name: string): string {
   return name
     // Remove bracket prefixes: [Pre Order], [Pengiriman 2 Jul], [Free Ongkir], etc.
     .replace(/^\[.*?\]\s*/i, '')
-    // Remove common promo prefixes (case-insensitive)
-    .replace(/^(?:Buy|Beli)\s+\d+\s+(?:Get|Dapat)\s+\d+\s*/i, '')
+    // Remove common promo prefixes — order matters: strip viral/trending words FIRST
+    // so compound names like 'Trending Buy 1 Get 2 X' get fully cleaned
     .replace(/^(?:Trending|Viral|Terlaris|Best Seller|Hot)\s+/i, '')
+    .replace(/^(?:Buy|Beli)\s+\d+\s+(?:Get|Dapat)\s+\d+\s*/i, '')
     .replace(/^(?:NEW|BARU|TERBARU|RESMI|OFFICIAL)\s+/i, '')
     // Strip [Pre-Order] / [PO] anywhere
     .replace(/\[Pre.?Order\]\s*/gi, '')
