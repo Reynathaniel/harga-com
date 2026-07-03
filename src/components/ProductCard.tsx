@@ -48,7 +48,7 @@ export function ProductCard({ product, compact = false }: Props) {
   const buildingAreaStr = specs?.['Luas Bangunan'] ?? ''
   const bedrooms = specs?.['Kamar Tidur'] ?? ''
   const bathrooms = specs?.['Kamar Mandi'] ?? ''
-  const location = specs?.['Lokasi'] ?? cheapest.location ?? ''
+  const location = specs?.['Lokasi'] ?? ''
   const pricePerM2Raw = specs?.['Harga/m²'] ?? ''
   const pricePerM2 = pricePerM2Raw ? parseInt(pricePerM2Raw, 10) : null
   const isRumah = product.category === 'Rumah Bekas'
