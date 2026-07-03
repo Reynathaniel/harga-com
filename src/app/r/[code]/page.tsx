@@ -5,8 +5,9 @@ export const dynamic = 'force-dynamic'
  *
  * Flow:
  * 1. User visits https://harga.com/r/A3KX92BF
- * 2. Page logs the referral click to referral_clicks table
- * 3. Redirects to product or homepage with ?ref=CODE (stored client-side by ReferralHandler)
+ * 2. Page looks up owner user_id from referral code
+ * 3. Logs the referral click to referral_clicks table (with user_id for dashboard attribution)
+ * 4. Redirects to product or homepage with ?ref=CODE (stored client-side by ReferralHandler)
  */
 
 import { redirect } from 'next/navigation'
@@ -49,9 +50,19 @@ export default async function ReferralRedirectPage({ params, searchParams }: Pro
         .update(rawIp + (process.env.IP_HASH_SALT ?? 'harga-salt'))
         .digest('hex')
 
+      // Look up referral code owner so we can attribute user_id
+      // (dashboard queries referral_clicks by user_id)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: profile } = await (db as any)
+        .from('user_profiles')
+        .select('id')
+        .eq('referral_code', safeCode)
+        .maybeSingle()
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (db as any).from('referral_clicks').insert({
         referral_code: safeCode,
+        user_id:       profile?.id ?? null,
         product_id:    productId ?? null,
         platform:      platform  ?? null,
         ip_hash:       ipHash,
