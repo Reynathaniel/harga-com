@@ -11,6 +11,7 @@ import type { PriceListing } from '@/lib/types'
 
 interface ProductActionsProps {
   productId: string
+  productSlug?: string
   productName: string
   productImage?: string
   currentPrice: number
@@ -20,7 +21,7 @@ interface ProductActionsProps {
 }
 
 export function ProductActions({
-  productId, productName, productImage = '',
+  productId, productSlug, productName, productImage = '',
   currentPrice, cheapestPlatformId, affiliateUrl, listings = [],
 }: ProductActionsProps) {
   const [alertOpen, setAlertOpen] = useState(false)
@@ -87,6 +88,7 @@ export function ProductActions({
           </button>
           <ShareButton
             productId={productId}
+            productSlug={productSlug}
             productName={productName}
             referralCode={referralCode}
             variant="full"
