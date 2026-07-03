@@ -34,7 +34,7 @@ async function getTrendingProducts() {
 }
 
 /* Eyebrow + title section head — matches design system SectionHead */
-function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: string; action?: ReactNode }) {
+function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: ReactNode; action?: ReactNode }) {
   return (
     <div className="reveal flex justify-between items-end flex-wrap gap-4 mb-6">
       <div>
@@ -233,7 +233,7 @@ export default async function HomePage() {
         <section className="max-w-7xl mx-auto px-4 py-16">
           <SectionHead
             eyebrow="Flash Sale · Diskon Gila"
-            title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--brand)' }} /> Deal Terpanas Hari Ini</span> as any}
+            title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--brand)' }} /> Deal Terpanas Hari Ini</span>}
             action={
               <Link href="/cari?sort=lowest"
                 className="flex items-center gap-1 transition-colors"
@@ -305,7 +305,7 @@ export default async function HomePage() {
         <section className="max-w-7xl mx-auto px-4 py-16">
           <SectionHead
             eyebrow="Real-Time"
-            title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--orange-500)' }} /> Produk Trending</span> as any}
+            title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--orange-500)' }} /> Produk Trending</span>}
             action={
               <Link href="/cari?sort=popular"
                 className="flex items-center gap-1 transition-colors"
@@ -431,7 +431,7 @@ export default async function HomePage() {
           <div className="max-w-7xl mx-auto">
             <SectionHead
               eyebrow="Selisih Terbesar"
-              title={<span className="flex items-center gap-2"><TrendingDown size={20} style={{ color: 'var(--win)' }} /> Hemat Terbesar Hari Ini</span> as any}
+              title={<span className="flex items-center gap-2"><TrendingDown size={20} style={{ color: 'var(--win)' }} /> Hemat Terbesar Hari Ini</span>}
               action={
                 <Link href="/cari?sort=lowest"
                   className="flex items-center gap-1 transition-colors"
