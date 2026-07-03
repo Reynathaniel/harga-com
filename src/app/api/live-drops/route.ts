@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { tryGetServerClient } from '@/lib/supabase'
+import { cleanProductName } from '@/lib/utils'
 
 export const runtime = 'nodejs'
 
@@ -22,15 +23,6 @@ const FALLBACK: LiveDrop[] = [
   { name: 'Xiaomi 14 Ultra', drop: '-7.6%', platform: 'Lazada', price: 'Rp 9.799.000', productId: '' },
 ]
 
-function cleanProductName(name: string): string {
-  // Remove common Indonesian e-commerce noise patterns
-  return name
-    .replace(/\[Pre Order\]\s*/gi, '')
-    .replace(/\[Pengiriman[^\]]*\]/gi, '')
-    .replace(/\[.*?Official.*?\]/gi, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
 
 export async function GET() {
   const headers = { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' }
