@@ -80,6 +80,30 @@ async function enrichProductWithOffers(
   return adaptDbProductToAppProduct(product, offers, realHistory)
 }
 
+// batchEnrichProducts — fetch all offers for multiple products in one query
+async function batchEnrichProducts(
+  db: ReturnType<typeof tryGetServerClient>,
+  rows: ProductRow[]
+): Promise<Product[]> {
+  if (rows.length === 0) return []
+  const ids = rows.map(r => r.id)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: allOffers } = await (db as any)
+    .from('offers')
+    .select('*, merchant:merchants(*)')
+    .in('product_id', ids)
+    .eq('in_stock', true)
+    .order('price', { ascending: true })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const offersByProduct: Record<string, any[]> = {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;((allOffers as any[]) ?? []).forEach((o: any) => {
+    if (!offersByProduct[o.product_id]) offersByProduct[o.product_id] = []
+    offersByProduct[o.product_id].push(o)
+  })
+  return rows.map(row => adaptDbProductToAppProduct(row, offersByProduct[row.id] ?? []))
+}
+
 // getProducts
 
 export async function getProducts(opts: GetProductsOptions = {}): Promise<ProductsResult> {
@@ -163,26 +187,7 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
 
       // Batch-fetch all offers for the page in one query (avoids N+1)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const rows = (data ?? []) as any[]
-      const pageIds = rows.map((r: any) => r.id as string)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: allOffers } = await (db as any)
-        .from('offers')
-        .select('*, merchant:merchants(*)')
-        .in('product_id', pageIds)
-        .eq('in_stock', true)
-        .order('price', { ascending: true })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const offersByProduct: Record<string, any[]> = {}
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;((allOffers as any[]) ?? []).forEach((o: any) => {
-        if (!offersByProduct[o.product_id]) offersByProduct[o.product_id] = []
-        offersByProduct[o.product_id].push(o)
-      })
-
-      const products = (data ?? []).map((row: any) =>
-        adaptDbProductToAppProduct(row as ProductRow, offersByProduct[row.id] ?? [])
-      )
+      const products = await batchEnrichProducts(db, (data ?? []) as ProductRow[])
 
       return { products, total: count ?? products.length, source: 'supabase' }
     } catch (err) {
@@ -357,10 +362,7 @@ export async function getPromoProducts(limit = 8): Promise<Product[]> {
             .map(id => rowMap.get(id))
             .filter(Boolean)
 
-          const products = await Promise.all(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            orderedRows.map((row: any) => enrichProductWithOffers(db, row as ProductRow))
-          )
+          const products = await batchEnrichProducts(db, orderedRows as ProductRow[])
           return products
         }
       }
@@ -376,10 +378,8 @@ export async function getPromoProducts(limit = 8): Promise<Product[]> {
 
       if (error) throw error
 
-      const products = await Promise.all(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (data ?? []).map((row: any) => enrichProductWithOffers(db, row as ProductRow))
-      )
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const products = await batchEnrichProducts(db, (data ?? []) as ProductRow[])
       return products
     } catch (err) {
       console.error('[db/products] getPromoProducts error:', err)
