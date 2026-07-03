@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { ShareButton } from '@/components/ShareButton'
+import ProductLink from '@/components/ProductLink'
 import type { PlatformId } from '@/lib/types'
 
 export const revalidate = 300
@@ -275,12 +276,15 @@ export default async function ProductPage({ params }: { params: { id: string } }
                         <span className="text-[10px] font-bold text-amber-400">{platform.cashbackPct}%</span>
                         <div className="text-[9px] text-[var(--text-muted)]">{formatRupiah(listingCashback, true)}</div>
                       </div>
-                      <a href={listing.affiliateUrl} target="_blank" rel="noopener noreferrer"
+                      <ProductLink
+                        productId={product.id}
+                        url={listing.affiliateUrl}
+                        platform={listing.platformId}
                         className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-white transition-opacity hover:opacity-85"
                         style={{ background: bgColor }}>
                         <ShoppingCart size={10} />
                         Beli
-                      </a>
+                      </ProductLink>
                     </div>
                   )
                 })}
