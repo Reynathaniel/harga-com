@@ -1,107 +1,95 @@
 import { ImageResponse } from 'next/og'
 
 export const runtime = 'edge'
-export const alt = 'Harga.com — Temukan Harga Termurah di Seluruh Indonesia'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-export default function OgImage() {
+export default function Image() {
   return new ImageResponse(
     (
       <div
         style={{
+          background: '#0A0A0A',
           width: '100%',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #F97316 0%, #EA580C 50%, #C2410C 100%)',
+          fontFamily: 'system-ui, sans-serif',
           position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        {/* Background decoration */}
-        <div
-          style={{
-            position: 'absolute',
-            top: -120,
-            right: -120,
-            width: 500,
-            height: 500,
-            borderRadius: '50%',
-            background: 'rgba(255,255,255,0.07)',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: -80,
-            left: -80,
-            width: 350,
-            height: 350,
-            borderRadius: '50%',
-            background: 'rgba(255,255,255,0.05)',
-          }}
-        />
+        {/* Background gradient blobs */}
+        <div style={{
+          position: 'absolute',
+          top: -150,
+          left: -150,
+          width: 500,
+          height: 500,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(255,107,53,0.25) 0%, transparent 70%)',
+        }} />
+        <div style={{
+          position: 'absolute',
+          bottom: -100,
+          right: -100,
+          width: 400,
+          height: 400,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(255,165,0,0.15) 0%, transparent 70%)',
+        }} />
 
-        {/* Logo */}
-        <div
-          style={{
-            fontSize: 72,
-            fontWeight: 900,
-            color: '#ffffff',
-            letterSpacing: '-2px',
-            marginBottom: 16,
-          }}
-        >
-          Harga.com
-        </div>
+        {/* Main content */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1 }}>
+          {/* Brand name */}
+          <div style={{
+            fontSize: 88,
+            fontWeight: 800,
+            color: '#FF6B35',
+            letterSpacing: '-3px',
+            marginBottom: 20,
+            lineHeight: 1,
+          }}>
+            Harga.com
+          </div>
 
-        {/* Tagline */}
-        <div
-          style={{
-            fontSize: 28,
-            fontWeight: 500,
-            color: 'rgba(255,255,255,0.90)',
+          {/* Tagline */}
+          <div style={{
+            fontSize: 38,
+            color: '#FFFFFF',
+            fontWeight: 400,
             textAlign: 'center',
-            maxWidth: 700,
-            lineHeight: 1.4,
-            marginBottom: 40,
-          }}
-        >
-          Bandingkan harga dari 8 marketplace Indonesia sekaligus
-        </div>
+            marginBottom: 12,
+            letterSpacing: '-0.5px',
+          }}>
+            Temukan Harga Termurah di Indonesia
+          </div>
 
-        {/* Platform pills */}
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-          {['Tokopedia', 'Shopee', 'Lazada', 'Blibli', 'TikTok Shop'].map(name => (
-            <div
-              key={name}
-              style={{
-                padding: '8px 20px',
-                background: 'rgba(255,255,255,0.18)',
-                borderRadius: 999,
-                color: '#ffffff',
-                fontSize: 18,
-                fontWeight: 600,
-              }}
-            >
-              {name}
-            </div>
-          ))}
-        </div>
+          {/* Sub-tagline */}
+          <div style={{
+            fontSize: 22,
+            color: '#888888',
+            textAlign: 'center',
+            marginBottom: 56,
+          }}>
+            Bandingkan Barang Baru &amp; Bekas dari 17 Marketplace
+          </div>
 
-        {/* Bottom badge */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 36,
-            fontSize: 16,
-            color: 'rgba(255,255,255,0.65)',
-            fontWeight: 500,
-          }}
-        >
-          Cashback otomatis · Price alert · Gratis
+          {/* Stats row */}
+          <div style={{ display: 'flex', gap: 80 }}>
+            {[
+              { value: '2.000+', label: 'Produk' },
+              { value: '17', label: 'Marketplace' },
+              { value: 'Real-time', label: 'Update Harga' },
+            ].map(stat => (
+              <div key={stat.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ fontSize: 42, fontWeight: 700, color: '#FF6B35', lineHeight: 1 }}>{stat.value}</div>
+                <div style={{ fontSize: 18, color: '#666666', marginTop: 8 }}>{stat.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     ),
