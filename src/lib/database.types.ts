@@ -63,6 +63,18 @@ export interface Database {
           search_vector: unknown | null
           created_at: string
           updated_at: string
+          view_count: number
+          click_count: number
+          is_popular: boolean
+          popular_since: string | null
+          vehicle_brand: string | null
+          vehicle_model: string | null
+          vehicle_year: number | null
+          vehicle_type: string | null
+          vehicle_mileage: number | null
+          vehicle_transmission: string | null
+          vehicle_color: string | null
+          vehicle_location: string | null
         }
         Insert: {
           id?: string
@@ -80,6 +92,18 @@ export interface Database {
           total_reviews?: number
           created_at?: string
           updated_at?: string
+          view_count?: number
+          click_count?: number
+          is_popular?: boolean
+          popular_since?: string | null
+          vehicle_brand?: string | null
+          vehicle_model?: string | null
+          vehicle_year?: number | null
+          vehicle_type?: string | null
+          vehicle_mileage?: number | null
+          vehicle_transmission?: string | null
+          vehicle_color?: string | null
+          vehicle_location?: string | null
         }
         Update: Partial<Database['public']['Tables']['products']['Insert']>
       }
