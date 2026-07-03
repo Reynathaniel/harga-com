@@ -89,12 +89,17 @@ export class OlxScraper extends BaseScraper {
       const price = this.parsePrice(String(priceRaw ?? '0'))
       if (!price) return null
 
-      // Image
+      // Image — OLX API returns various structures across endpoint versions
       const images = this.get<unknown[]>(raw, 'images', [])
       const imageUrl =
         this.get<string>(images, '0.url', '')
+        || this.get<string>(images, '0.thumbnail', '')
+        || this.get<string>(images, '0.picture_url', '')
+        || this.get<string>(images, '0.link', '')
         || this.get<string>(raw, 'thumbnail', '')
         || this.get<string>(raw, 'mainImage.url', '')
+        || this.get<string>(raw, 'image_url', '')
+        || this.get<string>(raw, 'media.0.url', '')
         || ''
 
       // URL
