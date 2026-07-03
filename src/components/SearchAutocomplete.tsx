@@ -2,13 +2,15 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, Link2, ScanLine, X, TrendingUp, Clock } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, cleanProductName } from '@/lib/utils'
 
 interface SearchResult {
   id: string
   name: string
+  slug: string
   category: string
-  minPrice: number
+  best_price: number | null
+  image_url?: string | null
 }
 
 const POPULAR = [
@@ -93,8 +95,8 @@ export function SearchAutocomplete({
 
   const isUrl = query.startsWith('http://') || query.startsWith('https://')
   const showDropdown = focused
-  const formatPrice = (n: number) =>
-    `Rp ${n >= 1_000_000 ? (n / 1_000_000).toFixed(1) + 'jt' : (n / 1000).toFixed(0) + 'rb'}`
+  const formatPrice = (n: number | null | undefined) =>
+    n ? `Rp ${n >= 1_000_000 ? (n / 1_000_000).toFixed(1) + 'jt' : (n / 1000).toFixed(0) + 'rb'}` : ''
 
   return (
     <div className={cn('relative w-full', className)}>
@@ -171,14 +173,18 @@ export function SearchAutocomplete({
               {results.map((r, i) => (
                 <button
                   key={r.id ?? i}
-                  onMouseDown={() => handleSearch(r.name)}
+                  onMouseDown={() => {
+                    saveRecent(r.name)
+                    setFocused(false)
+                    router.push(`/produk/${r.slug || r.id}`)
+                  }}
                   className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--bg-hover)] transition-colors text-left"
                 >
                   <Search size={14} className="text-[var(--text-muted)] shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm text-[var(--text-primary)] truncate">{r.name}</div>
+                    <div className="text-sm text-[var(--text-primary)] truncate">{cleanProductName(r.name)}</div>
                     <div className="text-[10px] text-[var(--text-muted)]">
-                      {r.category} · mulai {formatPrice(r.minPrice)}
+                      {r.category}{r.best_price ? ' · mulai ' + formatPrice(r.best_price) : ''}
                     </div>
                   </div>
                 </button>
