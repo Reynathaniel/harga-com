@@ -31,8 +31,9 @@ const QUERY_ROTATION = [
 ]
 
 export async function GET(request: NextRequest) {
-  const secret = request.headers.get('x-cron-secret') ?? request.nextUrl.searchParams.get('secret')
-  if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
+  // Vercel Cron sends Authorization: Bearer <CRON_SECRET>
+  const authHeader = request.headers.get('authorization')
+  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
