@@ -27,6 +27,7 @@ export interface CheckoutModalProps {
 export function CheckoutModal({
   isOpen,
   onClose,
+  productId,
   productName,
   listings,
 }: CheckoutModalProps) {
@@ -36,11 +37,17 @@ export function CheckoutModal({
   const bgColor  = cheapest?.platformId === 'tiktok' ? '#1a1a1a' : (platform?.color ?? '#f59e0b')
 
   const handleGoToPlatform = useCallback(() => {
-    if (cheapest?.affiliateUrl) {
-      window.open(cheapest.affiliateUrl, '_blank', 'noopener,noreferrer')
-    }
+    if (!cheapest?.affiliateUrl) { onClose(); return }
+    // Track the click (fire-and-forget, keepalive so it survives navigation)
+    fetch('/api/track/click', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId, platform: cheapest.platformId }),
+      keepalive: true,
+    }).catch(() => {})
+    window.open(cheapest.affiliateUrl, '_blank', 'noopener,noreferrer')
     onClose()
-  }, [cheapest, onClose])
+  }, [cheapest, onClose, productId])
 
   if (!isOpen) return null
 
