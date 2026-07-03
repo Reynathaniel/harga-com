@@ -40,8 +40,8 @@ The canonical app type is `Product` in `src/lib/types.ts`. DB rows are converted
 
 | Table | Purpose |
 |-------|---------|
-| `products` | 2,935 rows — name, slug, category, brand, images |
-| `offers` | 17,620 rows — product_id, merchant_id, price, discount_pct, free_shipping, shop_verified |
+| `products` | 1,978 rows — name, slug, category, brand, images (Elektronik: 1,210, Fashion: 212, Rumah Tangga: 195, Kecantikan: 86, Gaming: 84, Mobil Bekas: 81, Motor Bekas: 59, Olahraga: 31, Lainnya: 20) |
+| `offers` | 17,560 active rows — product_id, merchant_id, price, discount_pct, free_shipping, shop_verified |
 | `merchants` | 17 rows — one per platform (tokopedia, shopee, lazada, …, carsome, mobil123, oto, momobil, belanjakendaraan) |
 | `price_history` | offer_id, price, recorded_at — appended each scrape run |
 | `price_alerts` | query, email, target_price, notify_type, active, created_at — user price alert subscriptions |
