@@ -73,7 +73,7 @@ export interface OrchestrateResult {
 }
 
 const INDONESIAN_PLATFORMS = ['tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak']
-const PLATFORM_INTL = ['amazon', 'aliexpress', 'alibaba', 'jd']
+const PLATFORM_INTL = ['amazon', 'aliexpress', 'alibaba'] // jd.id closed Indonesia operations
 const PLATFORM_USED = ['olx', 'carousell']
 const PLATFORM_VEHICLE = ['carsome', 'mobil123', 'momobil', 'oto', 'belanjamobil']
 const ALL_PLATFORMS = [...INDONESIAN_PLATFORMS, ...PLATFORM_INTL, ...PLATFORM_USED, ...PLATFORM_VEHICLE]
