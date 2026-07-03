@@ -32,6 +32,8 @@ const CATEGORY_ID_TO_LABEL: Record<string, string> = {
   'olahraga':     'Olahraga',
   'motor-bekas':  'Motor Bekas',
   'mobil-bekas':  'Mobil Bekas',
+  'rumah-bekas':  'Rumah Bekas',
+  'tanah-bekas':  'Tanah Bekas',
   'lainnya':      'Lainnya',
 }
 
