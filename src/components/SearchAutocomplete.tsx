@@ -63,7 +63,7 @@ export function SearchAutocomplete({
       const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&limit=6`)
       if (res.ok) {
         const data = await res.json()
-        setResults(data.results || data.products || [])
+        setResults(data.data || data.results || data.products || [])
       }
     } catch {
       setResults([])
