@@ -14,6 +14,7 @@ import { subDays } from 'date-fns'
 export function adaptOfferToListing(offer: OfferWithMerchant, fallbackImageUrl?: string): PriceListing {
   const merchant = offer.merchant
   return {
+    offerId:       offer.id,
     platformId:    merchant.platform_id as PlatformId,
     price:         offer.price,
     originalPrice: offer.original_price ?? undefined,
