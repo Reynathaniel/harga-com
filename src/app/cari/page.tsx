@@ -10,6 +10,8 @@ const CATEGORY_LABELS: Record<string, string> = {
   'olahraga': 'Olahraga & Outdoor',
   'motor-bekas': 'Motor Bekas',
   'mobil-bekas': 'Mobil Bekas',
+  'rumah-bekas': 'Rumah Bekas',
+  'tanah-bekas': 'Tanah Bekas',
   'lainnya':      'Lainnya',
 }
 
@@ -98,6 +100,7 @@ const VEHICLE_PRICE_PRESETS = [
 ]
 
 const VEHICLE_CATEGORIES = ['mobil-bekas', 'motor-bekas']
+const PROPERTY_CATEGORIES = ['rumah-bekas', 'tanah-bekas']
 
 function EmptyState({ query, isVehicle }: { query: string; isVehicle: boolean }) {
   const suggestions = isVehicle
