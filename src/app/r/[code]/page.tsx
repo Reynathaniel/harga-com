@@ -4,9 +4,9 @@ export const dynamic = 'force-dynamic'
  * /r/[code] — Referral redirect page
  *
  * Flow:
- * 1. User share link: https://harga.com/r/A3KX92BF
- * 2. Page logs the click to referral_clicks table
- * 3. Redirects to product or homepage with ?ref=CODE (picked up by ReferralHandler)
+ * 1. User visits https://harga.com/r/A3KX92BF
+ * 2. Page logs the referral click to referral_clicks table
+ * 3. Redirects to product or homepage with ?ref=CODE (stored client-side by ReferralHandler)
  */
 
 import { redirect } from 'next/navigation'
@@ -39,7 +39,7 @@ export default async function ReferralRedirectPage({ params, searchParams }: Pro
     redirect('/')
   }
 
-  // Log the referral click to DB (fire-and-forget with best-effort)
+  // Log the referral click to DB (best-effort)
   try {
     const db = tryGetServerClient()
     if (db) {
@@ -64,11 +64,11 @@ export default async function ReferralRedirectPage({ params, searchParams }: Pro
     // Non-fatal — always redirect regardless
   }
 
-  // Redirect to destination with ?ref= so ReferralHandler can store it client-side
+  // Redirect to destination; ?ref= param stored client-side by ReferralHandler
   if (productId) {
-    const dest = &platform=
+    const dest = `/produk/${productId}?ref=${safeCode}${platform ? `&platform=${platform}` : ''}`
     redirect(dest)
   }
 
-  redirect()
+  redirect(`/?ref=${safeCode}`)
 }
