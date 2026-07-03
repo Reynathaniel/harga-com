@@ -42,7 +42,7 @@ export function extractIp(headers: Headers): string {
 export function buildReferralLink(
   referralCode: string,
   productId?: string,
-  baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://harga-com.vercel.app'
+  baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://harga.com'
 ): string {
   if (productId) {
     return `${baseUrl}/produk/${productId}?ref=${referralCode}`
