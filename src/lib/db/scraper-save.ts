@@ -93,8 +93,10 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
       let product: { id: string } | null = null
 
       if (existing) {
-        // Update non-image metadata; preserve existing images to avoid mismatch
-        const hasImage = (existing.images?.length ?? 0) > 0 || existing.image_url
+        // Update non-image metadata; preserve existing REAL images (allow overwriting Unsplash placeholders)
+        const hasRealImage = ((existing.images?.length ?? 0) > 0 || existing.image_url) &&
+          !String(existing.image_url || '').includes('unsplash.com') &&
+          !String(existing.image_url || '').includes('picsum.photos')
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const patch: Record<string, any> = {
           name:           cleanProductName(listing.title),
@@ -104,7 +106,7 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
           specifications: listing.specs ?? {},
           updated_at:     now,
         }
-        if (!hasImage && listing.imageUrl) {
+        if (!hasRealImage && listing.imageUrl && !listing.imageUrl.includes('unsplash')) {
           patch.image_url = listing.imageUrl
           patch.images    = [listing.imageUrl]
         }
