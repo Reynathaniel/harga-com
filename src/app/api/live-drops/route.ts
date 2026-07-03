@@ -5,11 +5,12 @@ import { cleanProductName } from '@/lib/utils'
 export const runtime = 'nodejs'
 
 export interface LiveDrop {
-  name: string
-  drop: string
-  platform: string
-  price: string
-  productId: string
+  name:        string
+  drop:        string
+  platform:    string
+  price:       string
+  productId:   string
+  productSlug: string
 }
 
 const FALLBACK: LiveDrop[] = [
