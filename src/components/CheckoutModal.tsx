@@ -42,7 +42,7 @@ export function CheckoutModal({
     fetch('/api/track/click', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, platform: cheapest.platformId }),
+      body: JSON.stringify({ productId, offerId: cheapest.offerId, platform: cheapest.platformId }),
       keepalive: true,
     }).catch(() => {})
     window.open(cheapest.affiliateUrl, '_blank', 'noopener,noreferrer')
