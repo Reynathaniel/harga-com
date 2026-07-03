@@ -4,17 +4,15 @@ export const dynamic = 'force-dynamic'
  * /r/[code] — Referral redirect page
  *
  * Flow:
- * 1. User share link: https://harga-com.vercel.app/r/A3KX92BF
- * 2. Page ini log klik (via API) lalu redirect ke homepage dengan ?ref=A3KX92BF
- * 3. Jika ada productId di query: redirect ke /produk/{id}?ref={code}
- *
- * Params:
- *   - code: referral code dari URL path
- *   - productId (query, optional): ID produk spesifik
- *   - platform  (query, optional): platform tujuan
+ * 1. User share link: https://harga.com/r/A3KX92BF
+ * 2. Page logs the click to referral_clicks table
+ * 3. Redirects to product or homepage with ?ref=CODE (picked up by ReferralHandler)
  */
 
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
+import { createHash } from 'crypto'
+import { tryGetServerClient } from '@/lib/supabase'
 import type { Metadata } from 'next'
 
 interface Props {
@@ -30,10 +28,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-/**
- * Server component: log klik via API route lalu redirect.
- * Menggunakan fetch ke API /api/referral/[code]/track agar logic terpusat.
- */
 export default async function ReferralRedirectPage({ params, searchParams }: Props) {
   const { code } = params
   const { productId, platform } = searchParams
@@ -45,14 +39,36 @@ export default async function ReferralRedirectPage({ params, searchParams }: Pro
     redirect('/')
   }
 
-  // Build destination URL
-  // Tracking sudah dilakukan di /api/referral/[code]/track
-  // Di sini kita langsung redirect ke halaman yang tepat dengan ?ref=
+  // Log the referral click to DB (fire-and-forget with best-effort)
+  try {
+    const db = tryGetServerClient()
+    if (db) {
+      const headersList = headers()
+      const rawIp = headersList.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+      const ipHash = createHash('sha256')
+        .update(rawIp + (process.env.IP_HASH_SALT ?? 'harga-salt'))
+        .digest('hex')
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (db as any).from('referral_clicks').insert({
+        referral_code: safeCode,
+        product_id:    productId ?? null,
+        platform:      platform  ?? null,
+        ip_hash:       ipHash,
+        user_agent:    headersList.get('user-agent') ?? null,
+        referer:       headersList.get('referer')    ?? null,
+        converted:     false,
+      })
+    }
+  } catch {
+    // Non-fatal — always redirect regardless
+  }
+
+  // Redirect to destination with ?ref= so ReferralHandler can store it client-side
   if (productId) {
-    const dest = `/produk/${productId}?ref=${safeCode}${platform ? `&platform=${platform}` : ''}`
+    const dest = &platform=
     redirect(dest)
   }
 
-  // Default: homepage dengan ref cookie
-  redirect(`/?ref=${safeCode}`)
+  redirect()
 }
