@@ -115,12 +115,18 @@ export class CarousellScraper extends BaseScraper {
       const price = this.parsePrice(String(priceValue ?? '0'))
       if (!price) return null
 
-      // Image
+      // Image — Carousell API returns various structures across endpoint versions
       const imageUrl =
         this.get<string>(raw, 'coverPhoto.url', '')
         || this.get<string>(raw, 'listing.coverPhoto.url', '')
+        || this.get<string>(raw, 'photos.0.url', '')
+        || this.get<string>(raw, 'listing.photos.0.url', '')
+        || this.get<string>(raw, 'media.0.image.url', '')
+        || this.get<string>(raw, 'listing.media.0.image.url', '')
+        || this.get<string>(raw, 'listingCard.coverPhoto.url', '')
         || this.get<string>(raw, 'photo', '')
         || this.get<string>(raw, 'thumbnail', '')
+        || this.get<string>(raw, 'image', '')
         || ''
 
       // URL
