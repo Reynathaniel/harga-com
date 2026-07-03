@@ -1,5 +1,7 @@
 'use client'
 
+import type { CSSProperties } from 'react'
+
 /**
  * ProductLink — wraps an outbound product URL and fires click tracking
  * before the user navigates to the merchant.
@@ -20,6 +22,7 @@ interface ProductLinkProps {
   platform:  string
   children:  React.ReactNode
   className?: string
+  style?:    CSSProperties
 }
 
 export default function ProductLink({
@@ -29,6 +32,7 @@ export default function ProductLink({
   platform,
   children,
   className,
+  style,
 }: ProductLinkProps) {
   const handleClick = () => {
     // Fire-and-forget — never await, never block navigation
@@ -46,6 +50,7 @@ export default function ProductLink({
       target="_blank"
       rel="noopener noreferrer"
       className={className}
+      style={style}
       onClick={handleClick}
     >
       {children}
