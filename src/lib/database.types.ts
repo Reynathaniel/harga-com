@@ -448,11 +448,26 @@ export interface Database {
           best_affiliate_url: string | null
           best_free_shipping: boolean | null
           offer_count: number
+          best_condition: string | null
+          search_vector: string | null
         }
       }
     }
 
-    Functions: Record<string, never>
+    Functions: {
+      get_live_drops: {
+        Args: { since_days?: number; result_limit?: number }
+        Returns: {
+          product_id: string
+          product_slug: string
+          product_name: string
+          platform_name: string
+          current_price: number
+          historical_price: number
+          drop_pct: number
+        }[]
+      }
+    }
     Enums: Record<string, never>
   }
 }
