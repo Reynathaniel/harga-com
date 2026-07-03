@@ -50,11 +50,12 @@ export async function GET() {
     const drops: LiveDrop[] = (data as any[]).map((row: any) => {
       const rawName: string = cleanProductName(row.product_name ?? '')
       return {
-        name: rawName.length > 45 ? rawName.slice(0, 45) + '\u2026' : rawName,
-        drop: `-${row.drop_pct}%`,
-        platform: row.platform_name,
-        price: 'Rp ' + Number(row.current_price).toLocaleString('id-ID'),
-        productId: row.product_id,
+        name:        rawName.length > 45 ? rawName.slice(0, 45) + '\u2026' : rawName,
+        drop:        `-${row.drop_pct}%`,
+        platform:    row.platform_name,
+        price:       'Rp ' + Number(row.current_price).toLocaleString('id-ID'),
+        productId:   row.product_id,
+        productSlug: row.product_slug ?? '',
       }
     })
 
