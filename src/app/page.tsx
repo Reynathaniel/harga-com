@@ -82,8 +82,26 @@ export default async function HomePage() {
     .sort((a, b) => b.savings - a.savings)
     .slice(0, 4)
 
+  // JSON-LD: WebSite schema with Sitelinks Search Box
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Harga.com',
+    url: 'https://harga.com',
+    description: 'Bandingkan harga dari 17+ marketplace Indonesia. Barang baru & bekas.',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: 'https://harga.com/cari?q={search_term_string}',
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  }
+
   return (
     <div className="pt-[92px]">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
 
       {/* ── HERO ── */}
       <section className="hero-gradient relative overflow-hidden">
