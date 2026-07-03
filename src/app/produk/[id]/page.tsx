@@ -254,7 +254,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                         <div className="flex items-center gap-1.5">
                           <span className="text-sm font-semibold text-[var(--text-primary)]">{platform.name}</span>
                           {listing.shopVerified && <Shield size={10} className="text-blue-400" />}
-                          {(listing as any).condition === 'used' && (
+                          {listing.condition === 'used' && (
                             <span className="text-[9px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-md border border-orange-200 font-bold">BEKAS</span>
                           )}
                           {listing.freeShipping && (
