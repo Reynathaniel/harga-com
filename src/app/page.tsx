@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { ProductCard } from '@/components/ProductCard'
 import { HeroRealSearch } from '@/components/HeroSection'
 import { DealTerbaikSection } from '@/components/DealTerbaikSection'
@@ -255,7 +256,7 @@ export default async function HomePage() {
                   {/* Image */}
                   <div className="relative aspect-square overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
                     {p.images?.[0]
-                      ? <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ? <Image src={p.images[0]} alt={p.name} fill sizes="(max-width:768px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
                       : <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--text-muted)' }}><Flame size={32} /></div>
                     }
                     {discountPct > 0 && (
@@ -323,7 +324,7 @@ export default async function HomePage() {
                 }}>
                 <div className="relative aspect-square overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
                   {p.image_url
-                    ? <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    ? <Image src={p.image_url} alt={p.name} fill sizes="(max-width:768px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
                     : <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--text-muted)' }}><Flame size={24} /></div>
                   }
                   {p.click_count > 0 && (
@@ -404,7 +405,7 @@ export default async function HomePage() {
                     className="w-36 rounded-xl overflow-hidden group transition-all"
                     style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
                     <div className="aspect-square overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
-                      {p.images[0] && <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />}
+                      {p.images[0] && <Image src={p.images[0]} alt={p.name} fill sizes="(max-width:768px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />}
                     </div>
                     <div className="p-2">
                       <p className="line-clamp-2 leading-snug mb-1"
