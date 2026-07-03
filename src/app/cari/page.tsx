@@ -10,6 +10,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   'olahraga': 'Olahraga & Outdoor',
   'motor-bekas': 'Motor Bekas',
   'mobil-bekas': 'Mobil Bekas',
+  'lainnya':      'Lainnya',
 }
 
 export function generateMetadata({ searchParams }: { searchParams: Record<string, string> }) {
