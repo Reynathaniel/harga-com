@@ -70,6 +70,7 @@ export function ProductActions({
 
         <ProductLink
           productId={productId}
+          offerId={effectiveListings[0]?.offerId}
           url={affiliateUrl}
           platform={cheapestPlatformId}
           className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-[var(--text-secondary)] border border-[var(--border-subtle)] hover:border-amber-500/30 hover:text-[var(--text-primary)] rounded-xl transition-all"
