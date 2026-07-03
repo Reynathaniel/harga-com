@@ -190,3 +190,6 @@ export const PLATFORM_INTL: string[] = [
 export const PLATFORM_VEHICLE: string[] = [
   'carsome', 'mobil123', 'momobil', 'oto', 'belanjamobil', 'olx', 'carousell',
 ]
+
+/** Platforms that carry property listings (Rumah Bekas / Tanah Bekas) */
+export const PLATFORM_PROPERTY: string[] = ['olx', 'carousell']
