@@ -249,7 +249,7 @@ export default async function HomePage() {
                 ? Math.round(100 * (cheapest.originalPrice - cheapest.price) / cheapest.originalPrice)
                 : 0
               return (
-                <Link key={p.id} href={`/produk/${p.id}`}
+                <Link key={p.id} href={`/produk/${p.slug || p.id}`}
                   className="group rounded-2xl overflow-hidden transition-all hover:-translate-y-0.5"
                   style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-card)' }}>
                   {/* Image */}
@@ -316,7 +316,7 @@ export default async function HomePage() {
           />
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
             {trendingProducts.map((p: { id: string; name: string; image_url: string | null; best_price: number; click_count: number }) => (
-              <Link key={p.id} href={'/produk/' + p.id}
+              <Link key={p.id} href={'/produk/' + (p.slug || p.id)}
                 className="group rounded-xl overflow-hidden transition-all"
                 style={{
                   background: 'var(--bg-card)', border: '1px solid var(--border-subtle)',
@@ -400,7 +400,7 @@ export default async function HomePage() {
               {(usedProducts ?? []).slice(0, 2).map(p => {
                 const cheapest = lowestListingFirst(p.listings ?? [])[0]
                 return cheapest ? (
-                  <Link key={p.id} href={'/produk/' + p.id}
+                  <Link key={p.id} href={'/produk/' + (p.slug || p.id)}
                     className="w-36 rounded-xl overflow-hidden group transition-all"
                     style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
                     <div className="aspect-square overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
@@ -448,7 +448,7 @@ export default async function HomePage() {
                 const platform = PLATFORMS[cheapest.platformId]
                 if (!platform) return null
                 return (
-                  <Link key={product.id} href={'/produk/' + product.id}
+                  <Link key={product.id} href={'/produk/' + (product.slug || product.id)}
                     className="group rounded-2xl p-4 transition-all"
                     style={{
                       background: 'var(--bg-hover)',
