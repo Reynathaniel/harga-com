@@ -163,12 +163,11 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
           return { products: [], total: 0, source: 'supabase' }
         }
       }
-      // Note: products_with_best_offer view has no 'condition' column.
-      // Used goods come from OLX/Carousell platforms only.
+      // Filter by best_condition (added to products_with_best_offer view)
       if (condition === 'used') {
-        q = q.in('best_platform_id', ['olx', 'carousell'])
+        q = q.eq('best_condition', 'used')
       } else if (condition === 'new') {
-        q = q.not('best_platform_id', 'in', '(olx,carousell)')
+        q = q.eq('best_condition', 'new')
       }
       if (minPrice != null) q = q.gte('best_price', minPrice)
       if (maxPrice != null) q = q.lte('best_price', maxPrice)
