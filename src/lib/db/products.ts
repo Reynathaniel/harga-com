@@ -139,14 +139,26 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
         const dbCategory = CATEGORY_ID_TO_LABEL[category] ?? category
         q = q.ilike('category', dbCategory)
       }
-      if (platform) {
-        // Fix: best_platform_id only shows the cheapest-platform product.
-        // Instead look up all product IDs that have ANY offer from this platform.
+      // Platform filter: explicit platform param OR vehicle categories auto-restrict to vehicle platforms
+      const VEHICLE_DB_CATEGORIES = ['Motor Bekas', 'Mobil Bekas']
+      const VEHICLE_PLATFORM_IDS = ['olx', 'carousell', 'carsome', 'mobil123', 'momobil', 'oto', 'belanjamobil']
+      const dbCatLabel = category ? (CATEGORY_ID_TO_LABEL[category] ?? category) : ''
+      const isVehicleCat = dbCatLabel && VEHICLE_DB_CATEGORIES.includes(dbCatLabel)
+      // Determine which platform IDs to filter to:
+      //   - explicit platform param → [platform]
+      //   - vehicle category, no platform → all VEHICLE_PLATFORM_IDS
+      //   - otherwise → no platform restriction
+      const effectivePlatformIds: string[] | null = platform
+        ? [platform]
+        : isVehicleCat ? VEHICLE_PLATFORM_IDS : null
+
+      if (effectivePlatformIds) {
+        // Resolve merchant UUIDs for those platform IDs
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: merchants } = await (db as any)
           .from('merchants')
           .select('id')
-          .eq('platform_id', platform)
+          .in('platform_id', effectivePlatformIds)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const merchantIds = ((merchants as any[]) ?? []).map((m: any) => m.id as string)
         if (merchantIds.length > 0) {
