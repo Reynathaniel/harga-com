@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createHash } from 'crypto'
 import { tryGetServerClient } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -7,8 +8,9 @@ export const dynamic = 'force-dynamic'
  * POST /api/track/click
  * Body: { productId: string, offerId?: string, platform?: string }
  *
- * Increments click_count on the product and marks it as popular
- * when it crosses the threshold (10 clicks).
+ * 1. Atomically increments click_count on the product
+ * 2. Inserts a row into click_tracking (for trending/stats analytics)
+ * 3. Graduates product to popular when threshold reached
  */
 export async function POST(req: NextRequest) {
   try {
@@ -19,8 +21,31 @@ export async function POST(req: NextRequest) {
     const db = tryGetServerClient() as any
     if (!db) return NextResponse.json({ ok: false })
 
-    // Atomically increment click count via RPC
-    await db.rpc('increment_product_clicks', { product_uuid: productId })
+    // Hash IP for privacy-safe analytics
+    const rawIp =
+      req.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+      req.headers.get('x-real-ip') ??
+      'unknown'
+    const ipHash = createHash('sha256')
+      .update(rawIp + (process.env.IP_HASH_SALT ?? 'harga-salt'))
+      .digest('hex')
+
+    // Run in parallel: increment click_count + insert click_tracking row
+    await Promise.allSettled([
+      // 1. Atomically increment click count via RPC
+      db.rpc('increment_product_clicks', { product_uuid: productId }),
+
+      // 2. Insert into click_tracking for analytics (only when offerId is known)
+      offerId
+        ? db.from('click_tracking').insert({
+            offer_id:   offerId,
+            ip_hash:    ipHash,
+            session_id: req.headers.get('x-session-id') ?? null,
+            user_agent: req.headers.get('user-agent')   ?? null,
+            referer:    req.headers.get('referer')       ?? null,
+          })
+        : Promise.resolve(),
+    ])
 
     // Read updated count
     const { data: product } = await db
