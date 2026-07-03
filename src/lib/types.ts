@@ -16,6 +16,7 @@ export interface Platform {
 }
 
 export interface PriceListing {
+  offerId?: string          // DB offer UUID — used for click tracking
   platformId: PlatformId
   price: number
   originalPrice?: number
