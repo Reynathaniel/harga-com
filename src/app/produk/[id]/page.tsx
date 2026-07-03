@@ -149,7 +149,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
               <PlatformBadge platformId={cheapest.platformId} size="sm" />
               <div className="flex items-center gap-2">
                 <BookmarkButton productId={product.id} />
-                <ShareButton productId={product.id} productName={product.name} variant="icon" />
+                <ShareButton productId={product.id} productSlug={product.slug} productName={product.name} variant="icon" />
               </div>
             </div>
 
