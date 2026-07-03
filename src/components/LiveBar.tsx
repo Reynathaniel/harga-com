@@ -4,22 +4,23 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
 interface LiveDrop {
-  name: string
-  drop: string
-  platform: string
-  price: string
-  productId: string
+  name:        string
+  drop:        string
+  platform:    string
+  price:       string
+  productId:   string
+  productSlug: string
 }
 
 const FALLBACK: LiveDrop[] = [
-  { name: 'Sony WH-1000XM5', drop: '-12.5%', platform: 'Shopee', price: 'Rp 3.990.000', productId: '' },
-  { name: 'iPhone 15 128GB', drop: '-8.2%', platform: 'Tokopedia', price: 'Rp 12.499.000', productId: '' },
-  { name: 'Dyson V15 Detect', drop: '-15.3%', platform: 'Lazada', price: 'Rp 6.999.000', productId: '' },
-  { name: 'Samsung Galaxy S24', drop: '-6.8%', platform: 'Blibli', price: 'Rp 11.999.000', productId: '' },
-  { name: 'Nintendo Switch OLED', drop: '-9.1%', platform: 'TikTok Shop', price: 'Rp 3.899.000', productId: '' },
-  { name: 'MacBook Air M2', drop: '-5.4%', platform: 'Tokopedia', price: 'Rp 14.999.000', productId: '' },
-  { name: 'ASUS ROG Zephyrus G14', drop: '-11.2%', platform: 'Shopee', price: 'Rp 18.499.000', productId: '' },
-  { name: 'Xiaomi 14 Ultra', drop: '-7.6%', platform: 'Lazada', price: 'Rp 9.799.000', productId: '' },
+  { name: 'Sony WH-1000XM5', drop: '-12.5%', platform: 'Shopee', price: 'Rp 3.990.000', productId: '', productSlug: '' },
+  { name: 'iPhone 15 128GB', drop: '-8.2%', platform: 'Tokopedia', price: 'Rp 12.499.000', productId: '', productSlug: '' },
+  { name: 'Dyson V15 Detect', drop: '-15.3%', platform: 'Lazada', price: 'Rp 6.999.000', productId: '', productSlug: '' },
+  { name: 'Samsung Galaxy S24', drop: '-6.8%', platform: 'Blibli', price: 'Rp 11.999.000', productId: '', productSlug: '' },
+  { name: 'Nintendo Switch OLED', drop: '-9.1%', platform: 'TikTok Shop', price: 'Rp 3.899.000', productId: '', productSlug: '' },
+  { name: 'MacBook Air M2', drop: '-5.4%', platform: 'Tokopedia', price: 'Rp 14.999.000', productId: '', productSlug: '' },
+  { name: 'ASUS ROG Zephyrus G14', drop: '-11.2%', platform: 'Shopee', price: 'Rp 18.499.000', productId: '', productSlug: '' },
+  { name: 'Xiaomi 14 Ultra', drop: '-7.6%', platform: 'Lazada', price: 'Rp 9.799.000', productId: '', productSlug: '' },
 ]
 
 export function LiveBar() {
@@ -107,7 +108,7 @@ export function LiveBar() {
               </span>
             )
             return item.productId ? (
-              <Link key={i} href={`/produk/${item.productId}`} style={{ textDecoration: 'none', display: 'contents' }}>
+              <Link key={i} href={`/produk/${item.productSlug || item.productId}`} style={{ textDecoration: 'none', display: 'contents' }}>
                 {inner}
               </Link>
             ) : (
