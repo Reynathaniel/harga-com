@@ -61,6 +61,8 @@ export function cleanProductName(name: string): string {
     // Clean excess whitespace and commas
     .replace(/\s*,\s*/g, ', ')
     .replace(/\s+/g, ' ')
+    // Strip trailing punctuation that scraper sometimes leaves
+    .replace(/[\s\-\u2013\u2014,|]+$/, '')
     .trim()
     // Truncate very long names at a word boundary
     .slice(0, 120).replace(/\s\S*$/, '')
