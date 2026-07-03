@@ -53,7 +53,7 @@ export function ProductCard({ product, compact = false }: Props) {
   const platformBg = platform?.id === 'tiktok' ? '#1a1a1a' : (platform?.color ?? '#9c9589')
 
   return (
-    <Link href={`/produk/${product.id}`} className="block group">
+    <Link href={`/produk/${product.slug || product.id}`} className="block group">
       <article
         className="rounded-2xl overflow-hidden bg-[var(--bg-card)] border border-[var(--border-subtle)] transition-all duration-200 group-hover:border-[var(--brand)]/30 group-hover:shadow-[0_6px_24px_rgba(249,115,22,0.09)] group-hover:-translate-y-0.5"
         style={{ boxShadow: 'var(--shadow-card)' }}
