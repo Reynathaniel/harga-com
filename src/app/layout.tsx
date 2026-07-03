@@ -14,7 +14,6 @@ export const metadata: Metadata = {
     type: 'website',
     url: 'https://harga.com',
     siteName: 'Harga.com',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
     locale: 'id_ID',
   },
   twitter: {
@@ -22,7 +21,6 @@ export const metadata: Metadata = {
     title: 'Harga.com — Perbandingan Harga Terbaik Indonesia',
     description: 'Temukan harga terbaik dari Tokopedia, Shopee, Lazada dan platform lain',
     site: '@hargacom',
-    images: ['/og-image.png'],
   },
 }
 
