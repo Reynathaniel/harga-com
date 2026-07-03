@@ -14,6 +14,7 @@ import { Share2, Copy, Check, Link as LinkIcon } from 'lucide-react'
 
 interface ShareButtonProps {
   productId:     string
+  productSlug?:  string   // prefer slug over uuid for share URLs
   productName:   string
   referralCode?: string   // jika undefined, share tanpa ref
   className?:    string
@@ -22,6 +23,7 @@ interface ShareButtonProps {
 
 export function ShareButton({
   productId,
+  productSlug,
   productName,
   referralCode,
   className = '',
@@ -31,9 +33,10 @@ export function ShareButton({
   const [open,   setOpen  ] = useState(false)
 
   const baseUrl  = typeof window !== 'undefined' ? window.location.origin : ''
+  const productPath = productSlug || productId
   const shareUrl = referralCode
-    ? `${baseUrl}/produk/${productId}?ref=${referralCode}`
-    : `${baseUrl}/produk/${productId}`
+    ? `${baseUrl}/produk/${productPath}?ref=${referralCode}`
+    : `${baseUrl}/produk/${productPath}`
 
   const handleCopy = useCallback(async () => {
     try {
