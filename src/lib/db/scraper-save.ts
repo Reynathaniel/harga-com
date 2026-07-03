@@ -32,6 +32,10 @@ const MERCHANT_ID: Record<string, string> = {
   belanjamobil: '00000000-0000-0000-0000-000000000017',
 }
 
+// Platforms that exclusively sell used/second-hand goods
+// New-goods platforms (tokopedia, shopee, lazada, etc.) default to 'new'
+const USED_PLATFORMS = new Set(['olx', 'carousell', 'carsome', 'mobil123', 'momobil', 'oto', 'belanjamobil'])
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -156,7 +160,7 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
           in_stock:       listing.stock !== 0,
           video_url:      listing.videoUrl   ?? null,
           video_thumb:    listing.videoThumb ?? null,
-          condition:      listing.condition  ?? 'used',
+          condition:      listing.condition  ?? (USED_PLATFORMS.has(listing.platformId) ? 'used' : 'new'),
           location:       listing.location   ?? null,
           updated_at:     now,
         }, { onConflict: 'product_id,merchant_id' })
