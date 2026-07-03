@@ -57,8 +57,6 @@ export function cleanProductName(name: string): string {
     .replace(/\[Pre.?Order\]\s*/gi, '')
     .replace(/\[Pengiriman[^\]]*\]\s*/gi, '')
     .replace(/\[.*?Official.*?\]\s*/gi, '')
-    // Remove all-caps promotional noise at the start (e.g. "WAJIB PUNYA")
-    .replace(/^(?:[A-Z ]{6,40})\s+/, '')
     // Clean excess whitespace and commas
     .replace(/\s*,\s*/g, ', ')
     .replace(/\s+/g, ' ')
