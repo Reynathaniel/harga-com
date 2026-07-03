@@ -278,6 +278,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                       </div>
                       <ProductLink
                         productId={product.id}
+                        offerId={listing.offerId}
                         url={listing.affiliateUrl}
                         platform={listing.platformId}
                         className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-white transition-opacity hover:opacity-85"
