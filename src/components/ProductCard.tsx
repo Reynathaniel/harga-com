@@ -8,6 +8,8 @@ import type { Product } from '@/lib/types'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent, cleanProductName } from '@/lib/utils'
 
+const PROPERTY_CATEGORIES = ['Rumah Bekas', 'Tanah Bekas']
+
 interface Props {
   product: Product
   compact?: boolean
@@ -39,6 +41,19 @@ export function ProductCard({ product, compact = false }: Props) {
   const cashbackPct = platform?.cashbackPct ?? 0
   const isUsed = cheapest.condition === 'used'
 
+  // Property-specific logic
+  const isProperty = PROPERTY_CATEGORIES.includes(product.category)
+  const specs = product.specifications as Record<string, string> | undefined
+  const landAreaStr = specs?.['Luas Tanah'] ?? ''
+  const buildingAreaStr = specs?.['Luas Bangunan'] ?? ''
+  const bedrooms = specs?.['Kamar Tidur'] ?? ''
+  const bathrooms = specs?.['Kamar Mandi'] ?? ''
+  const location = specs?.['Lokasi'] ?? cheapest.location ?? ''
+  const pricePerM2Raw = specs?.['Harga/m²'] ?? ''
+  const pricePerM2 = pricePerM2Raw ? parseInt(pricePerM2Raw, 10) : null
+  const isRumah = product.category === 'Rumah Bekas'
+  const isTanah = product.category === 'Tanah Bekas'
+
   const rawImg = product.images?.[0]
   const isValidImg = (
     !imgFailed &&
@@ -64,14 +79,14 @@ export function ProductCard({ product, compact = false }: Props) {
             src={imgSrc}
             alt={product.name}
             fill
-            className="object-contain p-3 transition-transform duration-300 group-hover:scale-[1.04]"
+            className={`transition-transform duration-300 group-hover:scale-[1.04] ${isProperty ? 'object-cover' : 'object-contain p-3'}`}
             onError={() => setImgFailed(true)}
             sizes="(max-width:640px)50vw,(max-width:1024px)33vw,20vw"
             unoptimized
           />
 
           {/* Discount badge */}
-          {savingsPct >= 5 && (
+          {savingsPct >= 5 && !isProperty && (
             <span
               className="absolute top-2 left-2 text-[9px] font-extrabold text-white px-1.5 py-[3px] rounded-lg leading-none"
               style={{ background: 'var(--win)' }}
@@ -80,15 +95,32 @@ export function ProductCard({ product, compact = false }: Props) {
             </span>
           )}
 
+          {/* Property category badge */}
+          {isProperty && (
+            <span
+              className="absolute top-2 left-2 text-[9px] font-bold text-white px-1.5 py-[3px] rounded-lg leading-none"
+              style={{ background: isRumah ? '#7c3aed' : '#059669' }}
+            >
+              {product.category}
+            </span>
+          )}
+
           {/* Bekas badge */}
-          {isUsed && (
+          {isUsed && !isProperty && (
             <span className="absolute top-2 right-2 text-[9px] font-bold bg-orange-400 text-white px-1.5 py-[3px] rounded-lg leading-none">
               BEKAS
             </span>
           )}
 
+          {/* Location for property */}
+          {isProperty && location && (
+            <span className="absolute bottom-2 left-2 text-[9px] font-medium bg-black/60 text-white px-1.5 py-[3px] rounded-md leading-none backdrop-blur-sm">
+              📍 {location}
+            </span>
+          )}
+
           {/* Multi-store pill */}
-          {sorted.length > 1 && (
+          {sorted.length > 1 && !isProperty && (
             <span className="absolute bottom-2 right-2 text-[9px] font-medium bg-[var(--bg-card)]/90 text-[var(--text-muted)] border border-[var(--border-subtle)] px-1.5 py-[3px] rounded-md backdrop-blur-sm">
               {sorted.length} toko
             </span>
@@ -97,7 +129,29 @@ export function ProductCard({ product, compact = false }: Props) {
 
         {/* ── Body ── */}
         <div className="p-3">
-          {product.brand && (
+          {/* Property: show area specs prominently before title */}
+          {isProperty && (landAreaStr || buildingAreaStr || bedrooms) && (
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-1.5">
+              {isRumah && buildingAreaStr && (
+                <span className="text-[10px] font-semibold text-[var(--text-secondary)]">
+                  LB {buildingAreaStr}
+                </span>
+              )}
+              {landAreaStr && (
+                <span className="text-[10px] font-semibold text-[var(--text-secondary)]">
+                  LT {landAreaStr}
+                </span>
+              )}
+              {bedrooms && (
+                <span className="text-[10px] text-[var(--text-muted)]">🛏 {bedrooms}KT</span>
+              )}
+              {bathrooms && (
+                <span className="text-[10px] text-[var(--text-muted)]">🚿 {bathrooms}KM</span>
+              )}
+            </div>
+          )}
+
+          {product.brand && !isProperty && (
             <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] truncate mb-0.5">
               {product.brand}
             </p>
@@ -107,16 +161,30 @@ export function ProductCard({ product, compact = false }: Props) {
           </p>
 
           {/* Price */}
-          <div className="flex items-baseline gap-1.5 mb-2.5">
+          <div className="flex items-baseline gap-1.5 mb-1.5">
             <span className="text-base font-bold" style={{ color: 'var(--brand)' }}>
               {formatRupiah(cheapest.price, true)}
             </span>
-            {cheapest.originalPrice && cheapest.discount && cheapest.discount > 0 && (
+            {cheapest.originalPrice && cheapest.discount && cheapest.discount > 0 && !isProperty && (
               <span className="text-[11px] text-[var(--text-muted)] line-through">
                 {formatRupiah(cheapest.originalPrice, true)}
               </span>
             )}
           </div>
+
+          {/* Price per m² for property — shown prominently */}
+          {isProperty && pricePerM2 && pricePerM2 > 0 && (
+            <div
+              className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-[3px] rounded mb-2"
+              style={{
+                color: '#7c3aed',
+                background: 'rgba(124,58,237,0.08)',
+                border: '1px solid rgba(124,58,237,0.15)',
+              }}
+            >
+              {formatRupiah(pricePerM2, true)}<span className="font-normal opacity-70">/m²</span>
+            </div>
+          )}
 
           {/* Platform row */}
           <div className="flex items-center justify-between">
@@ -140,8 +208,8 @@ export function ProductCard({ product, compact = false }: Props) {
             )}
           </div>
 
-          {/* Savings footer */}
-          {savings > 0 && !compact && (
+          {/* Savings footer — non-property only */}
+          {savings > 0 && !compact && !isProperty && (
             <div
               className="mt-2 pt-2 flex items-center gap-1"
               style={{ borderTop: '1px solid var(--border-subtle)' }}
