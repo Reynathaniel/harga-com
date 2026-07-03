@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getProductById, getProducts } from '@/lib/db/products'
 import { PLATFORMS } from '@/lib/platforms'
-import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
+import { formatRupiah, lowestListingFirst, priceDiffPercent, cleanProductName } from '@/lib/utils'
 import { PriceChart } from '@/components/PriceChart'
 import { ProductCard } from '@/components/ProductCard'
 import { PlatformBadge } from '@/components/PlatformBadge'
@@ -66,6 +66,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
   const activePlatforms = sorted.map(l => l.platformId) as PlatformId[]
   const cheapestPlatform = PLATFORMS[cheapest.platformId] ?? { name: cheapest.platformId, cashbackPct: 0, color: '#f59e0b' }
   const cashbackAmount = Math.round(cheapest.price * cheapestPlatform.cashbackPct / 100)
+  const displayName = cleanProductName(product.name)
 
   // Related products: same category, similar price range (20% - 500% of current), sorted by popularity
   // Avoid showing completely unrelated cheap items (e.g., Alibaba Rp 3rb when viewing iPhone)
@@ -87,8 +88,42 @@ export default async function ProductPage({ params }: { params: { id: string } }
     })
     .slice(0, 6)
 
+  // Build JSON-LD structured data for SEO (Product schema with multi-seller Offers)
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: displayName,
+    description: product.description || `Bandingkan harga ${displayName} dari ${sorted.length} platform marketplace Indonesia.`,
+    brand: product.brand ? { '@type': 'Brand', name: product.brand } : undefined,
+    image: product.images.filter(img => img.startsWith('http')),
+    ...(product.totalReviews > 0 && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: product.averageRating.toFixed(1),
+        reviewCount: product.totalReviews,
+        bestRating: '5',
+        worstRating: '1',
+      }
+    }),
+    offers: sorted.map(listing => ({
+      '@type': 'Offer',
+      url: listing.affiliateUrl || listing.url,
+      priceCurrency: 'IDR',
+      price: listing.price,
+      availability: 'https://schema.org/InStock',
+      seller: {
+        '@type': 'Organization',
+        name: PLATFORMS[listing.platformId]?.name ?? listing.platformId,
+      },
+    })),
+  }
+
   return (
     <div className="pt-[88px] min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="max-w-7xl mx-auto px-4 py-6">
 
         {/* Breadcrumb */}
@@ -152,7 +187,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
               )}
             </div>
 
-            <h1 className="text-xl font-bold text-[var(--text-primary)] mb-3 leading-tight">{product.name}</h1>
+            <h1 className="text-xl font-bold text-[var(--text-primary)] mb-3 leading-tight">{displayName}</h1>
 
             <div className="flex items-center gap-4 mb-4">
               <div className="flex items-center gap-1.5">
@@ -279,7 +314,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
             </div>
             <ProductActions
               productId={product.id}
-              productName={product.name}
+              productName={displayName}
               productImage={product.images[0] ?? ''}
               currentPrice={cheapest.price}
               cheapestPlatformId={cheapest.platformId}
