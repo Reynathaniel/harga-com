@@ -319,6 +319,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
             </div>
             <ProductActions
               productId={product.id}
+              productSlug={product.slug}
               productName={displayName}
               productImage={product.images[0] ?? ''}
               currentPrice={cheapest.price}
