@@ -288,16 +288,18 @@ async function saveListings(listings, category = null) {
 
       // Upsert listing (offer)
       await supabase
-        .from('listings')
+        .from('offers')
         .upsert({
           product_id: product.id,
           merchant_id: merchantId,
           price: l.price,
           original_price: l.originalPrice,
           discount_pct: l.discountPct,
-          product_url: l.productUrl,
+          url: l.productUrl,
           shop_name: l.shopName,
-          scraped_at: new Date().toISOString(),
+          in_stock: true,
+          condition: l.condition || 'used',
+          updated_at: new Date().toISOString(),
         }, { onConflict: 'product_id,merchant_id' })
 
       saved++
