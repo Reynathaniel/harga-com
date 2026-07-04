@@ -57,6 +57,10 @@ interface SearchPageProps {
     platform?: string
     condition?: string
     offset?: string
+    kt?: string       // kamar tidur (bedrooms min) for property
+    sert?: string     // sertifikat type for property
+    lt_min?: string   // luas tanah min (m²) for property
+    lt_max?: string   // luas tanah max (m²) for property
   }
 }
 
@@ -152,6 +156,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const offset   = searchParams.offset ? Number(searchParams.offset) : 0
   const PAGE_SIZE = 40
 
+  const kt      = searchParams.kt || ''
+  const sert    = searchParams.sert || ''
+  const ltMin   = searchParams.lt_min ? Number(searchParams.lt_min) : undefined
+  const ltMax   = searchParams.lt_max ? Number(searchParams.lt_max) : undefined
+
   const isVehicleCategory = VEHICLE_CATEGORIES.includes(category)
   const isPropertyCategory = PROPERTY_CATEGORIES.includes(category)
   const vehiclePlatformIds = new Set(PLATFORM_VEHICLE)
@@ -209,6 +218,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       min: searchParams.min,
       max: searchParams.max,
       offset: offset > 0 ? String(offset) : undefined,
+      kt: kt || undefined,
+      sert: sert || undefined,
+      lt_min: searchParams.lt_min,
+      lt_max: searchParams.lt_max,
       ...overrides,
     }
     Object.entries(base).forEach(([k, v]) => { if (v) params.set(k, v) })
@@ -406,6 +419,80 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 </div>
               )}
 
+              {isPropertyCategory && (
+                <>
+                  {/* Kamar Tidur filter */}
+                  <div>
+                    <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2.5">
+                      🛏 Kamar Tidur
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {['', '1', '2', '3', '4'].map(n => (
+                        <Link
+                          key={n}
+                          href={buildHref({ kt: n || undefined, offset: undefined })}
+                          className={'px-2.5 py-1 text-xs rounded-lg border transition-colors ' +
+                            (kt === n
+                              ? 'bg-amber-500/15 text-amber-400 border-amber-500/25 font-semibold'
+                              : 'text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]')}>
+                          {n === '' ? 'Semua' : n === '4' ? '4+' : n}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Luas Tanah filter */}
+                  <div>
+                    <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2.5">
+                      📐 Luas Tanah (m²)
+                    </div>
+                    <form action="/cari" method="get" className="flex gap-2 items-center">
+                      {query     && <input type="hidden" name="q"        value={query} />}
+                      {category  && <input type="hidden" name="kategori" value={category} />}
+                      {platform  && <input type="hidden" name="platform" value={platform} />}
+                      {condition && <input type="hidden" name="condition" value={condition} />}
+                      {kt        && <input type="hidden" name="kt"       value={kt} />}
+                      {sert      && <input type="hidden" name="sert"     value={sert} />}
+                      {sort !== 'lowest' && <input type="hidden" name="sort" value={sort} />}
+                      <input type="number" name="lt_min" defaultValue={searchParams.lt_min} placeholder="Min"
+                        className="flex-1 bg-[var(--bg-hover)] border border-[var(--border-subtle)] rounded-xl px-2 py-1.5 text-xs text-[var(--text-primary)] outline-none focus:border-amber-500/50 w-0 transition-colors" />
+                      <input type="number" name="lt_max" defaultValue={searchParams.lt_max} placeholder="Max"
+                        className="flex-1 bg-[var(--bg-hover)] border border-[var(--border-subtle)] rounded-xl px-2 py-1.5 text-xs text-[var(--text-primary)] outline-none focus:border-amber-500/50 w-0 transition-colors" />
+                      <button type="submit"
+                        className="shrink-0 px-2 py-1.5 text-[10px] font-bold rounded-xl bg-amber-500 text-white border-none cursor-pointer">
+                        OK
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Sertifikat filter */}
+                  <div>
+                    <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2.5">
+                      📜 Sertifikat
+                    </div>
+                    <div className="space-y-1">
+                      {[
+                        { value: '', label: 'Semua' },
+                        { value: 'SHM', label: 'SHM (Hak Milik)' },
+                        { value: 'HGB', label: 'HGB' },
+                        { value: 'SHGB', label: 'SHGB' },
+                        { value: 'AJB', label: 'AJB / Girik' },
+                      ].map(opt => (
+                        <Link
+                          key={opt.value}
+                          href={buildHref({ sert: opt.value || undefined, offset: undefined })}
+                          className={'block w-full text-left text-xs px-3 py-2 rounded-xl transition-colors ' +
+                            (sert === opt.value
+                              ? 'bg-amber-500/15 text-amber-400 border border-amber-500/25'
+                              : 'text-[var(--text-secondary)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]')}>
+                          {opt.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
               <div className="text-[10px] text-[var(--text-muted)] flex items-center gap-1.5 pt-1 border-t border-[var(--border-subtle)]">
                 <span className={'w-1.5 h-1.5 rounded-full shrink-0 ' + (source === 'supabase' ? 'bg-green-400' : 'bg-amber-400')} />
                 {source === 'supabase' ? 'Harga diperbarui otomatis' : 'Mode demo'}
@@ -417,7 +504,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <div className="flex-1 min-w-0">
 
             {/* Active filter pills */}
-            {(activePlatform || activeCategory || minPrice !== undefined) && (
+            {(activePlatform || activeCategory || minPrice !== undefined || kt || sert || ltMin !== undefined) && (
               <div className="flex items-center gap-2 flex-wrap mb-4">
                 <span className="text-xs text-[var(--text-muted)]">Filter aktif:</span>
                 {activePlatform && (
@@ -438,6 +525,24 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-[var(--bg-hover)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
                     {formatRupiah(minPrice, true)} - {formatRupiah(maxPrice, true)}
                     <Link href={buildHref({ min: undefined, max: undefined })} className="ml-0.5 opacity-70 hover:opacity-100 leading-none">x</Link>
+                  </span>
+                )}
+                {kt && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25">
+                    🛏 {kt === '4' ? '4+' : kt} KT
+                    <Link href={buildHref({ kt: undefined })} className="ml-0.5 opacity-70 hover:opacity-100 leading-none">x</Link>
+                  </span>
+                )}
+                {sert && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25">
+                    📜 {sert}
+                    <Link href={buildHref({ sert: undefined })} className="ml-0.5 opacity-70 hover:opacity-100 leading-none">x</Link>
+                  </span>
+                )}
+                {ltMin !== undefined && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-[var(--bg-hover)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
+                    📐 {ltMin}–{ltMax ?? '∞'} m²
+                    <Link href={buildHref({ lt_min: undefined, lt_max: undefined })} className="ml-0.5 opacity-70 hover:opacity-100 leading-none">x</Link>
                   </span>
                 )}
               </div>
