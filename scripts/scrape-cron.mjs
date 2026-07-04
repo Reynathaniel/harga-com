@@ -33,6 +33,30 @@ const OLX_PROPERTY_CATEGORIES = {
   'Tanah Bekas': '5159',
 }
 
+
+// Vehicle keyword queries — rotate each run
+const MOTOR_QUERIES = [
+  { q: 'honda beat bekas', brand: 'Honda',    category: 'Motor Bekas' },
+  { q: 'yamaha nmax bekas', brand: 'Yamaha',  category: 'Motor Bekas' },
+  { q: 'honda vario bekas', brand: 'Honda',   category: 'Motor Bekas' },
+  { q: 'yamaha aerox bekas', brand: 'Yamaha', category: 'Motor Bekas' },
+  { q: 'honda pcx bekas', brand: 'Honda',     category: 'Motor Bekas' },
+  { q: 'kawasaki ninja bekas', brand: 'Kawasaki', category: 'Motor Bekas' },
+]
+
+const MOBIL_QUERIES = [
+  { q: 'toyota avanza bekas', brand: 'Toyota',   category: 'Mobil Bekas' },
+  { q: 'honda brio bekas', brand: 'Honda',        category: 'Mobil Bekas' },
+  { q: 'daihatsu xenia bekas', brand: 'Daihatsu', category: 'Mobil Bekas' },
+  { q: 'toyota kijang bekas', brand: 'Toyota',    category: 'Mobil Bekas' },
+  { q: 'honda hrv bekas', brand: 'Honda',         category: 'Mobil Bekas' },
+  { q: 'suzuki ertiga bekas', brand: 'Suzuki',    category: 'Mobil Bekas' },
+]
+
+// Each run picks 2 motor + 2 mobil queries by hour
+const MOTOR_BATCH = MOTOR_QUERIES.slice((HOUR % 3) * 2, (HOUR % 3) * 2 + 2)
+const MOBIL_BATCH = MOBIL_QUERIES.slice((HOUR % 3) * 2, (HOUR % 3) * 2 + 2)
+
 // Rotate queries each run based on hour
 const ALL_QUERIES = [
   'iPhone 15', 'Samsung Galaxy', 'laptop gaming', 'AirPods',
@@ -262,7 +286,7 @@ function slugify(text) {
   return text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim().slice(0, 100)
 }
 
-async function saveListings(listings, category = null) {
+async function saveListings(listings, category = null, brandOverride = null) {
   let saved = 0
   for (const l of listings) {
     try {
@@ -275,6 +299,7 @@ async function saveListings(listings, category = null) {
         name: l.title,
         image_url: l.imageUrl,
         condition: l.condition ?? 'new',
+        brand: brandOverride || l.brand || null,
       }
       if (category || l.category) productData.category = category || l.category
 
@@ -352,6 +377,27 @@ async function main() {
     }
 
     await new Promise(r => setTimeout(r, 2000))
+  }
+
+  // Motor Bekas + Mobil Bekas keyword scraping
+  console.log('\n── Vehicle Categories ─────────────────────────────────────')
+  for (const vq of [...MOTOR_BATCH, ...MOBIL_BATCH]) {
+    console.log(`\nScraping vehicle: "${vq.q}"`)
+    const [toko, shopee] = await Promise.all([
+      scrapeTokopedia(vq.q, 20),
+      scrapeShopee(vq.q, 20),
+    ])
+    // Only keep listings with 'bekas' in title (filter out accessories)
+    const vehicleListings = [...toko, ...shopee].filter(l =>
+      l.title && l.title.toLowerCase().includes('bekas') && l.price > 1_000_000
+    ).map(l => ({ ...l, condition: 'used' }))
+    console.log(`  vehicle listings: ${vehicleListings.length}/${toko.length+shopee.length}`)
+    if (vehicleListings.length > 0) {
+      const saved = await saveListings(vehicleListings, vq.category, vq.brand)
+      totalSaved += saved
+      console.log(`  Saved: ${saved}`)
+    }
+    await new Promise(r => setTimeout(r, 1500))
   }
 
   console.log(`\nDone. Total saved: ${totalSaved}`)
