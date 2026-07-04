@@ -51,6 +51,8 @@ export function ProductCard({ product, compact = false }: Props) {
   const location = specs?.['Lokasi'] ?? ''
   const pricePerM2Raw = specs?.['Harga/m²'] ?? ''
   const pricePerM2 = pricePerM2Raw ? parseInt(pricePerM2Raw, 10) : null
+  const certificate = specs?.['Sertifikat'] ?? ''
+  const floors = specs?.['Jumlah Lantai'] ?? ''
   const isRumah = product.category === 'Rumah Bekas'
   const isTanah = product.category === 'Tanah Bekas'
 
@@ -183,6 +185,29 @@ export function ProductCard({ product, compact = false }: Props) {
               }}
             >
               {formatRupiah(pricePerM2, true)}<span className="font-normal opacity-70">/m²</span>
+            </div>
+          )}
+
+          {/* Property detail badges: certificate + floors */}
+          {isProperty && (certificate || floors) && (
+            <div className="flex flex-wrap gap-1 mb-2">
+              {certificate && (
+                <span
+                  className="inline-flex items-center text-[9px] font-bold px-1.5 py-[3px] rounded"
+                  style={{
+                    color: isRumah ? '#7c3aed' : '#059669',
+                    background: isRumah ? 'rgba(124,58,237,0.08)' : 'rgba(5,150,105,0.08)',
+                    border: `1px solid ${isRumah ? 'rgba(124,58,237,0.2)' : 'rgba(5,150,105,0.2)'}`,
+                  }}
+                >
+                  📜 {certificate}
+                </span>
+              )}
+              {floors && isRumah && (
+                <span className="inline-flex items-center text-[9px] font-medium px-1.5 py-[3px] rounded bg-[var(--bg-hover)] border border-[var(--border-subtle)] text-[var(--text-muted)]">
+                  {floors} lt
+                </span>
+              )}
             </div>
           )}
 
