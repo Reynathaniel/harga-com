@@ -9,6 +9,7 @@ import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent, cleanProductName } from '@/lib/utils'
 
 const PROPERTY_CATEGORIES = ['Rumah Bekas', 'Tanah Bekas']
+const INT32_MAX = 2147483647
 
 interface Props {
   product: Product
@@ -34,9 +35,10 @@ export function ProductCard({ product, compact = false }: Props) {
     )
   }
 
+  const isNego = cheapest.price === INT32_MAX
   const mostExpensive = sorted[sorted.length - 1]
-  const savings = mostExpensive.price - cheapest.price
-  const savingsPct = priceDiffPercent(cheapest.price, mostExpensive.price)
+  const savings = isNego ? 0 : mostExpensive.price - cheapest.price
+  const savingsPct = isNego ? 0 : priceDiffPercent(cheapest.price, mostExpensive.price)
   const platform = PLATFORMS[cheapest.platformId]
   const cashbackPct = platform?.cashbackPct ?? 0
   const isUsed = cheapest.condition === 'used'
@@ -44,17 +46,28 @@ export function ProductCard({ product, compact = false }: Props) {
   // Property-specific logic
   const isProperty = PROPERTY_CATEGORIES.includes(product.category)
   const specs = product.specifications as Record<string, string> | undefined
-  const landAreaStr = specs?.['Luas Tanah'] ?? ''
-  const buildingAreaStr = specs?.['Luas Bangunan'] ?? ''
-  const bedrooms = specs?.['Kamar Tidur'] ?? ''
-  const bathrooms = specs?.['Kamar Mandi'] ?? ''
-  const location = specs?.['Lokasi'] ?? ''
-  const pricePerM2Raw = specs?.['Harga/m²'] ?? ''
-  const pricePerM2 = pricePerM2Raw ? parseInt(pricePerM2Raw, 10) : null
-  const certificate = specs?.['Sertifikat'] ?? ''
-  const floors = specs?.['Jumlah Lantai'] ?? ''
+  const landAreaStr = specs?.['land_area_m2'] ?? ''
+  const buildingAreaStr = specs?.['building_area_m2'] ?? ''
+  const bedrooms = specs?.['bedrooms'] ?? ''
+  const bathrooms = specs?.['bathrooms'] ?? ''
+  const city = specs?.['city_detail'] || specs?.['city'] || ''
+  const certificate = specs?.['certificate'] ?? ''
+  const floors = specs?.['floors'] ?? ''
   const isRumah = product.category === 'Rumah Bekas'
   const isTanah = product.category === 'Tanah Bekas'
+
+  // Calculate price per m² from actual price (not stored spec)
+  const landArea = landAreaStr ? parseFloat(landAreaStr) : null
+  const buildingArea = buildingAreaStr ? parseFloat(buildingAreaStr) : null
+  let pricePerM2: number | null = null
+  if (!isNego && isProperty) {
+    if (isTanah && landArea) {
+      pricePerM2 = cheapest.price / landArea
+    } else if (isRumah) {
+      if (buildingArea) pricePerM2 = cheapest.price / buildingArea
+      else if (landArea) pricePerM2 = cheapest.price / landArea
+    }
+  }
 
   const rawImg = product.images?.[0]
   const isValidImg = (
@@ -107,17 +120,17 @@ export function ProductCard({ product, compact = false }: Props) {
             </span>
           )}
 
-          {/* Bekas badge */}
+          {/* Bekas badge — hidden for property */}
           {isUsed && !isProperty && (
             <span className="absolute top-2 right-2 text-[9px] font-bold bg-orange-400 text-white px-1.5 py-[3px] rounded-lg leading-none">
               BEKAS
             </span>
           )}
 
-          {/* Location for property */}
-          {isProperty && location && (
+          {/* Location overlay for property */}
+          {isProperty && city && (
             <span className="absolute bottom-2 left-2 text-[9px] font-medium bg-black/60 text-white px-1.5 py-[3px] rounded-md leading-none backdrop-blur-sm">
-              📍 {location}
+              📍 {city}
             </span>
           )}
 
@@ -131,8 +144,8 @@ export function ProductCard({ product, compact = false }: Props) {
 
         {/* ── Body ── */}
         <div className="p-3">
-          {/* Property: show area specs prominently before title */}
-          {isProperty && (landAreaStr || buildingAreaStr || bedrooms) && (
+          {/* Property: specs row before title */}
+          {isProperty && (landAreaStr || buildingAreaStr || bedrooms || floors) && (
             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-1.5">
               {isRumah && buildingAreaStr && (
                 <span className="text-[10px] font-semibold text-[var(--text-secondary)]">
@@ -145,10 +158,13 @@ export function ProductCard({ product, compact = false }: Props) {
                 </span>
               )}
               {bedrooms && (
-                <span className="text-[10px] text-[var(--text-muted)]">🛏 {bedrooms}KT</span>
+                <span className="text-[10px] text-[var(--text-muted)]">🛏 {bedrooms} KT</span>
               )}
               {bathrooms && (
-                <span className="text-[10px] text-[var(--text-muted)]">🚿 {bathrooms}KM</span>
+                <span className="text-[10px] text-[var(--text-muted)]">🚿 {bathrooms} KM</span>
+              )}
+              {floors && isRumah && (
+                <span className="text-[10px] text-[var(--text-muted)]">{floors} Lantai</span>
               )}
             </div>
           )}
@@ -162,19 +178,27 @@ export function ProductCard({ product, compact = false }: Props) {
             {cleanProductName(product.name)}
           </p>
 
-          {/* Price */}
+          {/* Price — shows "Harga Nego" for INT32_MAX */}
           <div className="flex items-baseline gap-1.5 mb-1.5">
-            <span className="text-base font-bold" style={{ color: 'var(--brand)' }}>
-              {formatRupiah(cheapest.price, true)}
-            </span>
-            {cheapest.originalPrice && cheapest.discount && cheapest.discount > 0 && !isProperty && (
-              <span className="text-[11px] text-[var(--text-muted)] line-through">
-                {formatRupiah(cheapest.originalPrice, true)}
+            {isNego ? (
+              <span className="text-base font-bold text-orange-500">
+                Harga Nego
               </span>
+            ) : (
+              <>
+                <span className="text-base font-bold" style={{ color: 'var(--brand)' }}>
+                  {formatRupiah(cheapest.price, true)}
+                </span>
+                {cheapest.originalPrice && cheapest.discount && cheapest.discount > 0 && !isProperty && (
+                  <span className="text-[11px] text-[var(--text-muted)] line-through">
+                    {formatRupiah(cheapest.originalPrice, true)}
+                  </span>
+                )}
+              </>
             )}
           </div>
 
-          {/* Price per m² for property — shown prominently */}
+          {/* Price per m² — calculated from price ÷ area */}
           {isProperty && pricePerM2 && pricePerM2 > 0 && (
             <div
               className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-[3px] rounded mb-2"
@@ -188,26 +212,19 @@ export function ProductCard({ product, compact = false }: Props) {
             </div>
           )}
 
-          {/* Property detail badges: certificate + floors */}
-          {isProperty && (certificate || floors) && (
+          {/* Certificate badge */}
+          {isProperty && certificate && (
             <div className="flex flex-wrap gap-1 mb-2">
-              {certificate && (
-                <span
-                  className="inline-flex items-center text-[9px] font-bold px-1.5 py-[3px] rounded"
-                  style={{
-                    color: isRumah ? '#7c3aed' : '#059669',
-                    background: isRumah ? 'rgba(124,58,237,0.08)' : 'rgba(5,150,105,0.08)',
-                    border: `1px solid ${isRumah ? 'rgba(124,58,237,0.2)' : 'rgba(5,150,105,0.2)'}`,
-                  }}
-                >
-                  📜 {certificate}
-                </span>
-              )}
-              {floors && isRumah && (
-                <span className="inline-flex items-center text-[9px] font-medium px-1.5 py-[3px] rounded bg-[var(--bg-hover)] border border-[var(--border-subtle)] text-[var(--text-muted)]">
-                  {floors} lt
-                </span>
-              )}
+              <span
+                className="inline-flex items-center text-[9px] font-bold px-1.5 py-[3px] rounded"
+                style={{
+                  color: '#059669',
+                  background: 'rgba(5,150,105,0.08)',
+                  border: '1px solid rgba(5,150,105,0.2)',
+                }}
+              >
+                📜 {certificate}
+              </span>
             </div>
           )}
 
