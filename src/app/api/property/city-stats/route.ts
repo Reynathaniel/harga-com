@@ -3,7 +3,7 @@ import { tryGetServerClient } from '@/lib/supabase'
 
 export const revalidate = 3600 // 1 hour cache
 
-// Map URL slug or label → DB category label
+// Map URL slug or label â DB category label
 const CATEGORY_MAP: Record<string, string> = {
   'rumah-bekas':  'Rumah Bekas',
   'tanah-bekas':  'Tanah Bekas',
@@ -82,7 +82,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ category: dbCategory, stats: [] })
     }
 
-    const data = rawData as ProductWithOffer[]
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const data: ProductWithOffer[] = Array.isArray(rawData) ? rawData : []
 
     const cityMap: Record<string, {
       pricesPerM2Land: number[]
