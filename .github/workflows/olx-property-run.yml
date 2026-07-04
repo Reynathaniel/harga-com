@@ -1,0 +1,192 @@
+name: OLX Property Bulk Run
+
+on:
+  workflow_dispatch:
+
+jobs:
+  scrape-olx:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Scrape OLX Properties and save to Supabase
+        env:
+          SUPABASE_URL: "https://rtdbfbmbvuqentvxcstf.supabase.co"
+          SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0ZGJmYm1idnVxZW50dnhjc3RmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDU5OTgxNSwiZXhwIjoyMDk2MTc1ODE1fQ.akhrx9ql6y3WPfkYY2EJTUvXVByjBjfBT8SxM6dniuI"
+          MERCHANT_ID: "00000000-0000-0000-0000-000000000011"
+        run: |
+          python3 << 'PYEOF'
+          import os, sys, time, json, re, unicodedata, requests
+
+          SUPABASE_URL = os.environ["SUPABASE_URL"]
+          SUPABASE_KEY = os.environ["SUPABASE_KEY"]
+          MERCHANT_ID  = os.environ["MERCHANT_ID"]
+
+          SB_HEADERS = {
+              "apikey":        SUPABASE_KEY,
+              "Authorization": f"Bearer {SUPABASE_KEY}",
+              "Content-Type":  "application/json",
+              "Prefer":        "resolution=merge-duplicates",
+          }
+
+          OLX_HEADERS = {
+              "User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+              "Accept":          "application/json",
+              "Accept-Language": "id-ID,id;q=0.9,en-US;q=0.8",
+              "Referer":         "https://www.olx.co.id",
+          }
+
+          CATEGORIES = [
+              {"id": 5158, "name": "Rumah Bekas"},
+              {"id": 5159, "name": "Tanah Bekas"},
+          ]
+
+          def get_param(params, key):
+              for p in (params or []):
+                  if p.get("key") == key:
+                      return p.get("value")
+              return None
+
+          def to_int_safe(val):
+              if val is None: return None
+              try: return int(re.sub(r"\D", "", str(val))) or None
+              except: return None
+
+          def fetch_page(cat_id, page, size=40):
+              url = f"https://www.olx.co.id/api/relevance/v4/search?category_id={cat_id}&page={page}&size={size}"
+              try:
+                  r = requests.get(url, headers=OLX_HEADERS, timeout=30)
+                  r.raise_for_status()
+                  return r.json().get("data", [])
+              except Exception as e:
+                  print(f"  [ERR] page={page} cat={cat_id}: {e}")
+                  return []
+
+          def upsert_product(slug, name, category, images, specs):
+              image_url = images[0] if images else None
+              payload = {
+                  "slug":        slug,
+                  "name":        name,
+                  "brand":       "OLX",
+                  "category":    category,
+                  "image_url":   image_url,
+                  "images":      images,
+                  "specifications": specs,
+                  "description": f"Properti {category} - listing dari OLX Indonesia",
+                  "tags":        ["properti", "olx", category.lower().replace(" ", "-")],
+              }
+              r = requests.post(
+                  f"{SUPABASE_URL}/rest/v1/products",
+                  headers=SB_HEADERS, json=payload,
+              )
+              if r.status_code not in (200, 201):
+                  print(f"  [WARN] product upsert {r.status_code}: {r.text[:120]}")
+                  return None
+              # fetch back by slug
+              r2 = requests.get(
+                  f"{SUPABASE_URL}/rest/v1/products?slug=eq.{slug}&select=id",
+                  headers=SB_HEADERS,
+              )
+              rows = r2.json()
+              return rows[0]["id"] if rows else None
+
+          def upsert_offer(product_id, price, url):
+              payload = {
+                  "product_id":  product_id,
+                  "merchant_id": MERCHANT_ID,
+                  "price":       price,
+                  "url":         url,
+                  "condition":   "used",
+                  "in_stock":    True,
+              }
+              r = requests.post(
+                  f"{SUPABASE_URL}/rest/v1/offers",
+                  headers={**SB_HEADERS, "Prefer": "resolution=merge-duplicates"},
+                  json=payload,
+              )
+              if r.status_code not in (200, 201):
+                  print(f"  [WARN] offer upsert {r.status_code}: {r.text[:120]}")
+
+          def process(item, category):
+              ad_id = str(item.get("id", ""))
+              title = (item.get("title") or "").strip()
+              if not ad_id or not title:
+                  return False
+
+              # Price (nested: price.value.raw)
+              price_raw = None
+              pv = item.get("price", {}).get("value", {})
+              if isinstance(pv, dict):
+                  price_raw = pv.get("raw")
+              elif isinstance(pv, (int, float)):
+                  price_raw = pv
+              if not price_raw or price_raw <= 0 or price_raw > 2_000_000_000:
+                  return False
+
+              # Images
+              images = []
+              main = item.get("mainImage", {})
+              if main and main.get("id"):
+                  images.append(f"https://apollo.olx.co.id/v1/files/{main['id']}-ID/image;s=644x461")
+              for img in (item.get("images") or []):
+                  fid = img.get("id")
+                  if fid:
+                      u = f"https://apollo.olx.co.id/v1/files/{fid}-ID/image;s=644x461"
+                      if u not in images:
+                          images.append(u)
+              if not images:
+                  return False
+
+              # Location
+              loc  = item.get("location", {})
+              city = loc.get("city", {}).get("name") or loc.get("city_name") or ""
+
+              # Parameters
+              params    = item.get("parameters", [])
+              bedrooms  = to_int_safe(get_param(params, "rooms"))
+              bathrooms = to_int_safe(get_param(params, "bathroom_num"))
+              land_area = to_int_safe(get_param(params, "land_area"))
+              bldg_area = to_int_safe(get_param(params, "building_area"))
+              cert      = get_param(params, "furnishing_c") or get_param(params, "certificate")
+
+              slug  = f"olx-prop-{ad_id}"
+              specs = {
+                  "city":             city,
+                  "land_area_m2":     str(land_area) if land_area else None,
+                  "building_area_m2": str(bldg_area)  if bldg_area else None,
+                  "bedrooms":         str(bedrooms)   if bedrooms  else None,
+                  "bathrooms":        str(bathrooms)  if bathrooms else None,
+                  "certificate":      cert,
+                  "olx_ad_id":        ad_id,
+                  "property_type":    category.split()[0],
+              }
+
+              product_id = upsert_product(slug, title, category, images, specs)
+              if not product_id:
+                  return False
+
+              url = item.get("url") or f"https://www.olx.co.id/item/{ad_id}"
+              upsert_offer(product_id, int(price_raw), url)
+              return True
+
+          total = {}
+          for cat in CATEGORIES:
+              print(f"\n=== {cat['name']} (cat_id={cat['id']}) ===")
+              saved = 0
+              for page in range(1, 6):
+                  print(f"  page {page}...", end=" ", flush=True)
+                  items = fetch_page(cat["id"], page, size=40)
+                  if not items:
+                      print("empty, stopping")
+                      break
+                  page_saved = sum(1 for it in items if process(it, cat["name"]))
+                  saved += page_saved
+                  print(f"{len(items)} fetched, {page_saved} saved (running total: {saved})")
+                  time.sleep(2.5)
+              total[cat["name"]] = saved
+              print(f"  => {cat['name']}: {saved} saved")
+
+          print("\n===== FINAL RESULTS =====")
+          for k, v in total.items():
+              print(f"  {k}: {v}")
+          PYEOF
