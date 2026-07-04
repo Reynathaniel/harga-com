@@ -61,7 +61,9 @@ interface SearchPageProps {
     kt?: string       // kamar tidur (bedrooms min) for property
     sert?: string     // sertifikat type for property
     lt_min?: string   // luas tanah min (m²) for property
-    lt_max?: string   // luas tanah max (m²) for property
+    lt_max?: string
+    merk?: string
+    kota?: string   // luas tanah max (m²) for property
   }
 }
 
@@ -156,11 +158,16 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const maxPrice = searchParams.max ? Number(searchParams.max) : undefined
   const offset   = searchParams.offset ? Number(searchParams.offset) : 0
   const PAGE_SIZE = 40
+  const MOTOR_BRANDS = ['Honda', 'Yamaha', 'Kawasaki', 'Suzuki', 'Vespa', 'Royal Enfield']
+  const MOBIL_BRANDS = ['Toyota', 'Honda', 'Daihatsu', 'Suzuki', 'Mitsubishi', 'Wuling', 'Nissan', 'Hyundai']
+  const KOTA_LIST = ['Jakarta', 'Bandung', 'Surabaya', 'Bekasi', 'Tangerang', 'Depok', 'Bogor', 'Semarang', 'Yogyakarta', 'Medan', 'Makassar', 'Bali']
 
   const kt      = searchParams.kt || ''
   const sert    = searchParams.sert || ''
   const ltMin   = searchParams.lt_min ? Number(searchParams.lt_min) : undefined
   const ltMax   = searchParams.lt_max ? Number(searchParams.lt_max) : undefined
+  const merk     = searchParams.merk || ''
+  const kota     = searchParams.kota || ''
 
   const isVehicleCategory = VEHICLE_CATEGORIES.includes(category)
   const isPropertyCategory = PROPERTY_CATEGORIES.includes(category)
@@ -178,6 +185,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       sort,
       limit: PAGE_SIZE,
       offset,
+      merk: merk || undefined,
+      kota: kota || undefined,
     }),
     getCategories(),
     getRealPriceDropCount(),
@@ -223,6 +232,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       sert: sert || undefined,
       lt_min: searchParams.lt_min,
       lt_max: searchParams.lt_max,
+      merk: merk || undefined,
+      kota: kota || undefined,
       ...overrides,
     }
     Object.entries(base).forEach(([k, v]) => { if (v) params.set(k, v) })
@@ -505,7 +516,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <div className="flex-1 min-w-0">
 
             {/* Active filter pills */}
-            {(activePlatform || activeCategory || minPrice !== undefined || kt || sert || ltMin !== undefined) && (
+            {(activePlatform || activeCategory || minPrice !== undefined || kt || sert || ltMin !== undefined || merk || kota) && (
               <div className="flex items-center gap-2 flex-wrap mb-4">
                 <span className="text-xs text-[var(--text-muted)]">Filter aktif:</span>
                 {activePlatform && (
@@ -540,6 +551,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     <Link href={buildHref({ sert: undefined })} className="ml-0.5 opacity-70 hover:opacity-100 leading-none">x</Link>
                   </span>
                 )}
+                {merk && (<span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25">🏷️ {merk}<Link href={buildHref({ merk: undefined })} className="ml-0.5 opacity-70 hover:opacity-100 leading-none">x</Link></span>)}
+                {kota && (<span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25">📍 {kota}<Link href={buildHref({ kota: undefined })} className="ml-0.5 opacity-70 hover:opacity-100 leading-none">x</Link></span>)}
                 {ltMin !== undefined && (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-[var(--bg-hover)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
                     📐 {ltMin}–{ltMax ?? '∞'} m²
