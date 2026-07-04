@@ -22,7 +22,7 @@ function sanitizeSearchQuery(q: string): string {
   return q.trim().slice(0, 200).replace(/[<>{}]/g, '')
 }
 
-// Map category URL id → DB label
+// Map category URL id â DB label
 const CATEGORY_ID_TO_LABEL: Record<string, string> = {
   'elektronik':   'Elektronik',
   'fashion':      'Fashion',
@@ -49,6 +49,9 @@ export interface GetProductsOptions {
   sort?:     'lowest' | 'highest' | 'rating' | 'popular' | 'newest'
   limit?:    number
   offset?:   number
+  condition?: 'new' | 'used'
+  merk?:      string
+  kota?:      string
 }
 
 export interface ProductsResult {
@@ -57,7 +60,7 @@ export interface ProductsResult {
   source: 'supabase' | 'mock'
 }
 
-// enrichProductWithOffers — fetch offers for a product and build the full Product object
+// enrichProductWithOffers â fetch offers for a product and build the full Product object
 
 async function enrichProductWithOffers(
   db: ReturnType<typeof tryGetServerClient>,
@@ -82,7 +85,7 @@ async function enrichProductWithOffers(
   return adaptDbProductToAppProduct(product, offers, realHistory)
 }
 
-// batchEnrichProducts — fetch all offers for multiple products in one query
+// batchEnrichProducts â fetch all offers for multiple products in one query
 async function batchEnrichProducts(
   db: ReturnType<typeof tryGetServerClient>,
   rows: ProductRow[]
@@ -119,6 +122,9 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
     sort = 'lowest',
     limit = 40,
     offset = 0,
+    condition,
+    merk,
+    kota,
   } = opts
 
   const query = sanitizeSearchQuery(rawQuery)
@@ -147,9 +153,9 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
       const dbCatLabel = category ? (CATEGORY_ID_TO_LABEL[category] ?? category) : ''
       const isVehicleCat = dbCatLabel && VEHICLE_DB_CATEGORIES.includes(dbCatLabel)
       // Determine which platform IDs to filter to:
-      //   - explicit platform param → [platform]
-      //   - vehicle category, no platform → all VEHICLE_PLATFORM_IDS
-      //   - otherwise → no platform restriction
+      //   - explicit platform param â [platform]
+      //   - vehicle category, no platform â all VEHICLE_PLATFORM_IDS
+      //   - otherwise â no platform restriction
       const effectivePlatformIds: string[] | null = platform
         ? [platform]
         : isVehicleCat ? VEHICLE_PLATFORM_IDS : null
@@ -326,7 +332,7 @@ export async function getCategories() {
   return CATEGORIES
 }
 
-// getPromoProducts — returns products with the highest discount_pct offers
+// getPromoProducts â returns products with the highest discount_pct offers
 
 export async function getPromoProducts(limit = 8): Promise<Product[]> {
   const db = tryGetServerClient()
