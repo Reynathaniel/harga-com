@@ -46,6 +46,7 @@ import { formatRupiah } from '@/lib/utils'
 import { tryGetServerClient } from '@/lib/supabase'
 import { SlidersHorizontal, TrendingDown, Package, Sparkles, Search, Clock, Car } from 'lucide-react'
 import Link from 'next/link'
+import { PropertyCityStats } from '@/components/PropertyCityStats'
 
 interface SearchPageProps {
   searchParams: {
@@ -603,6 +604,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <EmptyState query={query} isVehicle={isVehicleCategory} />
             )}
 
+
+            {/* City price comparison for property categories */}
+            {(category === 'rumah-bekas' || category === 'tanah-bekas') && (
+              <PropertyCityStats category={category} />
+            )}
+
             {/* Pagination */}
             <div className="flex items-center justify-between mt-10 gap-4 flex-wrap">
               {offset > 0 && (
@@ -626,3 +633,4 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     </div>
   )
 }
+
