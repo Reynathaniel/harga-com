@@ -6,9 +6,10 @@ import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react'
 interface Props {
   images: string[]
   alt: string
+  objectFit?: 'contain' | 'cover'
 }
 
-export function ImageGallery({ images, alt }: Props) {
+export function ImageGallery({ images, alt, objectFit = 'contain' }: Props) {
   const [active, setActive] = useState(0)
   const [failed, setFailed] = useState<Record<number, boolean>>({})
   const [zoomed, setZoomed] = useState(false)
@@ -23,6 +24,10 @@ export function ImageGallery({ images, alt }: Props) {
 
   const handleErr = (i: number) => setFailed(f => ({ ...f, [i]: true }))
 
+  const mainImgClass = objectFit === 'cover'
+    ? 'object-cover transition-opacity duration-200'
+    : 'object-contain p-6 transition-opacity duration-200'
+
   return (
     <>
       {/* Main image */}
@@ -31,7 +36,7 @@ export function ImageGallery({ images, alt }: Props) {
           src={src(active)}
           alt={alt}
           fill
-          className="object-contain p-6 transition-opacity duration-200"
+          className={mainImgClass}
           onError={() => handleErr(active)}
           priority
           unoptimized
