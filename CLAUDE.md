@@ -40,14 +40,46 @@ The canonical app type is `Product` in `src/lib/types.ts`. DB rows are converted
 
 | Table | Purpose |
 |-------|---------|
-| `products` | 1,978 rows — name, slug, category, brand, images (Elektronik: 1,210, Fashion: 212, Rumah Tangga: 195, Kecantikan: 86, Gaming: 84, Mobil Bekas: 81, Motor Bekas: 59, Olahraga: 31, Lainnya: 20) |
-| `offers` | 17,560 active rows — product_id, merchant_id, price, discount_pct, free_shipping, shop_verified |
-| `merchants` | 17 rows — one per platform (tokopedia, shopee, lazada, …, carsome, mobil123, oto, momobil, belanjakendaraan) |
+| `products` | ~2,000+ rows — name, slug, category, brand, images; categories include Elektronik, Fashion, Rumah Tangga, Kecantikan, Gaming, Mobil Bekas, Motor Bekas, Rumah Bekas, Tanah Bekas, Olahraga, Lainnya |
+| `offers` | ~16,000+ active rows — product_id, merchant_id, price, discount_pct, free_shipping, shop_verified |
+| `merchants` | 17 rows — one per platform (see merchant IDs below) |
 | `price_history` | offer_id, price, recorded_at — appended each scrape run |
 | `price_alerts` | query, email, target_price, notify_type, active, created_at — user price alert subscriptions |
 | `products_with_best_offer` | DB view used for product listing queries |
 
-Merchant UUIDs are hardcoded in `src/lib/db/scraper-save.ts` (seeded deterministically: `00000000-0000-0000-0000-00000000000{1-17}`).
+### Merchant UUIDs (all 17)
+
+| Platform | UUID |
+|----------|------|
+| tokopedia | `00000000-0000-0000-0000-000000000001` |
+| shopee | `00000000-0000-0000-0000-000000000002` |
+| lazada | `00000000-0000-0000-0000-000000000003` |
+| bukalapak | `00000000-0000-0000-0000-000000000004` |
+| blibli | `00000000-0000-0000-0000-000000000005` |
+| tiktok | `00000000-0000-0000-0000-000000000006` |
+| amazon | `00000000-0000-0000-0000-000000000007` |
+| aliexpress | `00000000-0000-0000-0000-000000000008` |
+| alibaba | `00000000-0000-0000-0000-000000000009` |
+| jd | `00000000-0000-0000-0000-000000000010` |
+| olx | `00000000-0000-0000-0000-000000000011` |
+| carousell | `00000000-0000-0000-0000-000000000012` |
+| carsome | `00000000-0000-0000-0000-000000000013` |
+| mobil123 | `00000000-0000-0000-0000-000000000014` |
+| momobil | `00000000-0000-0000-0000-000000000015` |
+| oto | `00000000-0000-0000-0000-000000000016` |
+| belanjamobil | `00000000-0000-0000-0000-000000000017` |
+
+Hardcoded in `src/lib/db/scraper-save.ts` (seeded deterministically).
+
+### Product categories
+
+| Category | Platform(s) | Notes |
+|----------|-------------|-------|
+| Elektronik, Fashion, Rumah Tangga, Kecantikan, Gaming, Olahraga | Tokopedia, Shopee, Bukalapak, Blibli, etc. | Regular marketplace products |
+| Mobil Bekas | OLX, Carousell + vehicle platforms | `condition: used`; auto-restricts to vehicle platforms in `getProducts()` |
+| Motor Bekas | OLX, Carousell + vehicle platforms | `condition: used`; same vehicle platform restriction |
+| Rumah Bekas | OLX only | `condition: used`; OLX category_id=5158; specs: land_area_m2, building_area_m2, floors, bedrooms, bathrooms, city, certificate |
+| Tanah Bekas | OLX only | `condition: used`; OLX category_id=5159; specs: land_area_m2, city, certificate (no building_area_m2) |
 
 ### Supabase clients
 
@@ -65,16 +97,44 @@ Both clients use an 8-second fetch timeout to avoid hanging Vercel builds.
 
 `src/lib/scrapers/` contains one class per platform, all extending `BaseScraper` (`base.ts`). Each implements `search()` and `parseProduct()`. Results are persisted via `src/lib/db/scraper-save.ts` which upserts products/offers and appends price_history rows only when the price changed.
 
+**Scraper files:**
+- `tokopedia.ts`, `shopee.ts`, `bukalapak.ts`, etc. — marketplace scrapers (search by keyword)
+- `olx.ts`, `carousell.ts` — vehicle listing scrapers (Motor/Mobil Bekas)
+- `olx-property.ts` — property scraper (Rumah Bekas + Tanah Bekas); uses OLX category API, not keyword search
+
+**OLX property scraper (`src/lib/scrapers/olx-property.ts`):**
+- API: `https://www.olx.co.id/api/relevance/v4/search?category_id={5158|5159}&location_id=1000&page=N`
+- Image CDN: `https://apollo.olx.co.id/v1/files/{FILE_ID}-ID/image;s=644x461` — directly hotlinkable real listing photos
+- Constructor: `new OlxPropertyScraper('rumah')` or `new OlxPropertyScraper('tanah')`
+- Property params extracted: `p_sqr_land` (luas tanah), `p_sqr_building` (luas bangunan), `p_bedroom`, `p_bathroom`, `p_floor`
+
 Scraping is triggered two ways:
 1. **GitHub Actions** — `.github/workflows/scrape.yml` runs `scripts/scrape-cron.mjs` every 4 hours on Node 22 (Node 22 required for native WebSocket used by Supabase realtime)
 2. **Vercel cron** — `.github/workflows/scraper-cron.yml` hits the `/api/scraper/cron` endpoint
+
+### Platform filtering in `getProducts()`
+
+`src/lib/db/products.ts` → `getProducts()` automatically restricts platforms based on category:
+- **Motor Bekas / Mobil Bekas** → vehicle platforms only: olx, carousell, carsome, mobil123, momobil, oto, belanjamobil
+- **Rumah Bekas / Tanah Bekas** → OLX only
+- All other categories → no platform restriction (all platforms)
+
+### Photo strategy
+
+| Category | Image source | Notes |
+|----------|-------------|-------|
+| Rumah Bekas / Tanah Bekas | Real OLX CDN photos (`apollo.olx.co.id`) | Hotlinkable; from actual listings |
+| Motor Bekas / Mobil Bekas | Wikipedia reference photos | Stopgap — OLX/Carousell don't expose image URLs in their listing JSON |
+| Regular products | Platform CDN (Tokopedia/Shopee/etc.) | From scraper `imageUrl` field |
+
+`scraper-save.ts` allows overwriting Unsplash placeholder URLs with real images on re-scrape.
 
 ### Pages & routing
 
 | Route | Type | Notes |
 |-------|------|-------|
 | `/` | Server Component (`force-dynamic`) | Homepage; fetches popular/promo products from Supabase |
-| `/cari` | Server Component (`force-dynamic`) | Search/browse; filters via URL params (`q`, `kategori`, `platform`, `condition`, `sort`, `min`, `max`, `offset`); smart platform filtering (vehicle categories show only vehicle platforms) |
+| `/cari` | Server Component (`force-dynamic`) | Search/browse; filters via URL params (`q`, `kategori`, `platform`, `condition`, `sort`, `min`, `max`, `offset`); smart platform filtering (vehicle/property categories auto-restricted) |
 | `/produk/[id]` | Server Component (ISR 300s) | Product detail; accepts slug or UUID; full openGraph/Twitter metadata |
 | `/alert` | Client Component | Price alert form; persists to Supabase `price_alerts` table via `/api/alerts` |
 | `/cashback` | Server Component | Cashback info page; reads from `src/lib/platforms.ts` |
@@ -119,10 +179,10 @@ Local: copy values from `.env.local`. On Vercel, these must be set in project en
 ## Known issues / incomplete areas
 
 - Vehicle platform scrapers (Carsome, Mobil123, Momobil, OTO, BelanjaMobil) haven't run yet — vehicle search shows OLX/Carousell real listings only
+- Motor/Mobil Bekas listings have no product images — OLX/Carousell don't expose image URLs in their listing JSON; Wikipedia reference photos used as stopgap
 - `/alert` stores alerts in `price_alerts` table but no email/WA sending is implemented yet
 - Price history chart uses synthetic data when no real `price_history` rows exist for a product (platform-aware, always shows something)
 - ~5,700 offers use Tokopedia/Shopee search URLs (`/search?q=`) instead of direct product URLs — "Beli Sekarang" on those opens a search page
-- Mobil/Motor Bekas listings have no product images (OLX/Carousell don't expose image URLs in their listing JSON)
 
 ## File edit safety
 
