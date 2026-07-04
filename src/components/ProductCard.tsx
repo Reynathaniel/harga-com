@@ -46,13 +46,14 @@ export function ProductCard({ product, compact = false }: Props) {
   // Property-specific logic
   const isProperty = PROPERTY_CATEGORIES.includes(product.category)
   const specs = product.specifications as Record<string, string> | undefined
-  const landAreaStr = specs?.['land_area_m2'] ?? ''
-  const buildingAreaStr = specs?.['building_area_m2'] ?? ''
-  const bedrooms = specs?.['bedrooms'] ?? ''
-  const bathrooms = specs?.['bathrooms'] ?? ''
-  const city = specs?.['city_detail'] || specs?.['city'] || ''
-  const certificate = specs?.['certificate'] ?? ''
-  const floors = specs?.['floors'] ?? ''
+  // Read specs — support both new (snake_case) and old (Indonesian label) formats
+  const landAreaStr = specs?.['land_area_m2'] || specs?.['Luas Tanah']?.replace(/[^0-9.]/g, '') || ''
+  const buildingAreaStr = specs?.['building_area_m2'] || specs?.['Luas Bangunan']?.replace(/[^0-9.]/g, '') || ''
+  const bedrooms = specs?.['bedrooms'] || specs?.['Kamar Tidur'] || ''
+  const bathrooms = specs?.['bathrooms'] || specs?.['Kamar Mandi'] || ''
+  const city = specs?.['city_detail'] || specs?.['city'] || specs?.['Lokasi'] || ''
+  const certificate = specs?.['certificate'] || specs?.['Sertifikat'] || ''
+  const floors = specs?.['floors'] || specs?.['Jumlah Lantai'] || ''
   const isRumah = product.category === 'Rumah Bekas'
   const isTanah = product.category === 'Tanah Bekas'
 
