@@ -420,16 +420,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 </div>
               )}
 
-              {isVehicleCategory && (
-                <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 px-3 py-3">
-                  <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-2 flex items-center gap-1">
-                    <Car size={10} /> Kendaraan
-                  </div>
-                  <p className="text-[10px] text-[var(--text-muted)] leading-relaxed">
-                    Data dari Carsome, Mobil123, Momobil, OTO.com, dan BelanjaMobil. Harga termasuk unit bekas terverifikasi dealer.
-                  </p>
-                </div>
-              )}
+              {isVehicleCategory && (<>{/* Merk filter */}<div><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2.5">🏷️ Merk</div><div className="flex flex-wrap gap-1.5">{['', ...(category === 'motor-bekas' ? MOTOR_BRANDS : MOBIL_BRANDS)].map(b => (<Link key={b||"all"} href={buildHref({ merk: b||undefined, offset: undefined })}className={"px-2.5 py-1 text-xs rounded-lg border transition-colors " + (merk === b ? "bg-amber-500/15 text-amber-400 border-amber-500/25 font-semibold" : "text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]")}>{b||"Semua"}</Link>))}</div></div>{/* Kota filter */}<div><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2.5">📍 Kota</div><div className="flex flex-wrap gap-1.5"><Link href={buildHref({ kota: undefined, offset: undefined })} className={"px-2.5 py-1 text-xs rounded-lg border transition-colors " + (!kota ? "bg-amber-500/15 text-amber-400 border-amber-500/25 font-semibold" : "text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]")}>Semua</Link>{KOTA_LIST.map(k => (<Link key={k} href={buildHref({ kota: k, offset: undefined })} className={"px-2.5 py-1 text-xs rounded-lg border transition-colors " + (kota === k ? "bg-amber-500/15 text-amber-400 border-amber-500/25 font-semibold" : "text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]")}>{k}</Link>))}</div></div><div className="rounded-xl border border-blue-500/20 bg-blue-500/5 px-3 py-3"><div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1 flex items-center gap-1"><Car size={10}/> Kendaraan</div><p className="text-[10px] text-[var(--text-muted)]">Data dari OLX, Carousell, Carsome, Mobil123, OTO.</p></div></>)}
 
               {isPropertyCategory && (
                 <>
@@ -476,6 +467,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                       </button>
                     </form>
                   </div>
+
+                  {/* Kota filter */}<div><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2.5">📍 Kota</div><div className="flex flex-wrap gap-1.5"><Link href={buildHref({ kota: undefined, offset: undefined })} className={"px-2.5 py-1 text-xs rounded-lg border transition-colors "+(!kota?"bg-amber-500/15 text-amber-400 border-amber-500/25 font-semibold":"text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]")}>Semua</Link>{KOTA_LIST.map(k => (<Link key={k} href={buildHref({ kota: k, offset: undefined })} className={"px-2.5 py-1 text-xs rounded-lg border transition-colors "+(kota===k?"bg-amber-500/15 text-amber-400 border-amber-500/25 font-semibold":"text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]")}>{k}</Link>))}</div></div>
 
                   {/* Sertifikat filter */}
                   <div>
