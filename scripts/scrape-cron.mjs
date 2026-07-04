@@ -24,6 +24,13 @@ const MERCHANT_ID = {
   bukalapak: '00000000-0000-0000-0000-000000000004',
   blibli:    '00000000-0000-0000-0000-000000000005',
   tiktok:    '00000000-0000-0000-0000-000000000006',
+  olx:       '00000000-0000-0000-0000-000000000011',
+}
+
+// OLX Property category IDs
+const OLX_PROPERTY_CATEGORIES = {
+  'Rumah Bekas': '5158',
+  'Tanah Bekas': '5159',
 }
 
 // Rotate queries each run based on hour
@@ -182,12 +189,80 @@ async function scrapeBukalapak(query, limit = 20) {
   }
 }
 
+// ── OLX Property scraper ───────────────────────────────────────────────────
+// Fetches real property listings (Rumah Bekas / Tanah Bekas) from OLX's
+// internal category search API. Images are hotlinkable OLX CDN URLs.
+function getOlxImageUrl(images) {
+  if (!Array.isArray(images) || images.length === 0) return null
+  const fileId = images[0]?.id
+  if (!fileId) return null
+  return `https://apollo.olx.co.id/v1/files/${fileId}-ID/image;s=644x461`
+}
+
+function getOlxParam(parameters, key) {
+  if (!Array.isArray(parameters)) return null
+  const param = parameters.find(p => p.key === key)
+  return param?.value ?? null
+}
+
+async function scrapeOlxProperty(category, categoryId, pages = 3) {
+  const listings = []
+  for (let page = 1; page <= pages; page++) {
+    try {
+      const url = `https://www.olx.co.id/api/relevance/v4/search?category_id=${categoryId}&location_id=1000&page=${page}`
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent': randUA(),
+          'Accept': 'application/json',
+          'Accept-Language': 'id-ID,id;q=0.9',
+          'Referer': 'https://www.olx.co.id',
+        },
+        signal: AbortSignal.timeout(20000),
+      })
+
+      if (!res.ok) { console.log(`OLX property HTTP ${res.status}`); break }
+
+      const json = await res.json()
+      const items = json?.data ?? []
+      if (items.length === 0) break
+
+      for (const item of items) {
+        const price = item.price?.value
+        if (!price) continue
+
+        const imageUrl = getOlxImageUrl(item.images)
+        const city = item.location?.city_name ?? item.location?.region_name ?? null
+
+        listings.push({
+          platformId: 'olx',
+          productId: String(item.id),
+          title: item.title,
+          price: parseInt(price) || 0,
+          originalPrice: null,
+          discountPct: null,
+          imageUrl,
+          productUrl: item.url ?? `https://www.olx.co.id/item/${item.id}`,
+          shopName: item.user?.name ?? null,
+          condition: 'used',
+          category,
+        })
+      }
+
+      await new Promise(r => setTimeout(r, 1500))
+    } catch (e) {
+      console.log(`OLX property page ${page} error:`, e.message)
+      break
+    }
+  }
+  return listings
+}
+
 // ── Save to Supabase ───────────────────────────────────────────────────────
 function slugify(text) {
   return text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim().slice(0, 100)
 }
 
-async function saveListings(listings) {
+async function saveListings(listings, category = null) {
   let saved = 0
   for (const l of listings) {
     try {
@@ -195,10 +270,18 @@ async function saveListings(listings) {
       const merchantId = MERCHANT_ID[l.platformId]
       if (!merchantId) continue
 
+      const productData = {
+        slug,
+        name: l.title,
+        image_url: l.imageUrl,
+        condition: l.condition ?? 'new',
+      }
+      if (category || l.category) productData.category = category || l.category
+
       // Upsert product
       const { data: product, error: pErr } = await supabase
         .from('products')
-        .upsert({ slug, name: l.title, image_url: l.imageUrl, condition: l.condition ?? 'new' }, { onConflict: 'slug', ignoreDuplicates: false })
+        .upsert(productData, { onConflict: 'slug', ignoreDuplicates: false })
         .select('id').single()
 
       if (pErr || !product) continue
@@ -230,6 +313,7 @@ async function main() {
 
   let totalSaved = 0
 
+  // Marketplace products (keyword-based)
   for (const query of QUERIES) {
     console.log(`\nScraping: "${query}"`)
 
@@ -249,6 +333,22 @@ async function main() {
     }
 
     // Rate limit between queries
+    await new Promise(r => setTimeout(r, 2000))
+  }
+
+  // OLX Property (category-based, not keyword-based)
+  console.log('\n── OLX Property ──────────────────────────────────────────')
+  for (const [category, categoryId] of Object.entries(OLX_PROPERTY_CATEGORIES)) {
+    console.log(`\nScraping OLX property: "${category}" (category_id=${categoryId})`)
+    const listings = await scrapeOlxProperty(category, categoryId, 3)
+    console.log(`  olx-property: ${listings.length}`)
+
+    if (listings.length > 0) {
+      const saved = await saveListings(listings, category)
+      totalSaved += saved
+      console.log(`  Saved: ${saved}/${listings.length}`)
+    }
+
     await new Promise(r => setTimeout(r, 2000))
   }
 
