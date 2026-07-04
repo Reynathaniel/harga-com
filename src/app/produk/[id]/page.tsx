@@ -26,12 +26,30 @@ export async function generateStaticParams() {
   return []
 }
 
+const INT32_MAX = 2147483647
+
+const PROPERTY_SPEC_LABELS: Record<string, string | null> = {
+  land_area_m2: 'Luas Tanah',
+  building_area_m2: 'Luas Bangunan',
+  building_area: 'Luas Bangunan',
+  bedrooms: 'Kamar Tidur',
+  bathrooms: 'Kamar Mandi',
+  floors: 'Jumlah Lantai',
+  city: 'Kota',
+  city_detail: 'Lokasi',
+  certificate: 'Sertifikat',
+  property_type: 'Tipe Properti',
+  olx_ad_id: null,
+}
+
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const product = await getProductById(params.id)
   if (!product) return {}
   const sorted = lowestListingFirst(product.listings)
   const cheapest = sorted[0]
-  const priceStr = cheapest ? ` — mulai Rp${Math.round(cheapest.price).toLocaleString('id')}` : ''
+  const priceStr = cheapest
+    ? (cheapest.price === INT32_MAX ? ' — Harga Nego' : ` — mulai Rp${Math.round(cheapest.price).toLocaleString('id')}`)
+    : ''
   const title = `${product.name}${priceStr} | Harga.com`
   const description = `Bandingkan harga ${product.name} dari Tokopedia, Shopee, Lazada dan platform lainnya. Temukan harga terbaik dan cashback otomatis di Harga.com.`
   const image = product.images?.[0] ?? '/placeholder-product.png'
@@ -68,6 +86,17 @@ export default async function ProductPage({ params }: { params: { id: string } }
   const cheapestPlatform = PLATFORMS[cheapest.platformId] ?? { name: cheapest.platformId, cashbackPct: 0, color: '#f59e0b' }
   const cashbackAmount = Math.round(cheapest.price * cheapestPlatform.cashbackPct / 100)
   const displayName = cleanProductName(product.name)
+
+  // Property-specific flags
+  const isProperty = product.category === 'Rumah Bekas' || product.category === 'Tanah Bekas'
+  const isContactPrice = cheapest.price === INT32_MAX
+
+  // Price per m² for property products
+  const specs = product.specifications as Record<string, unknown>
+  const landAreaRaw = specs['land_area_m2'] ?? specs['Luas Tanah']
+  const buildingAreaRaw = specs['building_area_m2'] ?? specs['building_area'] ?? specs['Luas Bangunan']
+  const landArea = landAreaRaw ? parseFloat(String(landAreaRaw)) : 0
+  const buildingArea = buildingAreaRaw ? parseFloat(String(buildingAreaRaw)) : 0
 
   // Related products: same category, similar price range (20% - 500% of current), sorted by popularity
   // Avoid showing completely unrelated cheap items (e.g., Alibaba Rp 3rb when viewing iPhone)
@@ -154,7 +183,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
             </div>
 
             {/* Interactive gallery */}
-            <ImageGallery images={product.images} alt={product.name} />
+            <ImageGallery images={product.images} alt={product.name} objectFit={isProperty ? 'cover' : 'contain'} />
 
             {savings > 0 && (
               <div className="mt-2 flex items-center gap-1.5 text-xs text-green-400 font-semibold">
@@ -237,6 +266,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                   const diff = priceDiffPercent(cheapest.price, listing.price)
                   const listingCashback = Math.round(listing.price * platform.cashbackPct / 100)
                   const bgColor = platform.id === 'tiktok' ? '#1a1a1a' : platform.color
+                  const isListingContactPrice = listing.price === INT32_MAX
                   return (
                     <div key={listing.platformId}
                       className={"relative flex items-center gap-2.5 px-3 py-3 rounded-xl border transition-all " +
@@ -267,7 +297,9 @@ export default async function ProductPage({ params }: { params: { id: string } }
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="font-bold text-[var(--text-primary)] text-sm">{formatRupiah(listing.price, true)}</div>
+                        <div className="font-bold text-[var(--text-primary)] text-sm">
+                          {isListingContactPrice ? 'Hubungi' : formatRupiah(listing.price, true)}
+                        </div>
                         {listing.originalPrice && listing.discount && listing.discount > 0 && (
                           <div className="text-[10px] text-[var(--text-muted)] line-through">{formatRupiah(listing.originalPrice, true)}</div>
                         )}
@@ -290,6 +322,29 @@ export default async function ProductPage({ params }: { params: { id: string } }
                   )
                 })}
               </div>
+
+              {/* Price per m² for property products */}
+              {isProperty && !isContactPrice && landArea > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-secondary)]">
+                    <span className="text-[var(--text-muted)]">Harga/m² tanah:</span>
+                    <span className="font-semibold text-[var(--text-primary)]">{formatRupiah(cheapest.price / landArea, true)}/m²</span>
+                  </div>
+                  {product.category === 'Rumah Bekas' && buildingArea > 0 && (
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-secondary)]">
+                      <span className="text-[var(--text-muted)]">Harga/m² bangunan:</span>
+                      <span className="font-semibold text-[var(--text-primary)]">{formatRupiah(cheapest.price / buildingArea, true)}/m²</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Contact price banner */}
+              {isContactPrice && (
+                <div className="mt-3 px-4 py-3 bg-blue-500/8 border border-blue-500/20 rounded-xl text-sm text-blue-400 font-semibold text-center">
+                  Harga Nego / Hubungi Penjual
+                </div>
+              )}
             </div>
 
             {/* Cashback info */}
@@ -301,7 +356,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                   <span className="text-lg font-black text-amber-400">{formatRupiah(cashbackAmount, true)}</span>
                 </div>
                 <p className="text-xs text-[var(--text-secondary)] mb-2">
-                  Beli di {cheapestPlatform.name} ({formatRupiah(cheapest.price, true)}) via harga.com &#8594; cashback {cheapestPlatform.cashbackPct}% otomatis
+                  Beli di {cheapestPlatform.name} ({isContactPrice ? 'Hubungi Penjual' : formatRupiah(cheapest.price, true)}) via harga.com &#8594; cashback {cheapestPlatform.cashbackPct}% otomatis
                 </p>
                 <div className="flex items-center gap-3 text-[10px] text-[var(--text-muted)] flex-wrap">
                   <span className="flex items-center gap-1"><CheckCircle2 size={10} className="text-green-400" /> GoPay/OVO</span>
@@ -334,12 +389,16 @@ export default async function ProductPage({ params }: { params: { id: string } }
                   Spesifikasi
                 </div>
                 <div className="space-y-0">
-                  {Object.entries(product.specifications).map(([key, val]) => (
-                    <div key={key} className="flex justify-between gap-3 text-xs py-2 border-b border-[var(--border-subtle)] last:border-0">
-                      <span className="text-[var(--text-muted)] shrink-0">{key}</span>
-                      <span className="text-[var(--text-secondary)] text-right">{val}</span>
-                    </div>
-                  ))}
+                  {Object.entries(product.specifications).map(([key, val]) => {
+                    const label = key in PROPERTY_SPEC_LABELS ? PROPERTY_SPEC_LABELS[key] : key
+                    if (label === null) return null
+                    return (
+                      <div key={key} className="flex justify-between gap-3 text-xs py-2 border-b border-[var(--border-subtle)] last:border-0">
+                        <span className="text-[var(--text-muted)] shrink-0">{label}</span>
+                        <span className="text-[var(--text-secondary)] text-right">{String(val)}</span>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             )}
