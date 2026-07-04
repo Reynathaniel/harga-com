@@ -17,7 +17,7 @@ No test suite exists yet.
 ### Stack
 - **Next.js 14 App Router** (TypeScript) deployed on **Vercel**
 - **Supabase** (PostgreSQL) for products, offers, price history
-- **Tailwind CSS** + inline styles (mixed pattern â existing pages use inline styles heavily)
+- **Tailwind CSS** + inline styles (mixed pattern Ã¢ÂÂ existing pages use inline styles heavily)
 - No state management library in use (no Zustand wired up despite being installed)
 
 ### Data flow: Supabase-first with mock fallback
@@ -26,12 +26,12 @@ Every data-access function in `src/lib/db/` calls `tryGetServerClient()` first. 
 
 ```
 Server Component / API Route
-  â src/lib/db/products.ts       (getProducts, getProductBySlug, ...)
-      â tryGetServerClient()      â service-role key, bypasses RLS
+  Ã¢ÂÂ src/lib/db/products.ts       (getProducts, getProductBySlug, ...)
+      Ã¢ÂÂ tryGetServerClient()      Ã¢ÂÂ service-role key, bypasses RLS
           Supabase view: products_with_best_offer
           Tables: products, offers, merchants, price_history
-      â fallback: src/lib/mock-data.ts
-  â src/lib/db/adapters.ts       (converts DB rows â Product type)
+      Ã¢ÂÂ fallback: src/lib/mock-data.ts
+  Ã¢ÂÂ src/lib/db/adapters.ts       (converts DB rows Ã¢ÂÂ Product type)
 ```
 
 The canonical app type is `Product` in `src/lib/types.ts`. DB rows are converted via `adaptDbProductToAppProduct()` in `adapters.ts`.
@@ -40,11 +40,11 @@ The canonical app type is `Product` in `src/lib/types.ts`. DB rows are converted
 
 | Table | Purpose |
 |-------|---------|
-| `products` | ~2,000+ rows â name, slug, category, brand, images; categories include Elektronik, Fashion, Rumah Tangga, Kecantikan, Gaming, Mobil Bekas, Motor Bekas, Rumah Bekas, Tanah Bekas, Olahraga, Lainnya |
-| `offers` | ~16,000+ active rows â product_id, merchant_id, price, discount_pct, free_shipping, shop_verified |
-| `merchants` | 17 rows â one per platform (see merchant IDs below) |
-| `price_history` | offer_id, price, recorded_at â appended each scrape run |
-| `price_alerts` | query, email, target_price, notify_type, active, created_at â user price alert subscriptions |
+| `products` | ~2,000+ rows Ã¢ÂÂ name, slug, category, brand, images; categories include Elektronik, Fashion, Rumah Tangga, Kecantikan, Gaming, Mobil Bekas, Motor Bekas, Rumah Bekas, Tanah Bekas, Olahraga, Lainnya |
+| `offers` | ~16,000+ active rows Ã¢ÂÂ product_id, merchant_id, price, discount_pct, free_shipping, shop_verified |
+| `merchants` | 17 rows Ã¢ÂÂ one per platform (see merchant IDs below) |
+| `price_history` | offer_id, price, recorded_at Ã¢ÂÂ appended each scrape run |
+| `price_alerts` | query, email, target_price, notify_type, active, created_at Ã¢ÂÂ user price alert subscriptions |
 | `products_with_best_offer` | DB view used for product listing queries |
 
 ### Merchant UUIDs (all 17)
@@ -98,54 +98,57 @@ Both clients use an 8-second fetch timeout to avoid hanging Vercel builds.
 `src/lib/scrapers/` contains one class per platform, all extending `BaseScraper` (`base.ts`). Each implements `search()` and `parseProduct()`. Results are persisted via `src/lib/db/scraper-save.ts` which upserts products/offers and appends price_history rows only when the price changed.
 
 **Scraper files:**
-- `tokopedia.ts`, `shopee.ts`, `bukalapak.ts`, etc. â marketplace scrapers (search by keyword)
-- `olx.ts`, `carousell.ts` â vehicle listing scrapers (Motor/Mobil Bekas)
-- `olx-property.ts` â property scraper (Rumah Bekas + Tanah Bekas); uses OLX category API, not keyword search
+- `tokopedia.ts`, `shopee.ts`, `bukalapak.ts`, etc. Ã¢ÂÂ marketplace scrapers (search by keyword)
+- `olx.ts`, `carousell.ts` Ã¢ÂÂ vehicle listing scrapers (Motor/Mobil Bekas)
+- `olx-property.ts` Ã¢ÂÂ property scraper (Rumah Bekas + Tanah Bekas); uses OLX category API, not keyword search
+- `scripts/olx_property_local.py` — local Python script for bulk property scraping (requires residential IP; cloud IPs blocked by OLX)
 
 **OLX property scraper (`src/lib/scrapers/olx-property.ts`):**
 - API: `https://www.olx.co.id/api/relevance/v4/search?category_id={5158|5159}&location_id=1000&page=N`
-- Image CDN: `https://apollo.olx.co.id/v1/files/{FILE_ID}-ID/image;s=644x461` â directly hotlinkable real listing photos
+- Image CDN: `https://apollo.olx.co.id/v1/files/{FILE_ID}-ID/image;s=644x461` Ã¢ÂÂ directly hotlinkable real listing photos
 - Constructor: `new OlxPropertyScraper('rumah')` or `new OlxPropertyScraper('tanah')`
 - Property params extracted: `p_sqr_land` (luas tanah), `p_sqr_building` (luas bangunan), `p_bedroom`, `p_bathroom`, `p_floor`
 
-Scraping is triggered two ways (OLX property scraping requires residential IP — ALL cloud IPs are blocked by OLX):
-1. **GitHub Actions** â `.github/workflows/scrape.yml` runs `scripts/scrape-cron.mjs` every 4 hours on Node 22 (Node 22 required for native WebSocket used by Supabase realtime)
-2. **Vercel cron** â `.github/workflows/scraper-cron.yml` hits the `/api/scraper/cron` endpoint
+Scraping is triggered two ways (OLX property scraping requires residential IP â ALL cloud IPs are blocked by OLX):
+1. **GitHub Actions** Ã¢ÂÂ `.github/workflows/scrape.yml` runs `scripts/scrape-cron.mjs` every 4 hours on Node 22 (Node 22 required for native WebSocket used by Supabase realtime)
+2. **Vercel cron** Ã¢ÂÂ `.github/workflows/scraper-cron.yml` hits the `/api/scraper/cron` endpoint
+
+**`scripts/scrape-cron.mjs` fix (2026-07):** Was inserting to non-existent `listings` table — now correctly inserts to `offers` table. Column `product_url` renamed to `url`; added `in_stock` and `condition` columns.
 
 
 ### Property Categories (Rumah Bekas & Tanah Bekas)
 
 Property listings use the same `products` + `offers` tables. Key specifics:
 
-**Spec key formats** — two coexisting formats in `specifications` JSONB:
-- Old: `Luas Tanah`, `Luas Bangunan`, `Kamar Tidur`, `Kamar Mandi`, `Jumlah Lantai`, `Lokasi`, `Harga/m²`, `Sertifikat`
+**Spec key formats** â two coexisting formats in `specifications` JSONB:
+- Old: `Luas Tanah`, `Luas Bangunan`, `Kamar Tidur`, `Kamar Mandi`, `Jumlah Lantai`, `Lokasi`, `Harga/mÂ²`, `Sertifikat`
 - New: `land_area_m2`, `building_area_m2`, `bedrooms`, `bathrooms`, `floors`, `city`, `city_detail`, `certificate`, `property_type`, `olx_ad_id`
 - ProductCard reads both formats with fallback (new takes priority)
 
-**Price per m²** computed dynamically: `price ÷ land_area_m2` for Tanah; `price ÷ building_area_m2` (fallback: land) for Rumah.
+**Price per mÂ²** computed dynamically: `price Ã· land_area_m2` for Tanah; `price Ã· building_area_m2` (fallback: land) for Rumah.
 
-**INT32_MAX (2147483647)** = OLX "Hubungi" price → shown as "Harga Nego" in ProductCard. Delete these offers to hide product.
+**INT32_MAX (2147483647)** = OLX "Hubungi" price â shown as "Harga Nego" in ProductCard. Delete these offers to hide product.
 
-**OLX image CDN:** `https://apollo.olx.co.id/v1/files/{FILE_ID}-ID/image;s=644x461` — permanently hotlinkable.
+**OLX image CDN:** `https://apollo.olx.co.id/v1/files/{FILE_ID}-ID/image;s=644x461` â permanently hotlinkable.
 
-**City comparison:** `GET /api/property/city-stats?category=Rumah+Bekas` returns avg price/m² per city (1h cache). `src/components/PropertyCityStats.tsx` renders this table in `/cari` for property categories.
+**City comparison:** `GET /api/property/city-stats?category=Rumah+Bekas` returns avg price/mÂ² per city (1h cache). `src/components/PropertyCityStats.tsx` renders this table in `/cari` for property categories.
 
-**DB state (2026-07-05):** Rumah Bekas 76 products (40 valid offers, 9 cities with price/m² data), Tanah Bekas 10 products (7 valid offers).
+**DB state (2026-07-05):** Rumah Bekas 76 products (40 valid offers, 9 cities with price/mÂ² data), Tanah Bekas 10 products (7 valid offers).
 
 
 ### Platform filtering in `getProducts()`
 
-`src/lib/db/products.ts` â `getProducts()` automatically restricts platforms based on category:
-- **Motor Bekas / Mobil Bekas** â vehicle platforms only: olx, carousell, carsome, mobil123, momobil, oto, belanjamobil
-- **Rumah Bekas / Tanah Bekas** â OLX only
-- All other categories â no platform restriction (all platforms)
+`src/lib/db/products.ts` Ã¢ÂÂ `getProducts()` automatically restricts platforms based on category:
+- **Motor Bekas / Mobil Bekas** Ã¢ÂÂ vehicle platforms only: olx, carousell, carsome, mobil123, momobil, oto, belanjamobil
+- **Rumah Bekas / Tanah Bekas** Ã¢ÂÂ OLX only
+- All other categories Ã¢ÂÂ no platform restriction (all platforms)
 
 ### Photo strategy
 
 | Category | Image source | Notes |
 |----------|-------------|-------|
 | Rumah Bekas / Tanah Bekas | Real OLX CDN photos (`apollo.olx.co.id`) | Hotlinkable; from actual listings |
-| Motor Bekas / Mobil Bekas | Wikipedia reference photos | Stopgap â OLX/Carousell don't expose image URLs in their listing JSON |
+| Motor Bekas / Mobil Bekas | Wikipedia reference photos | Stopgap Ã¢ÂÂ OLX/Carousell don't expose image URLs in their listing JSON |
 | Regular products | Platform CDN (Tokopedia/Shopee/etc.) | From scraper `imageUrl` field |
 
 `scraper-save.ts` allows overwriting Unsplash placeholder URLs with real images on re-scrape.
@@ -167,11 +170,11 @@ Property listings use the same `products` + `offers` tables. Key specifics:
 All API routes are under `src/app/api/`. Middleware (`src/middleware.ts`) applies to all `/api/*`: CORS headers + in-memory rate limiting (60 req/min per IP).
 
 Key routes:
-- `GET /api/live-drops` â real price drops via Supabase RPC `get_live_drops()` (5-min cache); falls back to hardcoded data if fewer than 3 real drops
-- `GET /api/products/[slug]` â single product JSON
-- `POST /api/alerts` â save price alert to `price_alerts` table; supports query-mode `{query, email, targetPrice, notifyType}` and product-mode `{productId, email, targetPrice, notifyType}`
-- `POST /api/track/click` â affiliate click tracking
-- `POST /api/checkout/initiate` â records checkout intent in `checkout_intents` table
+- `GET /api/live-drops` Ã¢ÂÂ real price drops via Supabase RPC `get_live_drops()` (5-min cache); falls back to hardcoded data if fewer than 3 real drops
+- `GET /api/products/[slug]` Ã¢ÂÂ single product JSON
+- `POST /api/alerts` Ã¢ÂÂ save price alert to `price_alerts` table; supports query-mode `{query, email, targetPrice, notifyType}` and product-mode `{productId, email, targetPrice, notifyType}`
+- `POST /api/track/click` Ã¢ÂÂ affiliate click tracking
+- `POST /api/checkout/initiate` Ã¢ÂÂ records checkout intent in `checkout_intents` table
 
 ### Styling conventions
 
@@ -199,17 +202,18 @@ Local: copy values from `.env.local`. On Vercel, these must be set in project en
 
 ## Known issues / incomplete areas
 
-- OLX property scraping requires residential IP — GitHub Actions, Vercel, and Supabase Edge Functions are ALL blocked. Use `scripts/olx_property_local.py` from your local machine.
+- OLX property scraping requires residential IP â GitHub Actions, Vercel, and Supabase Edge Functions are ALL blocked. Use `scripts/olx_property_local.py` from your local machine.
 - Property spec keys exist in two formats (old Indonesian labels vs new snake_case). ProductCard handles both via fallback.
 - INT32_MAX offers (price=2147483647) from OLX "Hubungi" listings should be deleted from DB.
 
 
-- Vehicle platform scrapers (Carsome, Mobil123, Momobil, OTO, BelanjaMobil) haven't run yet â vehicle search shows OLX/Carousell real listings only
-- Motor/Mobil Bekas listings have no product images â OLX/Carousell don't expose image URLs in their listing JSON; Wikipedia reference photos used as stopgap
+- Vehicle platform scrapers (Carsome, Mobil123, Momobil, OTO, BelanjaMobil) haven't run yet Ã¢ÂÂ vehicle search shows OLX/Carousell real listings only
+- Motor/Mobil Bekas listings have no product images Ã¢ÂÂ OLX/Carousell don't expose image URLs in their listing JSON; Wikipedia reference photos used as stopgap
 - `/alert` stores alerts in `price_alerts` table but no email/WA sending is implemented yet
 - Price history chart uses synthetic data when no real `price_history` rows exist for a product (platform-aware, always shows something)
-- ~5,700 offers use Tokopedia/Shopee search URLs (`/search?q=`) instead of direct product URLs â "Beli Sekarang" on those opens a search page
+- ~5,700 offers use Tokopedia/Shopee search URLs (`/search?q=`) instead of direct product URLs Ã¢ÂÂ "Beli Sekarang" on those opens a search page
 
+- `scripts/scrape-cron.mjs` was fixed: was inserting to `listings` table (doesn't exist), now correctly inserts to `offers` table. Column `product_url` renamed to `url`; added `in_stock` and `condition`.
 ## File edit safety
 
-**Critical:** When editing large files (>6KB) via GitHub API, always use Python `base64.b64encode()` + GitHub API PUT with string replacement on the full file content. Never use heredocs or shell `cat >` for large files â they truncate silently. Read the file SHA from GitHub first, then PUT the full modified content back.
+**Critical:** When editing large files (>6KB) via GitHub API, always use Python `base64.b64encode()` + GitHub API PUT with string replacement on the full file content. Never use heredocs or shell `cat >` for large files Ã¢ÂÂ they truncate silently. Read the file SHA from GitHub first, then PUT the full modified content back.
