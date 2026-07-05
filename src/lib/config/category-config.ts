@@ -30,6 +30,7 @@ export interface CategoryConfig {
   isUsedGoods: boolean          // show BEKAS badge, restrict to used-goods platforms
   vehicleCategory?: boolean     // filter listing to vehicle platforms
   propertyCategory?: boolean    // filter listing to property platforms
+  forbiddenKeywords?: string[]  // product names containing these terms are excluded from this category
 }
 
 const olxVehicleSearch = (query: string) =>
@@ -122,6 +123,7 @@ export const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
     buyUrlFallback: (p) =>
       `https://www.tokopedia.com/search?st=product&q=${encodeURIComponent(p.name)}`,
     isUsedGoods: false,
+    forbiddenKeywords: ['parfum', 'minyak wangi', 'tasbih', 'jamu ', 'tas ransel', 'tas backpack', 'tas laptop'],
   },
 
   'Fashion': {
