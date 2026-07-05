@@ -145,43 +145,33 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
         const dbCategory = CATEGORY_ID_TO_LABEL[category] ?? category
         q = q.ilike('category', dbCategory)
       }
-      // Platform filter: explicit platform param OR vehicle categories auto-restrict to vehicle platforms
-      const VEHICLE_DB_CATEGORIES = ['Motor Bekas', 'Mobil Bekas']
+            // Platform filter: direct best_platform_id filter avoids the 1000-row offers subquery limit.
+      // For vehicle categories, auto-restrict to vehicle platforms.
+      // For property categories, auto-restrict to olx/carousell.
       const VEHICLE_PLATFORM_IDS = ['olx', 'carousell', 'carsome', 'mobil123', 'momobil', 'oto', 'belanjamobil']
       const dbCatLabel = category ? (CATEGORY_ID_TO_LABEL[category] ?? category) : ''
-      const isVehicleCat = dbCatLabel && VEHICLE_DB_CATEGORIES.includes(dbCatLabel)
-      // Determine which platform IDs to filter to:
-      //   - explicit platform param â [platform]
-      //   - vehicle category, no platform â all VEHICLE_PLATFORM_IDS
-      //   - otherwise â no platform restriction
-      const effectivePlatformIds: string[] | null = platform
-        ? [platform]
-        : isVehicleCat ? VEHICLE_PLATFORM_IDS : null
+      const isVehicleCat = ['Motor Bekas', 'Mobil Bekas'].includes(dbCatLabel)
+      const isPropertyCat = dbCatLabel === 'Rumah Bekas'
 
-      if (effectivePlatformIds) {
-        // Resolve merchant UUIDs for those platform IDs
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: merchants } = await (db as any)
-          .from('merchants')
-          .select('id')
-          .in('platform_id', effectivePlatformIds)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const merchantIds = ((merchants as any[]) ?? []).map((m: any) => m.id as string)
-        if (merchantIds.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { data: offerRows } = await (db as any)
-            .from('offers')
-            .select('product_id')
-            .in('merchant_id', merchantIds)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const productIds = Array.from(new Set(((offerRows as any[]) ?? []).map((o: any) => o.product_id as string)))
-          if (productIds.length === 0) return { products: [], total: 0, source: 'supabase' }
-          q = q.in('id', productIds)
+      if (platform) {
+        // Explicit platform: resolve merchant UUIDs then product IDs (supports multi-offer products)
+        const { data: mRows } = await (db as any).from('merchants').select('id').eq('platform_id', platform)
+        const mIds = ((mRows as any[]) ?? []).map((m: any) => m.id as string)
+        if (mIds.length > 0) {
+          const { data: oRows } = await (db as any).from('offers').select('product_id').in('merchant_id', mIds).limit(50000)
+          const pIds = Array.from(new Set(((oRows as any[]) ?? []).map((o: any) => o.product_id as string)))
+          if (pIds.length === 0) return { products: [], total: 0, source: 'supabase' }
+          q = q.in('id', pIds)
         } else {
           return { products: [], total: 0, source: 'supabase' }
         }
+      } else if (isVehicleCat) {
+        q = q.in('best_platform_id', VEHICLE_PLATFORM_IDS)
+      } else if (isPropertyCat) {
+        q = q.in('best_platform_id', ['olx', 'carousell'])
       }
-      // Filter by best_condition (added to products_with_best_offer view)
+
+// Filter by best_condition (added to products_with_best_offer view)
       if (condition === 'used') {
         q = q.eq('best_condition', 'used')
       } else if (condition === 'new') {
