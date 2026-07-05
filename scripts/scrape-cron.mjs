@@ -16,6 +16,8 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
+const HOUR = new Date().getUTCHours()
+
 // Merchant IDs (match DB seed)
 const MERCHANT_ID = {
   tokopedia: '00000000-0000-0000-0000-000000000001',
@@ -70,7 +72,6 @@ const ALL_QUERIES = [
   'Nintendo Switch', 'Dyson vacuum', 'smartwatch', 'skincare',
 ]
 
-const HOUR = new Date().getUTCHours()
 const QUERY_BATCH = ALL_QUERIES.slice((HOUR % 3) * 4, ((HOUR % 3) * 4) + 4)
 const CUSTOM_QUERY = process.env.SCRAPE_QUERY
 const QUERIES = CUSTOM_QUERY ? [CUSTOM_QUERY] : QUERY_BATCH
