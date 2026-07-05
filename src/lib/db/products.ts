@@ -255,10 +255,12 @@ export async function getProductById(id: string): Promise<Product | null> {
   if (db) {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // Only use id.eq if the param looks like a UUID (avoids PostgreSQL type error)
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
       const { data: product } = await (db as any)
         .from('products')
         .select('*')
-        .or(`id.eq.${id},slug.eq.${id}`)
+        .or(isUUID ? `id.eq.${id},slug.eq.${id}` : `slug.eq.${id}`)
         .single()
 
       if (product) {
