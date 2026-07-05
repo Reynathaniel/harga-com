@@ -44,6 +44,8 @@ const CATEGORY_KEYWORD_OVERRIDES: Array<{ keywords: string[]; targetCategory: st
   { keywords: ['parfum', 'perfume', 'minyak wangi', 'eau de parfum', 'eau de toilette'], targetCategory: 'Kecantikan' },
   { keywords: ['lipstik', 'lipstick', 'foundation', 'eyeshadow', 'maskara', 'eyeliner'], targetCategory: 'Kecantikan' },
   { keywords: ['tasbih', 'jamu ayam', 'jamu tradisional'], targetCategory: 'Lainnya' },
+  { keywords: ['essential oil', 'minyak esensial'], targetCategory: 'Kecantikan' },
+  { keywords: ['ikat rambut', 'kunciran rambut'], targetCategory: 'Lainnya' },
 ]
 
 function validateCategory(productName: string, assignedCategory: string): string {
