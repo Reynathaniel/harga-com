@@ -36,6 +36,31 @@ const MERCHANT_ID: Record<string, string> = {
 // New-goods platforms (tokopedia, shopee, lazada, etc.) default to 'new'
 const USED_PLATFORMS = new Set(['olx', 'carousell', 'carsome', 'mobil123', 'momobil', 'oto', 'belanjamobil'])
 
+// Category validation: prevents marketplace-injected sponsored products from contaminating DB.
+// Scrapers search by category but marketplaces inject unrelated sponsored/promoted listings.
+// This function corrects category assignments before any DB write.
+
+const CATEGORY_KEYWORD_OVERRIDES: Array<{ keywords: string[]; targetCategory: string }> = [
+  { keywords: ['parfum', 'perfume', 'minyak wangi', 'eau de parfum', 'eau de toilette'], targetCategory: 'Kecantikan' },
+  { keywords: ['lipstik', 'lipstick', 'foundation', 'eyeshadow', 'maskara', 'eyeliner'], targetCategory: 'Kecantikan' },
+  { keywords: ['tasbih', 'jamu ayam', 'jamu tradisional'], targetCategory: 'Lainnya' },
+]
+
+function validateCategory(productName: string, assignedCategory: string): string {
+  const lower = productName.toLowerCase()
+  for (const rule of CATEGORY_KEYWORD_OVERRIDES) {
+    if (rule.keywords.some(kw => lower.includes(kw))) {
+      return rule.targetCategory
+    }
+  }
+  if (assignedCategory === 'Elektronik') {
+    const isBagName = /^(tas|TAS)\s/i.test(productName)
+    const hasBagKeyword = lower.includes('ransel') || lower.includes('backpack')
+    if (isBagName && hasBagKeyword) return 'Lainnya'
+  }
+  return assignedCategory
+}
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
