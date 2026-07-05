@@ -34,7 +34,7 @@ async function getTrendingProducts() {
   }
 }
 
-/* Eyebrow + title section head — matches design system SectionHead */
+/* Eyebrow + title section head â matches design system SectionHead */
 function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: ReactNode; action?: ReactNode }) {
   return (
     <div className="reveal flex justify-between items-end flex-wrap gap-4 mb-6">
@@ -104,7 +104,7 @@ export default async function HomePage() {
     <div className="pt-[92px]">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
 
-      {/* ── HERO ── */}
+      {/* ââ HERO ââ */}
       <section className="hero-gradient relative overflow-hidden">
         {/* Animated mesh blobs */}
         <div className="harga-mesh">
@@ -124,7 +124,7 @@ export default async function HomePage() {
             letterSpacing: '0.01em',
           }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ADE80', display: 'inline-block', flexShrink: 0 }} />
-            {STATS.platforms}+ Marketplace · Barang Baru &amp; Bekas
+            {STATS.platforms}+ Marketplace Â· Barang Baru &amp; Bekas
           </div>
 
           {/* Instrument Serif headline */}
@@ -148,7 +148,7 @@ export default async function HomePage() {
             fontFamily: 'var(--font-ui)',
           }}>
             Bandingkan harga barang <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>baru &amp; bekas</strong> dari Shopee, Tokopedia,
-            Lazada &amp; {STATS.platforms - 3} marketplace lain — dalam satu pencarian.
+            Lazada &amp; {STATS.platforms - 3} marketplace lain â dalam satu pencarian.
           </p>
 
           {/* Search bar */}
@@ -176,7 +176,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── STATS STRIP ── */}
+      {/* ââ STATS STRIP ââ */}
       <div style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="max-w-7xl mx-auto px-4 py-4 grid grid-cols-2 sm:grid-cols-4 divide-x divide-[var(--border-subtle)]">
           {[
@@ -193,18 +193,18 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ── CATEGORY ROW ── */}
+      {/* ââ CATEGORY ROW ââ */}
       <section className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {[
-            { label: 'Elektronik',   icon: '🖥️',  color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',  href: '/cari?kategori=elektronik' },
-            { label: 'Fashion',      icon: '👗',  color: '#F97316', bg: 'rgba(249,115,22,0.10)',  href: '/cari?kategori=fashion' },
-            { label: 'Rumah',        icon: '🏠',  color: '#0EA5E9', bg: 'rgba(14,165,233,0.10)',  href: '/cari?kategori=rumah-tangga' },
-            { label: 'Hobi & Game', icon: '🎮',  color: '#8B5CF6', bg: 'rgba(139,92,246,0.10)',  href: '/cari?kategori=gaming' },
-            { label: 'Olahraga',     icon: '⚽',  color: '#EF4444', bg: 'rgba(239,68,68,0.10)',   href: '/cari?kategori=olahraga' },
-            { label: 'Kecantikan',   icon: '💄',  color: '#EC4899', bg: 'rgba(236,72,153,0.10)',  href: '/cari?kategori=kecantikan' },
-            { label: 'Motor Bekas',  icon: '🏍️',  color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',  href: '/cari?kategori=motor-bekas' },
-            { label: 'Mobil Bekas',  icon: '🚙',  color: '#64748B', bg: 'rgba(100,116,139,0.10)', href: '/cari?kategori=mobil-bekas' },
+            { label: 'Elektronik',   icon: 'ð¥ï¸',  color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',  href: '/cari?kategori=elektronik' },
+            { label: 'Fashion',      icon: 'ð',  color: '#F97316', bg: 'rgba(249,115,22,0.10)',  href: '/cari?kategori=fashion' },
+            { label: 'Rumah',        icon: 'ð ',  color: '#0EA5E9', bg: 'rgba(14,165,233,0.10)',  href: '/cari?kategori=rumah-tangga' },
+            { label: 'Hobi & Game', icon: 'ð®',  color: '#8B5CF6', bg: 'rgba(139,92,246,0.10)',  href: '/cari?kategori=gaming' },
+            { label: 'Olahraga',     icon: 'â½',  color: '#EF4444', bg: 'rgba(239,68,68,0.10)',   href: '/cari?kategori=olahraga' },
+            { label: 'Kecantikan',   icon: 'ð',  color: '#EC4899', bg: 'rgba(236,72,153,0.10)',  href: '/cari?kategori=kecantikan' },
+            { label: 'Motor Bekas',  icon: 'ðï¸',  color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',  href: '/cari?kategori=motor-bekas' },
+            { label: 'Mobil Bekas',  icon: 'ð',  color: '#64748B', bg: 'rgba(100,116,139,0.10)', href: '/cari?kategori=mobil-bekas' },
           ].map(cat => (
             <Link key={cat.label} href={cat.href}
               className="group flex items-center gap-4 rounded-2xl transition-all hover:-translate-y-0.5"
@@ -229,11 +229,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── DEAL TERPANAS ── */}
+      {/* ââ DEAL TERPANAS ââ */}
       {promoProducts.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 py-16">
           <SectionHead
-            eyebrow="Flash Sale · Diskon Gila"
+            eyebrow="Flash Sale Â· Diskon Gila"
             title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--brand)' }} /> Deal Terpanas Hari Ini</span>}
             action={
               <Link href="/cari?sort=lowest"
@@ -288,7 +288,7 @@ export default async function HomePage() {
                     </div>
                     <div className="mt-1.5 flex items-center gap-1" style={{ fontSize: 'var(--text-10)', color: 'var(--text-muted)' }}>
                       <Flame size={10} style={{ color: 'var(--brand)' }} />
-                      <span>Flash Sale · Stok Terbatas</span>
+                      <span>Flash Sale Â· Stok Terbatas</span>
                     </div>
                   </div>
                 </Link>
@@ -298,10 +298,10 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── DEAL TERBAIK (with Semua / Baru / Bekas tabs) ── */}
+      {/* ââ DEAL TERBAIK (with Semua / Baru / Bekas tabs) ââ */}
       <DealTerbaikSection allProducts={(allProducts ?? []).slice(0, 10)} usedProducts={usedProducts ?? []} />
 
-      {/* ── TRENDING ── */}
+      {/* ââ TRENDING ââ */}
       {trendingProducts.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 py-16">
           <SectionHead
@@ -354,7 +354,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── PRELOVED HIGHLIGHT BANNER ── */}
+      {/* ââ PRELOVED HIGHLIGHT BANNER ââ */}
       <section className="max-w-7xl mx-auto px-4 py-8">
         <div className="relative overflow-hidden rounded-2xl"
           style={{
@@ -369,7 +369,7 @@ export default async function HomePage() {
                   color: 'var(--win)', fontSize: 'var(--text-10)', fontWeight: 'var(--fw-black)',
                   letterSpacing: 'var(--tracking-widest)', textTransform: 'uppercase',
                 }}>
-                Preloved · Barang Bekas
+                Preloved Â· Barang Bekas
               </div>
               <h2 style={{
                 margin: 0, marginBottom: 8,
@@ -377,7 +377,7 @@ export default async function HomePage() {
                 color: 'var(--text-primary)',
                 fontFamily: 'var(--font-editorial)',
               }}>
-                Bukan cuma baru — <em>yang bekas juga di sini.</em>
+                Bukan cuma baru â <em>yang bekas juga di sini.</em>
               </h2>
               <p style={{
                 margin: 0, marginBottom: 18,
@@ -394,7 +394,7 @@ export default async function HomePage() {
                   fontSize: 'var(--text-sm)', fontWeight: 'var(--fw-extrabold)',
                   boxShadow: 'var(--shadow-green)',
                 }}>
-                Jelajahi Preloved →
+                Jelajahi Preloved â
               </Link>
             </div>
             <div className="flex gap-3">
@@ -425,7 +425,7 @@ export default async function HomePage() {
       </section>
 
 
-      {/* ── HEMAT TERBESAR ── */}
+      {/* ââ HEMAT TERBESAR ââ */}
       {hematProducts.length > 0 && (
         <section style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}
           className="py-16 px-4">
@@ -491,7 +491,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── FEATURES ── */}
+      {/* ââ FEATURES ââ */}
       <section style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-subtle)' }}
         className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
@@ -538,7 +538,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── PLATFORM KAMI ── */}
+      {/* ââ PLATFORM KAMI ââ */}
       <section className="max-w-7xl mx-auto px-4 py-16">
         <div className="text-center mb-10">
           <div className="harga-text-gradient mb-2" style={{
@@ -583,7 +583,7 @@ export default async function HomePage() {
         </p>
       </section>
 
-      {/* ── HOW IT WORKS ── */}
+      {/* ââ HOW IT WORKS ââ */}
       <section style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}
         className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
@@ -597,9 +597,9 @@ export default async function HomePage() {
           <p style={{ color: 'var(--text-secondary)', marginBottom: 48 }}>Hemat uang dalam 3 langkah mudah</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
-              { step: '01', icon: '🔍', title: 'Cari Produk', desc: 'Ketik nama produk atau paste link dari marketplace manapun' },
-              { step: '02', icon: '💡', title: 'Bandingkan Harga', desc: 'Lihat harga dari semua marketplace sekaligus + grafik historis' },
-              { step: '03', icon: '💰', title: 'Beli & Dapat Cashback', desc: 'Beli melalui kami, cashback masuk otomatis ke wallet Anda' },
+              { step: '01', icon: 'ð', title: 'Cari Produk', desc: 'Ketik nama produk atau paste link dari marketplace manapun' },
+              { step: '02', icon: 'ð¡', title: 'Bandingkan Harga', desc: 'Lihat harga dari semua marketplace sekaligus + grafik historis' },
+              { step: '03', icon: 'ð°', title: 'Beli & Dapat Cashback', desc: 'Beli melalui kami, cashback masuk otomatis ke wallet Anda' },
             ].map(s => (
               <div key={s.step} className="flex flex-col items-center">
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-4"
@@ -618,7 +618,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── CASHBACK CTA ── */}
+      {/* ââ CASHBACK CTA ââ */}
       <section className="max-w-7xl mx-auto px-4 py-20">
         <div className="relative overflow-hidden rounded-2xl p-8 sm:p-12 text-center"
           style={{
@@ -631,7 +631,7 @@ export default async function HomePage() {
           <div className="absolute top-0 left-0 right-0 h-px"
             style={{ background: 'linear-gradient(to right, transparent, var(--brand-soft-border), transparent)' }} />
           <div className="relative">
-            <div className="text-5xl mb-4">💰</div>
+            <div className="text-5xl mb-4">ð°</div>
             <h2 style={{
               margin: 0, marginBottom: 12,
               fontSize: 'var(--text-3xl)', fontWeight: 400, color: 'var(--text-primary)',
@@ -676,7 +676,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
+      {/* ââ FOOTER ââ */}
       <footer style={{ borderTop: '1px solid var(--border-subtle)', background: 'var(--bg-card)' }}
         className="px-4 py-12">
         <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-5 gap-8 mb-8">
@@ -792,13 +792,13 @@ export default async function HomePage() {
         <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 24 }}
           className="flex flex-col sm:flex-row items-center justify-between gap-2">
           <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>
-            © 2026 Harga.com — Temukan Harga Terbaik.
+            Â© 2026 Harga.com â Temukan Harga Terbaik.
           </p>
-          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat di Indonesia 🇮🇩</p>
+          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat di Indonesia ð®ð©</p>
         </div>
       </footer>
 
-      {/* ── SCROLL REVEAL OBSERVER ── */}
+      {/* ââ SCROLL REVEAL OBSERVER ââ */}
       <Script id="harga-scroll-reveal" strategy="afterInteractive">{`
 (function(){
   if(typeof IntersectionObserver==='undefined')return;
@@ -806,7 +806,7 @@ export default async function HomePage() {
     entries.forEach(function(e){
       if(e.isIntersecting){e.target.classList.add('in-view');}
     });
-  },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
+  },{threshold:0.07,rootMargin:'0px 0px -50px 0px'});
   document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){
     // Add js-ready so CSS hides them for the reveal animation
     el.classList.add('js-ready');
