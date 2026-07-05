@@ -46,11 +46,11 @@ export function ProductCard({ product, compact = false }: Props) {
   const cashbackPct = platform?.cashbackPct ?? 0
   const isUsed = cheapest.condition === 'used'
 
-  // Property-specific logic
+  // Property / vehicle logic
   const isProperty = PROPERTY_CATEGORIES.includes(product.category)
   const isVehicle = VEHICLE_CATEGORIES.includes(product.category)
-  const vehicleCity = isVehicle ? (specs?.['city'] || '') : ''
   const specs = product.specifications as Record<string, string> | undefined
+  const vehicleCity = isVehicle ? (specs?.['city'] || '') : ''
   // Read specs — support both new (snake_case) and old (Indonesian label) formats
   const landAreaStr = specs?.['land_area_m2'] || specs?.['Luas Tanah']?.replace(/[^0-9.]/g, '') || ''
   const buildingAreaStr = specs?.['building_area_m2'] || specs?.['Luas Bangunan']?.replace(/[^0-9.]/g, '') || ''
@@ -85,8 +85,6 @@ export function ProductCard({ product, compact = false }: Props) {
     !rawImg.includes('picsum.photos')
   )
   const imgSrc = isValidImg ? rawImg : catConfig.placeholderUrl
-
-  const platformBg = platform?.id === 'tiktok' ? '#1a1a1a' : (platform?.color ?? '#9c9589')
 
   return (
     <Link href={`/produk/${product.slug || product.id}`} className="block group">
