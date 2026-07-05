@@ -50,7 +50,7 @@ export function ProductCard({ product, compact = false }: Props) {
   const isProperty = PROPERTY_CATEGORIES.includes(product.category)
   const isVehicle = VEHICLE_CATEGORIES.includes(product.category)
   const specs = product.specifications as Record<string, string> | undefined
-  const vehicleCity = isVehicle ? (specs?.['city'] || '') : ''
+  const vehicleCity = isVehicle ? (specs?.['city'] ?? '') : ''
   // Read specs — support both new (snake_case) and old (Indonesian label) formats
   const landAreaStr = specs?.['land_area_m2'] || specs?.['Luas Tanah']?.replace(/[^0-9.]/g, '') || ''
   const buildingAreaStr = specs?.['building_area_m2'] || specs?.['Luas Bangunan']?.replace(/[^0-9.]/g, '') || ''
@@ -183,7 +183,7 @@ export function ProductCard({ product, compact = false }: Props) {
           </p>
 
           {/* Vehicle city display */}
-          {isVehicle && vehicleCity && (
+          {isVehicle && vehicleCity && vehicleCity !== 'null' && (
             <p className="text-[10px] text-[var(--text-muted)] flex items-center gap-0.5 -mt-1.5 mb-1.5 truncate">
               <span>📍</span> {vehicleCity}
             </p>
