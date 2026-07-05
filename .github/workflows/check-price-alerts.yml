@@ -1,0 +1,20 @@
+name: Check Price Alerts
+
+on:
+  schedule:
+    # Daily at 01:00 UTC = 08:00 WIB
+    - cron: '0 1 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  check-alerts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Invoke check-price-alerts edge function
+        run: |
+          curl -s -X POST "https://rtdbfbmbvuqentvxcstf.functions.supabase.co/check-price-alerts" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            --max-time 60
+          echo ""
