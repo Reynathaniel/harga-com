@@ -65,6 +65,28 @@ const MOBIL_QUERIES = [
 const MOTOR_BATCH = MOTOR_QUERIES.slice((HOUR % 3) * 2, (HOUR % 3) * 2 + 2)
 const MOBIL_BATCH = MOBIL_QUERIES.slice((HOUR % 3) * 2, (HOUR % 3) * 2 + 2)
 
+// Olahraga keyword queries — rotate each run
+const OLAHRAGA_QUERIES = [
+  { q: 'sepatu olahraga', category: 'Olahraga' },
+  { q: 'jersey futsal', category: 'Olahraga' },
+  { q: 'raket badminton', category: 'Olahraga' },
+  { q: 'dumbbell', category: 'Olahraga' },
+  { q: 'treadmill', category: 'Olahraga' },
+  { q: 'sepeda', category: 'Olahraga' },
+  { q: 'helm sepeda', category: 'Olahraga' },
+  { q: 'peluit', category: 'Olahraga' },
+  { q: 'matras yoga', category: 'Olahraga' },
+  { q: 'bola basket', category: 'Olahraga' },
+  { q: 'bola voli', category: 'Olahraga' },
+  { q: 'bola sepak', category: 'Olahraga' },
+  { q: 'sarung tinju', category: 'Olahraga' },
+  { q: 'tas gym', category: 'Olahraga' },
+  { q: 'stopwatch olahraga', category: 'Olahraga' },
+]
+
+// Each run picks 3 olahraga queries, rotating through all 15 over 5 runs
+const OLAHRAGA_BATCH = OLAHRAGA_QUERIES.slice((HOUR % 5) * 3, (HOUR % 5) * 3 + 3)
+
 // Rotate queries each run based on hour
 const ALL_QUERIES = [
   'iPhone 15', 'Samsung Galaxy', 'laptop gaming', 'AirPods',
@@ -417,6 +439,24 @@ async function main() {
     console.log(`  vehicle listings: ${vehicleListings.length}/${toko.length+shopee.length}`)
     if (vehicleListings.length > 0) {
       const saved = await saveListings(vehicleListings, vq.category, vq.brand)
+      totalSaved += saved
+      console.log(`  Saved: ${saved}`)
+    }
+    await new Promise(r => setTimeout(r, 1500))
+  }
+
+  // Olahraga keyword scraping
+  console.log('\n── Olahraga ─────────────────────────────────────────────────')
+  for (const oq of OLAHRAGA_BATCH) {
+    console.log(`\nScraping olahraga: "${oq.q}"`)
+    const [toko, shopee] = await Promise.all([
+      scrapeTokopedia(oq.q, 20),
+      scrapeShopee(oq.q, 20),
+    ])
+    const olahragaListings = [...toko, ...shopee].filter(l => l.title && l.price > 0)
+    console.log(`  olahraga listings: ${olahragaListings.length}/${toko.length + shopee.length}`)
+    if (olahragaListings.length > 0) {
+      const saved = await saveListings(olahragaListings, oq.category)
       totalSaved += saved
       console.log(`  Saved: ${saved}`)
     }
