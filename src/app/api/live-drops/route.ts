@@ -61,8 +61,8 @@ async function getRealLiveDrops(supabase: any, limit = 8): Promise<LiveDrop[]> {
   }
 
   const candidates: { offerId: string; newPrice: number; dropPct: number }[] = []
-  for (const [offerId, rows] of byOffer.entries()) {
-    if (rows.length < 2) continue
+  byOffer.forEach((rows, offerId) => {
+    if (rows.length < 2) return
     const [current, previous] = rows
     if (previous.price > current.price && previous.price > 0) {
       const dropPct = ((previous.price - current.price) / previous.price) * 100
@@ -70,7 +70,7 @@ async function getRealLiveDrops(supabase: any, limit = 8): Promise<LiveDrop[]> {
         candidates.push({ offerId, newPrice: current.price, dropPct })
       }
     }
-  }
+  })
 
   if (candidates.length === 0) return []
 
