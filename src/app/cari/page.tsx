@@ -207,11 +207,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     : regularPlatforms
 
   const PROPERTY_PRICE_PRESETS = [
-    { label: '< 500jt',    min: undefined, max: 500_000_000 },
+    { label: '< 500jt',    min: 0, max: 500_000_000 },
     { label: '500jt–1M',   min: 500_000_000, max: 1_000_000_000 },
     { label: '1M–3M',      min: 1_000_000_000, max: 3_000_000_000 },
     { label: '3M–5M',      min: 3_000_000_000, max: 5_000_000_000 },
-    { label: '> 5M',       min: 5_000_000_000, max: undefined },
+    { label: '> 5M',       min: 5_000_000_000, max: 999_999_999_999 },
   ]
   const pricePresets = isVehicleCategory ? VEHICLE_PRICE_PRESETS
     : isPropertyCategory ? PROPERTY_PRICE_PRESETS
