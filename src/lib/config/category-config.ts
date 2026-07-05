@@ -123,7 +123,7 @@ export const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
     buyUrlFallback: (p) =>
       `https://www.tokopedia.com/search?st=product&q=${encodeURIComponent(p.name)}`,
     isUsedGoods: false,
-    forbiddenKeywords: ['parfum', 'minyak wangi', 'tasbih', 'jamu ', 'tas ransel', 'tas backpack', 'tas laptop'],
+    forbiddenKeywords: ['parfum', 'minyak wangi', 'tasbih', 'jamu ', 'tas ransel', 'tas backpack', 'tas laptop', 'essential oil', 'ikat rambut', 'kunciran rambut'],
   },
 
   'Fashion': {
