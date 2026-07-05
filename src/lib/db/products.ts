@@ -49,7 +49,6 @@ export interface GetProductsOptions {
   sort?:     'lowest' | 'highest' | 'rating' | 'popular' | 'newest'
   limit?:    number
   offset?:   number
-  condition?: 'new' | 'used'
   merk?:      string
   kota?:      string
 }
