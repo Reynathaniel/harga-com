@@ -8,7 +8,6 @@
 // is configured — sends an email via Resend. WhatsApp sending is not wired
 // up yet, so those notifications are recorded with sent = false.
 
-import { serve } from 'https://deno.land/std@0.203.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -73,7 +72,7 @@ async function sendEmail(to: string, alert: PriceAlert, product: MatchedProduct)
   }
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method !== 'POST' && req.method !== 'GET') {
     return new Response('Method not allowed', { status: 405 })
   }
