@@ -708,22 +708,21 @@ export default async function HomePage() {
               Temukan harga terbaik barang baru &amp; bekas dari semua marketplace Indonesia.
             </p>
             <div className="flex gap-2">
-              {[
-                { label: 'Instagram', icon: 'IG', href: 'https://instagram.com/hargacom' },
-                { label: 'Twitter',   icon: 'X',  href: 'https://twitter.com/hargacom' },
-                { label: 'TikTok',   icon: 'TK', href: 'https://tiktok.com/@hargacom' },
-              ].map(s => (
-                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" title={s.label}
-                  className="flex items-center justify-center rounded-lg transition-colors"
-                  style={{
-                    width: 28, height: 28, background: 'var(--bg-hover)',
-                    border: '1px solid var(--border-subtle)',
-                    fontSize: 'var(--text-9)', fontWeight: 'var(--fw-extrabold)',
-                    color: 'var(--text-muted)', textDecoration: 'none',
-                  }}>
-                  {s.icon}
-                </a>
-              ))}
+              <a href="https://instagram.com/hargacom" target="_blank" rel="noopener noreferrer" title="Instagram"
+                className="flex items-center justify-center rounded-lg transition-colors"
+                style={{ width: 28, height: 28, background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)', color: 'var(--text-muted)', textDecoration: 'none' }}>
+                <svg width={20} height={20} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z"/></svg>
+              </a>
+              <a href="https://twitter.com/hargacom" target="_blank" rel="noopener noreferrer" title="Twitter"
+                className="flex items-center justify-center rounded-lg transition-colors"
+                style={{ width: 28, height: 28, background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)', color: 'var(--text-muted)', textDecoration: 'none' }}>
+                <svg width={20} height={20} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </a>
+              <a href="https://tiktok.com/@hargacom" target="_blank" rel="noopener noreferrer" title="TikTok"
+                className="flex items-center justify-center rounded-lg transition-colors"
+                style={{ width: 28, height: 28, background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)', color: 'var(--text-muted)', textDecoration: 'none' }}>
+                <svg width={20} height={20} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.19 8.19 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z"/></svg>
+              </a>
             </div>
           </div>
 
@@ -752,10 +751,9 @@ export default async function HomePage() {
             {
               title: 'Perusahaan',
               links: [
-                { label: 'Tentang Kami', href: '/tentang' },
-                { label: 'Karir',        href: '/tentang' },
-                { label: 'Kontak',       href: '/tentang' },
-                { label: 'Blog',         href: '/blog' },
+                { label: 'Karir',  href: 'mailto:karir@harga.com' },
+                { label: 'Kontak', href: 'mailto:hello@harga.com' },
+                { label: 'Blog',   href: '/blog' },
               ],
             },
             {
