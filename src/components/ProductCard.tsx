@@ -7,8 +7,10 @@ import { PlatformBadge } from '@/components/PlatformBadge'
 import type { Product } from '@/lib/types'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent, cleanProductName } from '@/lib/utils'
+import { getCategoryConfig } from '@/lib/config/category-config'
 
 const PROPERTY_CATEGORIES = ['Rumah Bekas', 'Tanah Bekas']
+const VEHICLE_CATEGORIES = ['Motor Bekas', 'Mobil Bekas']
 const INT32_MAX = 2147483647
 
 interface Props {
@@ -21,6 +23,7 @@ export function ProductCard({ product, compact = false }: Props) {
   const [imgFailed, setImgFailed] = useState(false)
 
   const sorted = lowestListingFirst(product.listings)
+  const catConfig = getCategoryConfig(product.category)
   const cheapest = sorted[0]
 
   if (!cheapest) {
@@ -45,6 +48,8 @@ export function ProductCard({ product, compact = false }: Props) {
 
   // Property-specific logic
   const isProperty = PROPERTY_CATEGORIES.includes(product.category)
+  const isVehicle = VEHICLE_CATEGORIES.includes(product.category)
+  const vehicleCity = isVehicle ? (specs?.['city'] || '') : ''
   const specs = product.specifications as Record<string, string> | undefined
   // Read specs — support both new (snake_case) and old (Indonesian label) formats
   const landAreaStr = specs?.['land_area_m2'] || specs?.['Luas Tanah']?.replace(/[^0-9.]/g, '') || ''
@@ -79,7 +84,7 @@ export function ProductCard({ product, compact = false }: Props) {
     !rawImg.includes('placeholder') &&
     !rawImg.includes('picsum.photos')
   )
-  const imgSrc = isValidImg ? rawImg : '/placeholder-product.png'
+  const imgSrc = isValidImg ? rawImg : catConfig.placeholderUrl
 
   const platformBg = platform?.id === 'tiktok' ? '#1a1a1a' : (platform?.color ?? '#9c9589')
 
@@ -178,6 +183,13 @@ export function ProductCard({ product, compact = false }: Props) {
           <p className="text-[13px] font-medium text-[var(--text-primary)] leading-snug line-clamp-2 min-h-[2.5em] mb-2">
             {cleanProductName(product.name)}
           </p>
+
+          {/* Vehicle city display */}
+          {isVehicle && vehicleCity && (
+            <p className="text-[10px] text-[var(--text-muted)] flex items-center gap-0.5 -mt-1.5 mb-1.5 truncate">
+              <span>📍</span> {vehicleCity}
+            </p>
+          )}
 
           {/* Price — shows "Harga Nego" for INT32_MAX */}
           <div className="flex items-baseline gap-1.5 mb-1.5">
