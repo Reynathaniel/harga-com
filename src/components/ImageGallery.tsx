@@ -14,10 +14,11 @@ export function ImageGallery({ images, alt, objectFit = 'contain' }: Props) {
   const [failed, setFailed] = useState<Record<number, boolean>>({})
   const [zoomed, setZoomed] = useState(false)
 
-  const imgs = images.length > 0 ? images : ['/placeholder-product.png']
+  const PLACEHOLDER = 'https://placehold.co/400x400/1e1e2e/555555?text=No+Image'
+  const imgs = images.length > 0 ? images : [PLACEHOLDER]
 
   const src = (i: number) =>
-    failed[i] ? '/placeholder-product.png' : imgs[i]
+    failed[i] ? PLACEHOLDER : imgs[i]
 
   const prev = () => setActive(i => (i - 1 + imgs.length) % imgs.length)
   const next = () => setActive(i => (i + 1) % imgs.length)
