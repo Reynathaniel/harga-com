@@ -19,7 +19,7 @@ import ProductLink from '@/components/ProductLink'
 import type { PlatformId } from '@/lib/types'
 
 export const revalidate = 300
-// Return empty array — all product pages are ISR'd on first request.
+// Return empty array â all product pages are ISR'd on first request.
 // Avoids making Supabase network calls at build time which can hang
 // the Vercel build if the project is unreachable (~55s TCP timeout).
 export async function generateStaticParams() {
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   const sorted = lowestListingFirst(product.listings)
   const cheapest = sorted[0]
   const priceStr = cheapest
-    ? (cheapest.price === INT32_MAX ? ' — Harga Nego' : ` — mulai Rp${Math.round(cheapest.price).toLocaleString('id')}`)
+    ? (cheapest.price === INT32_MAX ? ' â Harga Nego' : ` â mulai Rp${Math.round(cheapest.price).toLocaleString('id')}`)
     : ''
   const title = `${product.name}${priceStr} | Harga.com`
   const description = `Bandingkan harga ${product.name} dari Tokopedia, Shopee, Lazada dan platform lainnya. Temukan harga terbaik dan cashback otomatis di Harga.com.`
@@ -91,7 +91,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
   const isProperty = product.category === 'Rumah Bekas' || product.category === 'Tanah Bekas'
   const isContactPrice = cheapest.price === INT32_MAX
 
-  // Price per m² for property products
+  // Price per mÂ² for property products
   const specs = product.specifications as Record<string, unknown>
   const landAreaRaw = specs['land_area_m2'] ?? specs['Luas Tanah']
   const buildingAreaRaw = specs['building_area_m2'] ?? specs['building_area'] ?? specs['Luas Bangunan']
@@ -220,17 +220,21 @@ export default async function ProductPage({ params }: { params: { id: string } }
             <h1 className="text-xl font-bold text-[var(--text-primary)] mb-3 leading-tight">{displayName}</h1>
 
             <div className="flex items-center gap-4 mb-4">
-              <div className="flex items-center gap-1.5">
-                <div className="flex items-center gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} size={14}
-                      fill={i < Math.floor(product.averageRating) ? '#f59e0b' : 'transparent'}
-                      className={i < Math.floor(product.averageRating) ? 'text-amber-400' : 'text-[var(--text-muted)]'} />
-                  ))}
-                </div>
-                <span className="text-sm font-bold text-[var(--text-primary)]">{product.averageRating.toFixed(1)}</span>
-              </div>
-              <span className="text-sm text-[var(--text-muted)]">{product.totalReviews.toLocaleString('id')} ulasan</span>
+              {product.totalReviews > 0 && (
+                <>
+                  <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star key={i} size={14}
+                          fill={i < Math.floor(product.averageRating) ? '#f59e0b' : 'transparent'}
+                          className={i < Math.floor(product.averageRating) ? 'text-amber-400' : 'text-[var(--text-muted)]'} />
+                      ))}
+                    </div>
+                    <span className="text-sm font-bold text-[var(--text-primary)]">{product.averageRating.toFixed(1)}</span>
+                  </div>
+                  <span className="text-sm text-[var(--text-muted)]">{product.totalReviews.toLocaleString('id')} ulasan</span>
+                </>
+              )}
               <div className="flex items-center gap-1 text-xs text-[var(--text-muted)] ml-auto">
                 <Users size={12} />
                 <span>{sorted.length} platform</span>
@@ -323,17 +327,17 @@ export default async function ProductPage({ params }: { params: { id: string } }
                 })}
               </div>
 
-              {/* Price per m² for property products */}
+              {/* Price per mÂ² for property products */}
               {isProperty && !isContactPrice && landArea > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2">
                   <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-secondary)]">
-                    <span className="text-[var(--text-muted)]">Harga/m² tanah:</span>
-                    <span className="font-semibold text-[var(--text-primary)]">{formatRupiah(cheapest.price / landArea, true)}/m²</span>
+                    <span className="text-[var(--text-muted)]">Harga/mÂ² tanah:</span>
+                    <span className="font-semibold text-[var(--text-primary)]">{formatRupiah(cheapest.price / landArea, true)}/mÂ²</span>
                   </div>
                   {product.category === 'Rumah Bekas' && buildingArea > 0 && (
                     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-secondary)]">
-                      <span className="text-[var(--text-muted)]">Harga/m² bangunan:</span>
-                      <span className="font-semibold text-[var(--text-primary)]">{formatRupiah(cheapest.price / buildingArea, true)}/m²</span>
+                      <span className="text-[var(--text-muted)]">Harga/mÂ² bangunan:</span>
+                      <span className="font-semibold text-[var(--text-primary)]">{formatRupiah(cheapest.price / buildingArea, true)}/mÂ²</span>
                     </div>
                   )}
                 </div>
