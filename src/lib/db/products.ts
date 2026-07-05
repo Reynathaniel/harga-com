@@ -145,6 +145,14 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
         // Map URL id (e.g. 'rumah-tangga') to DB label ('Rumah Tangga')
         const dbCategory = CATEGORY_ID_TO_LABEL[category] ?? category
         q = q.ilike('category', dbCategory)
+        // Forbidden keyword filter: prevents marketplace-injected sponsored products
+        // from polluting category results. Rules are defined in category-config.ts.
+        const catCfg = Object.values(CATEGORY_CONFIGS).find(c => c.dbLabel === dbCategory)
+        if (catCfg?.forbiddenKeywords?.length) {
+          for (const kw of catCfg.forbiddenKeywords) {
+            q = q.not('name', 'ilike', `%${kw}%`)
+          }
+        }
       }
             // Platform filter: direct best_platform_id filter avoids the 1000-row offers subquery limit.
       // For vehicle categories, auto-restrict to vehicle platforms.
