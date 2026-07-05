@@ -187,6 +187,8 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
       } else if (condition === 'new') {
         q = q.eq('best_condition', 'new')
       }
+      if (merk) q = q.ilike('brand', `%${merk}%`)
+      if (kota) q = q.or(`name.ilike.%${kota}%,city.ilike.%${kota}%`)
       if (minPrice != null) q = q.gte('best_price', minPrice)
       if (maxPrice != null) q = q.lte('best_price', maxPrice)
 
