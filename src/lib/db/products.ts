@@ -1,4 +1,4 @@
-/**
+﻿/**
  * products.ts - Data access layer for products
  *
  * Every function tries Supabase first.
@@ -152,6 +152,7 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
       const dbCatLabel = category ? (CATEGORY_ID_TO_LABEL[category] ?? category) : ''
       const isVehicleCat = ['Motor Bekas', 'Mobil Bekas'].includes(dbCatLabel)
       const isPropertyCat = dbCatLabel === 'Rumah Bekas'
+      const isTanahBekas = dbCatLabel === 'Tanah Bekas'
 
       if (platform) {
         // Explicit platform: resolve merchant UUIDs then product IDs (supports multi-offer products)
@@ -170,6 +171,10 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
       } else if (isPropertyCat) {
         q = q.in('best_platform_id', ['olx', 'carousell'])
       }
+
+      // Price floor to filter out non-house/non-land junk listings misclassified into these categories
+      if (isPropertyCat) q = q.gte('best_price', 1000000)
+      if (isTanahBekas) q = q.gte('best_price', 10000000)
 
 // Filter by best_condition (added to products_with_best_offer view)
       if (condition === 'used') {
@@ -400,3 +405,4 @@ export async function getPromoProducts(limit = 8): Promise<Product[]> {
   // Fallback: return top products sorted by reviews as placeholder
   return MOCK_PRODUCTS.slice(0, limit).map(p => p as unknown as Product)
 }
+
