@@ -126,7 +126,7 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
         const patch: Record<string, any> = {
           name:           cleanProductName(listing.title),
           brand:          listing.brand    ?? null,
-          category:       listing.category ?? null,
+          category:       listing.category ? validateCategory(cleanProductName(listing.title), listing.category) : null,
           tags:           [],
           specifications: listing.specs ?? {},
           updated_at:     now,
@@ -145,7 +145,7 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
             slug,
             name:           cleanProductName(listing.title),
             brand:          listing.brand    ?? null,
-            category:       listing.category ?? null,
+            category:       listing.category ? validateCategory(cleanProductName(listing.title), listing.category) : null,
             image_url:      listing.imageUrl  || null,
             images:         listing.imageUrl  ? [listing.imageUrl] : [],
             tags:           [],
