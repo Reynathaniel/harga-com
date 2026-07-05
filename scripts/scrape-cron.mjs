@@ -87,6 +87,9 @@ const OLAHRAGA_QUERIES = [
 // Each run picks 3 olahraga queries, rotating through all 15 over 5 runs
 const OLAHRAGA_BATCH = OLAHRAGA_QUERIES.slice((HOUR % 5) * 3, (HOUR % 5) * 3 + 3)
 
+// Tanah Bekas keyword queries — narrow the OLX property category search
+const TANAH_KEYWORDS = ['jual tanah', 'tanah kavling', 'tanah murah', 'tanah strategis', 'kavling perumahan']
+
 // Rotate queries each run based on hour
 const ALL_QUERIES = [
   'iPhone 15', 'Samsung Galaxy', 'laptop gaming', 'AirPods',
@@ -258,11 +261,12 @@ function getOlxParam(parameters, key) {
   return param?.value ?? null
 }
 
-async function scrapeOlxCategory(category, categoryId, pages = 3) {
+async function scrapeOlxCategory(category, categoryId, pages = 3, query = null) {
   const listings = []
   for (let page = 1; page <= pages; page++) {
     try {
-      const url = `https://www.olx.co.id/api/relevance/v4/search?category_id=${categoryId}&location_id=1000&page=${page}`
+      const queryParam = query ? `&query=${encodeURIComponent(query)}` : ''
+      const url = `https://www.olx.co.id/api/relevance/v4/search?category_id=${categoryId}&location_id=1000&page=${page}${queryParam}`
       const res = await fetch(url, {
         headers: {
           'User-Agent': randUA(),
@@ -461,6 +465,20 @@ async function main() {
       console.log(`  Saved: ${saved}`)
     }
     await new Promise(r => setTimeout(r, 1500))
+  }
+
+  // OLX Tanah Bekas — keyword-targeted (broader coverage than plain category browse)
+  console.log('\n── OLX Tanah Bekas (keywords) ────────────────────────────')
+  for (const kw of TANAH_KEYWORDS) {
+    console.log(`\nScraping OLX tanah: "${kw}"`)
+    const listings = await scrapeOlxCategory('Tanah Bekas', OLX_PROPERTY_CATEGORIES['Tanah Bekas'], 2, kw)
+    console.log(`  olx-tanah: ${listings.length}`)
+    if (listings.length > 0) {
+      const saved = await saveListings(listings, 'Tanah Bekas')
+      totalSaved += saved
+      console.log(`  Saved: ${saved}/${listings.length}`)
+    }
+    await new Promise(r => setTimeout(r, 2000))
   }
 
   console.log(`\nDone. Total saved: ${totalSaved}`)
