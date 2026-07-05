@@ -33,6 +33,12 @@ const OLX_PROPERTY_CATEGORIES = {
   'Tanah Bekas': '5159',
 }
 
+// OLX Vehicle category IDs (olx.co.id/motor_c197, olx.co.id/mobil-bekas_c198)
+const OLX_VEHICLE_CATEGORIES = {
+  'Motor Bekas': '197',
+  'Mobil Bekas': '198',
+}
+
 
 // Vehicle keyword queries — rotate each run
 const MOTOR_QUERIES = [
@@ -213,9 +219,9 @@ async function scrapeBukalapak(query, limit = 20) {
   }
 }
 
-// ── OLX Property scraper ───────────────────────────────────────────────────
-// Fetches real property listings (Rumah Bekas / Tanah Bekas) from OLX's
-// internal category search API. Images are hotlinkable OLX CDN URLs.
+// ── OLX category scraper ────────────────────────────────────────────────────
+// Fetches real listings (property or vehicle) from OLX's internal category
+// search API by category_id. Images are hotlinkable OLX CDN URLs.
 function getOlxImageUrl(images) {
   if (!Array.isArray(images) || images.length === 0) return null
   const fileId = images[0]?.id
@@ -229,7 +235,7 @@ function getOlxParam(parameters, key) {
   return param?.value ?? null
 }
 
-async function scrapeOlxProperty(category, categoryId, pages = 3) {
+async function scrapeOlxCategory(category, categoryId, pages = 3) {
   const listings = []
   for (let page = 1; page <= pages; page++) {
     try {
@@ -367,8 +373,24 @@ async function main() {
   console.log('\n── OLX Property ──────────────────────────────────────────')
   for (const [category, categoryId] of Object.entries(OLX_PROPERTY_CATEGORIES)) {
     console.log(`\nScraping OLX property: "${category}" (category_id=${categoryId})`)
-    const listings = await scrapeOlxProperty(category, categoryId, 3)
+    const listings = await scrapeOlxCategory(category, categoryId, 3)
     console.log(`  olx-property: ${listings.length}`)
+
+    if (listings.length > 0) {
+      const saved = await saveListings(listings, category)
+      totalSaved += saved
+      console.log(`  Saved: ${saved}/${listings.length}`)
+    }
+
+    await new Promise(r => setTimeout(r, 2000))
+  }
+
+  // OLX Vehicles (category-based, not keyword-based)
+  console.log('\n── OLX Vehicles ─────────────────────────────────────────')
+  for (const [category, categoryId] of Object.entries(OLX_VEHICLE_CATEGORIES)) {
+    console.log(`\nScraping OLX vehicle: "${category}" (category_id=${categoryId})`)
+    const listings = await scrapeOlxCategory(category, categoryId, 3)
+    console.log(`  olx-vehicle: ${listings.length}`)
 
     if (listings.length > 0) {
       const saved = await saveListings(listings, category)
