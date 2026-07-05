@@ -277,8 +277,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </span>
           {[
             { value: '',     label: 'Semua' },
-            { value: 'new',  label: '✨ Baru' },
-            { value: 'used', label: '♻️ Bekas' },
+            { value: 'new',  label: 'Baru' },
+            { value: 'used', label: 'Bekas' },
           ].map(opt => (
             <Link
               key={opt.value}
