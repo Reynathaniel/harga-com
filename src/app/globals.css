@@ -5,7 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Instrument+Serif:ital@0;1&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,500;1,700&display=swap');
 
 /* ============================================================
-   Harga.com Design System — Classic Premium (Off-White Edition)
+   Harga.com Design System â Classic Premium (Off-White Edition)
    ============================================================ */
 
 :root {
@@ -381,7 +381,7 @@ body {
   border: 1px solid var(--glass-border);
 }
 
-/* Warm subtle texture blobs — replaces dark mesh */
+/* Warm subtle texture blobs â replaces dark mesh */
 .harga-mesh {
   position: fixed;
   inset: 0;
@@ -543,7 +543,7 @@ body {
 /* Footer link hover */
 .footer-link:hover { color: var(--text-primary) !important; transition: color 0.15s; }
 
-/* Hero gradient — warm parchment orange */
+/* Hero gradient â warm parchment orange */
 .hero-gradient {
   background:
     radial-gradient(ellipse 70% 50% at 50% -10%, rgba(249,115,22,0.07), transparent),
@@ -588,10 +588,10 @@ body {
 .platform-jd         { background: var(--platform-jd); }
 
 /* ============================================================
-   Motion System v2 — Smooth Scroll Reveal + Entrance
+   Motion System v2 â Smooth Scroll Reveal + Entrance
    ============================================================ */
 
-/* Hero entrance — staggered, fires on page load */
+/* Hero entrance â staggered, fires on page load */
 @keyframes harga-hero-enter {
   from { opacity: 0; transform: translateY(22px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -603,38 +603,32 @@ body {
 .hero-enter-4 { animation: harga-hero-enter 0.72s cubic-bezier(0.22,1,0.36,1) 0.50s both; }
 .hero-enter-5 { animation: harga-hero-enter 0.72s cubic-bezier(0.22,1,0.36,1) 0.66s both; }
 
-/* Scroll reveal — JS adds .in-view via IntersectionObserver */
+/* Scroll reveal â JS adds .in-view via IntersectionObserver */
 /* Start visible so content shows without JS (progressive enhancement) */
 .reveal {
   opacity: 1;
   transform: none;
-  transition:
-    opacity 0.65s cubic-bezier(0.22,1,0.36,1),
-    transform 0.65s cubic-bezier(0.22,1,0.36,1);
+  transition: opacity 0.4s ease;
 }
 /* When JS is ready, hide first then animate in */
 .reveal.js-ready {
   opacity: 0;
-  transform: translateY(30px);
 }
 .reveal.in-view {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* Grid reveal — children stagger in when parent gets .in-view */
-/* Start visible by default — JS will add animation via in-view class */
+/* Grid reveal â children stagger in when parent gets .in-view */
+/* Start visible by default â JS will add animation via in-view class */
 .reveal-grid > * {
   opacity: 1;
   transform: none;
-  transition:
-    opacity 0.55s cubic-bezier(0.22,1,0.36,1),
-    transform 0.55s cubic-bezier(0.22,1,0.36,1);
+  transition: opacity 0.4s ease;
 }
 /* When JS is ready, children start hidden until in-view */
 .reveal-grid.js-ready > * {
   opacity: 0;
-  transform: translateY(22px);
 }
 .reveal-grid.in-view > *:nth-child(1)   { opacity: 1; transform: none; transition-delay:   0ms; }
 .reveal-grid.in-view > *:nth-child(2)   { opacity: 1; transform: none; transition-delay:  70ms; }
@@ -646,7 +640,7 @@ body {
 .reveal-grid.in-view > *:nth-child(8)   { opacity: 1; transform: none; transition-delay: 490ms; }
 .reveal-grid.in-view > *:nth-child(n+9) { opacity: 1; transform: none; transition-delay: 490ms; }
 
-/* Stat pop — numbers bounce in */
+/* Stat pop â numbers bounce in */
 @keyframes harga-stat-pop {
   from { opacity: 0; transform: translateY(14px) scale(0.93); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
@@ -663,7 +657,7 @@ body {
 .stat-pop.in-view:nth-child(3) { animation-delay: 180ms; }
 .stat-pop.in-view:nth-child(4) { animation-delay: 270ms; }
 
-/* Reduced motion — respect user preference */
+/* Reduced motion â respect user preference */
 @media (prefers-reduced-motion: reduce) {
   .hero-enter-1,.hero-enter-2,.hero-enter-3,.hero-enter-4,.hero-enter-5 {
     animation: none !important; opacity: 1 !important; transform: none !important;
