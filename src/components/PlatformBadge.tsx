@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import type { PlatformId } from '@/lib/types'
 import { PLATFORMS } from '@/lib/platforms'
 
@@ -10,9 +9,9 @@ interface PlatformBadgeProps {
 }
 
 const sizeMap = {
-  sm: { pill: 'text-[10px] px-1.5 py-0.5 gap-1',  dot: 'w-5 h-5',  icon: 'w-6 h-6',  img: 14 },
-  md: { pill: 'text-xs px-2 py-1 gap-1.5',          dot: 'w-6 h-6',  icon: 'w-8 h-8',  img: 18 },
-  lg: { pill: 'text-sm px-3 py-1.5 gap-2',          dot: 'w-8 h-8',  icon: 'w-11 h-11', img: 24 },
+  sm: { pill: 'text-[10px] px-1.5 py-0.5 gap-1', dot: 'w-5 h-5 text-[9px]',   icon: 'w-6 h-6 text-[9px]'   },
+  md: { pill: 'text-xs px-2 py-1 gap-1.5',       dot: 'w-6 h-6 text-[10px]',  icon: 'w-8 h-8 text-[10px]'  },
+  lg: { pill: 'text-sm px-3 py-1.5 gap-2',        dot: 'w-8 h-8 text-xs',      icon: 'w-11 h-11 text-xs'    },
 }
 
 export function PlatformBadge({
@@ -26,27 +25,16 @@ export function PlatformBadge({
 
   const sz = sizeMap[size]
   const bg = platformId === 'tiktok' ? '#010101' : platform.color
-  const logoSrc = `/logos/${platformId}.svg`
-
-  const Logo = ({ s }: { s: number }) => (
-    <Image
-      src={logoSrc}
-      alt={platform.name}
-      width={s}
-      height={s}
-      className="rounded-sm object-contain"
-      unoptimized
-    />
-  )
+  const initials = (platform.shortName || platform.name).slice(0, 2).toUpperCase()
 
   if (variant === 'dot') {
     return (
       <div
-        className={`${sz.dot} rounded-full flex items-center justify-center font-bold text-white shrink-0 overflow-hidden`}
+        className={`${sz.dot} rounded-full flex items-center justify-center font-bold text-white shrink-0`}
         style={{ background: bg }}
         title={platform.name}
       >
-        <Logo s={sz.img} />
+        {initials}
       </div>
     )
   }
@@ -54,23 +42,26 @@ export function PlatformBadge({
   if (variant === 'icon') {
     return (
       <div
-        className={`${sz.icon} rounded-xl flex items-center justify-center font-bold text-white shrink-0 overflow-hidden`}
+        className={`${sz.icon} rounded-xl flex items-center justify-center font-bold text-white shrink-0`}
         style={{ background: bg }}
         title={platform.name}
       >
-        <Logo s={sz.img} />
+        {initials}
       </div>
     )
   }
 
-  // pill variant
+  // pill variant (default)
   return (
     <span
       className={`inline-flex items-center font-semibold rounded-full text-white ${sz.pill}`}
       style={{ background: bg }}
     >
-      <span className="flex-shrink-0 overflow-hidden rounded-sm">
-        <Logo s={sz.img} />
+      <span
+        className="flex-shrink-0 rounded-sm flex items-center justify-center font-bold leading-none"
+        style={{ width: 14, height: 14, fontSize: 8, background: 'rgba(0,0,0,0.18)' }}
+      >
+        {initials}
       </span>
       {showName && <span>{platform.name}</span>}
     </span>
