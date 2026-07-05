@@ -602,6 +602,32 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               </div>
             )}
 
+            {/* Mobile-only filter chips */}
+            {(isVehicleCategory || isPropertyCategory) && (
+              <div className="lg:hidden mb-3">
+                {isVehicleCategory && (
+                  <div className="mb-2">
+                    <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1.5">Merek</p>
+                    <div className="flex gap-1.5 overflow-x-auto pb-1" style={{scrollbarWidth:'none'}}>
+                      <Link href={buildHref({ merk: undefined, offset: undefined })} className={"whitespace-nowrap px-2.5 py-1 text-xs rounded-lg border transition-colors "+(!merk?"bg-amber-500/15 text-amber-400 border-amber-500/25 font-semibold":"text-[var(--text-secondary)] border-[var(--border-subtle)]")}>Semua</Link>
+                      {(activeCategory?.id === 'motor-bekas' ? MOTOR_BRANDS : MOBIL_BRANDS).map(b => (
+                        <Link key={b} href={buildHref({ merk: b, offset: undefined })} className={"whitespace-nowrap px-2.5 py-1 text-xs rounded-lg border transition-colors "+(merk===b?"bg-amber-500/15 text-amber-400 border-amber-500/25 font-semibold":"text-[var(--text-secondary)] border-[var(--border-subtle)]")}>{b}</Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1.5">📍 Kota</p>
+                  <div className="flex gap-1.5 overflow-x-auto pb-1" style={{scrollbarWidth:'none'}}>
+                    <Link href={buildHref({ kota: undefined, offset: undefined })} className={"whitespace-nowrap px-2.5 py-1 text-xs rounded-lg border transition-colors "+(!kota?"bg-amber-500/15 text-amber-400 border-amber-500/25 font-semibold":"text-[var(--text-secondary)] border-[var(--border-subtle)]")}>Semua</Link>
+                    {KOTA_LIST.map(k => (
+                      <Link key={k} href={buildHref({ kota: k, offset: undefined })} className={"whitespace-nowrap px-2.5 py-1 text-xs rounded-lg border transition-colors "+(kota===k?"bg-amber-500/15 text-amber-400 border-amber-500/25 font-semibold":"text-[var(--text-secondary)] border-[var(--border-subtle)]")}>{k}</Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {products.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 stagger-children">
                 {products.map(p => <ProductCard key={p.id} product={p} />)}
