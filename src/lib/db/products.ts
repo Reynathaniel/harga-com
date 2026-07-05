@@ -17,6 +17,7 @@ import type { ProductRow, OfferWithMerchant } from '../database.types'
 import { adaptDbProductToAppProduct } from './adapters'
 import { getPriceHistory } from './price-history'
 import type { PriceHistory } from '../types'
+import { CATEGORY_CONFIGS } from '../config/category-config'
 
 function sanitizeSearchQuery(q: string): string {
   return q.trim().slice(0, 200).replace(/[<>{}]/g, '')
