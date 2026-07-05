@@ -122,7 +122,6 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
     sort = 'lowest',
     limit = 40,
     offset = 0,
-    condition,
     merk,
     kota,
   } = opts
