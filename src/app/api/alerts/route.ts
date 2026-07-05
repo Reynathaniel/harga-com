@@ -6,7 +6,7 @@
  * 2. Query alert:   { query, targetPrice, email, notifyType? }
  *
  * Stores to Supabase `price_alerts` table.
- * Table schema: id, query, email, target_price, notify_type, active, created_at
+ * Table schema: id, query, email, target_price, notify_type, is_active, created_at
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data, error } = await (db as any)
           .from('price_alerts')
-          .insert({ query, email, target_price: targetPrice, notify_type: notifyType, active: true })
+          .insert({ query, email, target_price: targetPrice, notify_type: notifyType, is_active: true })
           .select()
           .single()
 
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
             email:       row.email,
             targetPrice: row.target_price,
             notifyType:  row.notify_type,
-            active:      row.active,
+            active:      row.is_active,
             createdAt:   row.created_at,
           },
         })
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
           email:        alertEmail,
           target_price: targetPrice,
           notify_type:  notifyType ?? 'email',
-          active:       true,
+          is_active:    true,
         })
         .select()
         .single()
@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
             targetPrice:  row.target_price,
             currentPrice: product.lowestPrice,
             platforms:    platforms ?? [],
-            active:       true,
+            active:       row.is_active,
             createdAt:    row.created_at,
           },
         })
