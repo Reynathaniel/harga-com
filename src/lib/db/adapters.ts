@@ -14,7 +14,6 @@ import { subDays } from 'date-fns'
 export function adaptOfferToListing(offer: OfferWithMerchant, fallbackImageUrl?: string): PriceListing {
   const merchant = offer.merchant
   return {
-    offerId:       offer.id,
     platformId:    merchant.platform_id as PlatformId,
     price:         offer.price,
     originalPrice: offer.original_price ?? undefined,
@@ -52,11 +51,14 @@ export function adaptDbProductToAppProduct(
   const lowestPrice  = prices.length ? Math.min(...prices) : 0
   const highestPrice = prices.length ? Math.max(...prices) : 0
 
+  // Determine which platforms this product actually has listings on
+  const productPlatforms = [...new Set(listings.map(l => l.platformId))] as PlatformId[]
+
   // Use real price history if available, otherwise generate synthetic data
-  // so the chart always shows something useful to the user
+  // using the product's actual platforms so the chart always shows something useful
   const priceHistory = (realPriceHistory && realPriceHistory.length > 0)
     ? realPriceHistory
-    : (lowestPrice > 0 ? generateSyntheticHistory(lowestPrice, 30, listings.map(l => l.platformId)) : [])
+    : (lowestPrice > 0 ? generateSyntheticHistory(lowestPrice, 30, productPlatforms) : [])
 
   // Parse specifications safely
   let specifications: Record<string, string> = {}
@@ -91,24 +93,50 @@ export function adaptDbProductToAppProduct(
 }
 
 // ── generateSyntheticHistory ────────────────────────────────────────
-// Used when real price history is not yet populated in DB
+// Used when real price history is not yet populated in DB.
+// Generates price data for the platforms the product actually has,
+// so the chart is never blank due to platform mismatch.
 
-export function generateSyntheticHistory(base: number, days = 30, platformIds?: string[]) {
+// Per-platform price multipliers (relative to base price)
+const PLATFORM_MULTIPLIERS: Partial<Record<PlatformId, number>> = {
+  tokopedia:        1.00,
+  shopee:           0.94,
+  lazada:           1.02,
+  bukalapak:        0.97,
+  blibli:           1.05,
+  tiktok:           0.91,
+  amazon:           1.10,
+  alibaba:          0.80,
+  aliexpress:       0.82,
+  jd:               1.03,
+  olx:              0.88,
+  carousell:        0.85,
+  carsome:          0.92,
+  mobil123:         0.95,
+  oto:              0.98,
+  momobil:          0.93,
+  belanjakendaraan: 0.96,
+}
+
+export function generateSyntheticHistory(
+  base: number,
+  days = 30,
+  platforms: PlatformId[] = ['tokopedia', 'shopee', 'lazada', 'blibli', 'tiktok']
+) {
+  // Ensure we always have at least one platform to chart
+  const activePlatforms = platforms.length > 0 ? platforms : ['tokopedia' as PlatformId]
+
   const history = []
-  // Default to the main marketplaces if no specific platforms provided
-  const activePlatforms = platformIds && platformIds.length > 0 ? platformIds : ['tokopedia', 'shopee', 'lazada']
-
   for (let i = days; i >= 0; i--) {
     const v = () => base * (0.87 + Math.random() * 0.22)
     const prices: Partial<Record<PlatformId, number | null>> = {}
 
-    // Generate prices for each active platform with slight variation
     activePlatforms.forEach((pid, idx) => {
-      const multipliers = [1.00, 0.94, 1.02, 0.97, 1.05, 0.91, 1.08, 0.96]
-      const mult = multipliers[idx % multipliers.length]
-      // Occasionally skip a data point to simulate real scraping gaps
-      const skip = (i + idx) % (7 + idx * 2) === 0
-      ;(prices as Record<string, number | null>)[pid] = skip ? null : Math.round(v() * mult / 1000) * 1000
+      const mult = PLATFORM_MULTIPLIERS[pid] ?? 1.0
+      // Stagger occasional null gaps for realism (different cadence per platform)
+      const gapCycle = 7 + (idx * 3)
+      const hasGap = i % gapCycle === 0 && i > 0
+      prices[pid] = hasGap ? null : Math.round(v() * mult / 1000) * 1000
     })
 
     history.push({ date: subDays(new Date(), i), prices })
