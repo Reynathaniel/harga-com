@@ -1,5 +1,5 @@
 /**
- * scraper-save.ts — Persist RawListing[] from scraper into Supabase.
+ * scraper-save.ts -- Persist RawListing[] from scraper into Supabase.
  * Strategy per listing:
  *   1. Upsert product  (conflict on slug)
  *   2. Upsert offer    (conflict on product_id + merchant_id)
@@ -8,7 +8,6 @@
 
 import { tryGetServerClient } from '../supabase'
 import type { RawListing } from '../scrapers/types'
-import { cleanProductName } from '../utils'
 
 // Merchant UUID map (matches seeded rows in DB)
 const MERCHANT_ID: Record<string, string> = {
@@ -24,7 +23,6 @@ const MERCHANT_ID: Record<string, string> = {
   jd:           '00000000-0000-0000-0000-000000000010',
   olx:          '00000000-0000-0000-0000-000000000011',
   carousell:    '00000000-0000-0000-0000-000000000012',
-  // Vehicle marketplaces
   carsome:      '00000000-0000-0000-0000-000000000013',
   mobil123:     '00000000-0000-0000-0000-000000000014',
   momobil:      '00000000-0000-0000-0000-000000000015',
@@ -32,35 +30,14 @@ const MERCHANT_ID: Record<string, string> = {
   belanjamobil: '00000000-0000-0000-0000-000000000017',
 }
 
-// Platforms that exclusively sell used/second-hand goods
-// New-goods platforms (tokopedia, shopee, lazada, etc.) default to 'new'
-const USED_PLATFORMS = new Set(['olx', 'carousell', 'carsome', 'mobil123', 'momobil', 'oto', 'belanjamobil'])
-
-// Category validation: prevents marketplace-injected sponsored products from contaminating DB.
-// Scrapers search by category but marketplaces inject unrelated sponsored/promoted listings.
-// This function corrects category assignments before any DB write.
-
-const CATEGORY_KEYWORD_OVERRIDES: Array<{ keywords: string[]; targetCategory: string }> = [
-  { keywords: ['parfum', 'perfume', 'minyak wangi', 'eau de parfum', 'eau de toilette'], targetCategory: 'Kecantikan' },
-  { keywords: ['lipstik', 'lipstick', 'foundation', 'eyeshadow', 'maskara', 'eyeliner'], targetCategory: 'Kecantikan' },
-  { keywords: ['tasbih', 'jamu ayam', 'jamu tradisional'], targetCategory: 'Lainnya' },
-  { keywords: ['essential oil', 'minyak esensial'], targetCategory: 'Kecantikan' },
-  { keywords: ['ikat rambut', 'kunciran rambut'], targetCategory: 'Lainnya' },
-]
-
-function validateCategory(productName: string, assignedCategory: string): string {
-  const lower = productName.toLowerCase()
-  for (const rule of CATEGORY_KEYWORD_OVERRIDES) {
-    if (rule.keywords.some(kw => lower.includes(kw))) {
-      return rule.targetCategory
-    }
-  }
-  if (assignedCategory === 'Elektronik') {
-    const isBagName = /^(tas|TAS)\s/i.test(productName)
-    const hasBagKeyword = lower.includes('ransel') || lower.includes('backpack')
-    if (isBagName && hasBagKeyword) return 'Lainnya'
-  }
-  return assignedCategory
+function isRealImageUrl(url: string | null | undefined): boolean {
+  if (!url || !url.startsWith('http')) return false
+  const lower = url.toLowerCase()
+  if (lower.includes('placehold.co')) return false
+  if (lower.includes('placeholder')) return false
+  if (lower.includes('picsum.photos')) return false
+  if (lower.includes('harga-com.vercel.app')) return false
+  return true
 }
 
 function slugify(text: string): string {
@@ -92,7 +69,7 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = tryGetServerClient() as any
   if (!db) {
-    console.warn('[scraper-save] Supabase not configured — skipping persist')
+    console.warn('[scraper-save] Supabase not configured -- skipping persist')
     return { upserted: 0, skipped: listings.length, errors: 0, durationMs: Date.now() - start }
   }
 
@@ -109,7 +86,6 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
       const slug = slugify(listing.title)
       if (!slug) { skipped++; continue }
 
-      // 1. Find or create product — only write image fields on first insert, never overwrite
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: existing } = await anyDb
         .from('products')
@@ -120,20 +96,18 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
       let product: { id: string } | null = null
 
       if (existing) {
-        // Update non-image metadata; preserve existing REAL images (allow overwriting Unsplash placeholders)
-        const hasRealImage = ((existing.images?.length ?? 0) > 0 || existing.image_url) &&
-          !String(existing.image_url || '').includes('unsplash.com') &&
-          !String(existing.image_url || '').includes('picsum.photos')
+        const hasRealImage = isRealImageUrl(existing.image_url) ||
+          ((existing.images?.length ?? 0) > 0 && isRealImageUrl(existing.images?.[0]))
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const patch: Record<string, any> = {
-          name:           cleanProductName(listing.title),
+          name:           listing.title,
           brand:          listing.brand    ?? null,
-          category:       listing.category ? validateCategory(cleanProductName(listing.title), listing.category) : null,
+          category:       listing.category ?? null,
           tags:           [],
           specifications: listing.specs ?? {},
           updated_at:     now,
         }
-        if (!hasRealImage && listing.imageUrl && !listing.imageUrl.includes('unsplash')) {
+        if (!hasRealImage && isRealImageUrl(listing.imageUrl)) {
           patch.image_url = listing.imageUrl
           patch.images    = [listing.imageUrl]
         }
@@ -145,11 +119,11 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
           .from('products')
           .insert({
             slug,
-            name:           cleanProductName(listing.title),
+            name:           listing.title,
             brand:          listing.brand    ?? null,
-            category:       listing.category ? validateCategory(cleanProductName(listing.title), listing.category) : null,
-            image_url:      listing.imageUrl  || null,
-            images:         listing.imageUrl  ? [listing.imageUrl] : [],
+            category:       listing.category ?? null,
+            image_url:      isRealImageUrl(listing.imageUrl) ? listing.imageUrl : null,
+            images:         isRealImageUrl(listing.imageUrl) ? [listing.imageUrl] : [],
             tags:           [],
             specifications: listing.specs ?? {},
             updated_at:     now,
@@ -189,7 +163,7 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
           in_stock:       listing.stock !== 0,
           video_url:      listing.videoUrl   ?? null,
           video_thumb:    listing.videoThumb ?? null,
-          condition:      listing.condition  ?? (USED_PLATFORMS.has(listing.platformId) ? 'used' : 'new'),
+          condition:      listing.condition  ?? 'used',
           location:       listing.location   ?? null,
           updated_at:     now,
         }, { onConflict: 'product_id,merchant_id' })
@@ -201,7 +175,7 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
         errors++; continue
       }
 
-      // 3. Price history — only append if price changed
+      // 3. Price history -- only append if price changed
       const { data: lastH } = await anyDb
         .from('price_history')
         .select('price')
