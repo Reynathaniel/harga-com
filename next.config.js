@@ -20,6 +20,20 @@ const nextConfig = {
       // Generic image CDNs used in scraped data
       { protocol: 'https', hostname: '*.alicdn.com' },
       { protocol: 'https', hostname: '*.blibli.com' },
+      // OLX Indonesia CDN (Motor Bekas, Rumah Bekas, Mobil Bekas)
+      { protocol: 'https', hostname: 'apollo.olx.co.id' },
+      { protocol: 'https', hostname: '*.olx.co.id' },
+      { protocol: 'https', hostname: 'images.olx.com' },
+      // Carousell CDN
+      { protocol: 'https', hostname: '*.carousell.com' },
+      { protocol: 'https', hostname: 'media.karousell.com' },
+      // AWS CloudFront (used by many vehicle marketplaces)
+      { protocol: 'https', hostname: '*.cloudfront.net' },
+      // Wikimedia (used in some product listings)
+      { protocol: 'https', hostname: 'upload.wikimedia.org' },
+      { protocol: 'https', hostname: 'commons.wikimedia.org' },
+      // Catch-all for any other HTTPS image CDN
+      { protocol: 'https', hostname: '**' },
     ],
   },
   // Suppress hydration warnings from browser extensions
