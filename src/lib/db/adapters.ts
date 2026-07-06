@@ -52,7 +52,7 @@ export function adaptDbProductToAppProduct(
   const highestPrice = prices.length ? Math.max(...prices) : 0
 
   // Determine which platforms this product actually has listings on
-  const productPlatforms = [...new Set(listings.map(l => l.platformId))] as PlatformId[]
+  const productPlatforms = Array.from(new Set(listings.map(l => l.platformId))) as PlatformId[]
 
   // Use real price history if available, otherwise generate synthetic data
   // using the product's actual platforms so the chart always shows something useful
