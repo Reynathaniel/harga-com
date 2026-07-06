@@ -1,3 +1,6 @@
+'use client'
+import { useState } from 'react'
+import Image from 'next/image'
 import type { PlatformId } from '@/lib/types'
 import { PLATFORMS } from '@/lib/platforms'
 
@@ -9,9 +12,9 @@ interface PlatformBadgeProps {
 }
 
 const sizeMap = {
-  sm: { pill: 'text-[10px] px-1.5 py-0.5 gap-1', dot: 'w-5 h-5 text-[9px]',   icon: 'w-6 h-6 text-[9px]'   },
-  md: { pill: 'text-xs px-2 py-1 gap-1.5',       dot: 'w-6 h-6 text-[10px]',  icon: 'w-8 h-8 text-[10px]'  },
-  lg: { pill: 'text-sm px-3 py-1.5 gap-2',        dot: 'w-8 h-8 text-xs',      icon: 'w-11 h-11 text-xs'    },
+  sm: { pill: 'text-[10px] px-1.5 py-0.5 gap-1',  dot: 'w-5 h-5',  icon: 'w-6 h-6',  img: 14 },
+  md: { pill: 'text-xs px-2 py-1 gap-1.5',          dot: 'w-6 h-6',  icon: 'w-8 h-8',  img: 18 },
+  lg: { pill: 'text-sm px-3 py-1.5 gap-2',          dot: 'w-8 h-8',  icon: 'w-11 h-11', img: 24 },
 }
 
 export function PlatformBadge({
@@ -20,21 +23,45 @@ export function PlatformBadge({
   showName = true,
   variant = 'pill',
 }: PlatformBadgeProps) {
+  const [logoError, setLogoError] = useState(false)
+
   const platform = PLATFORMS[platformId]
   if (!platform) return null
 
   const sz = sizeMap[size]
   const bg = platformId === 'tiktok' ? '#010101' : platform.color
-  const initials = (platform.shortName || platform.name).slice(0, 2).toUpperCase()
+  const logoSrc = `/logos/${platformId}.svg`
+  const initials = platform.shortName.slice(0, 2).toUpperCase()
+
+  // Shows the SVG logo, or falls back to 2-letter initials if the file is missing
+  const Logo = ({ s }: { s: number }) =>
+    logoError ? (
+      <span
+        style={{ fontSize: Math.round(s * 0.55), lineHeight: 1, width: s, height: s }}
+        className="inline-flex items-center justify-center font-bold text-white"
+      >
+        {initials}
+      </span>
+    ) : (
+      <Image
+        src={logoSrc}
+        alt={platform.name}
+        width={s}
+        height={s}
+        className="rounded-sm object-contain"
+        onError={() => setLogoError(true)}
+        unoptimized
+      />
+    )
 
   if (variant === 'dot') {
     return (
       <div
-        className={`${sz.dot} rounded-full flex items-center justify-center font-bold text-white shrink-0`}
+        className={`${sz.dot} rounded-full flex items-center justify-center font-bold text-white shrink-0 overflow-hidden`}
         style={{ background: bg }}
         title={platform.name}
       >
-        {initials}
+        <Logo s={sz.img} />
       </div>
     )
   }
@@ -42,26 +69,23 @@ export function PlatformBadge({
   if (variant === 'icon') {
     return (
       <div
-        className={`${sz.icon} rounded-xl flex items-center justify-center font-bold text-white shrink-0`}
+        className={`${sz.icon} rounded-xl flex items-center justify-center font-bold text-white shrink-0 overflow-hidden`}
         style={{ background: bg }}
         title={platform.name}
       >
-        {initials}
+        <Logo s={sz.img} />
       </div>
     )
   }
 
-  // pill variant (default)
+  // pill variant
   return (
     <span
       className={`inline-flex items-center font-semibold rounded-full text-white ${sz.pill}`}
       style={{ background: bg }}
     >
-      <span
-        className="flex-shrink-0 rounded-sm flex items-center justify-center font-bold leading-none"
-        style={{ width: 14, height: 14, fontSize: 8, background: 'rgba(0,0,0,0.18)' }}
-      >
-        {initials}
+      <span className="flex-shrink-0 overflow-hidden rounded-sm">
+        <Logo s={sz.img} />
       </span>
       {showName && <span>{platform.name}</span>}
     </span>
