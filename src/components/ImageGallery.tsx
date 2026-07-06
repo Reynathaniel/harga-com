@@ -6,28 +6,23 @@ import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react'
 interface Props {
   images: string[]
   alt: string
-  objectFit?: 'contain' | 'cover'
 }
 
-export function ImageGallery({ images, alt, objectFit = 'contain' }: Props) {
+export function ImageGallery({ images, alt }: Props) {
   const [active, setActive] = useState(0)
   const [failed, setFailed] = useState<Record<number, boolean>>({})
   const [zoomed, setZoomed] = useState(false)
 
-  const PLACEHOLDER = 'https://placehold.co/400x400/1e1e2e/555555?text=No+Image'
-  const imgs = images.length > 0 ? images : [PLACEHOLDER]
+  const FALLBACK = 'https://placehold.co/400x400/f0f0f0/666666?text=Produk'
+  const imgs = images.length > 0 ? images : [FALLBACK]
 
   const src = (i: number) =>
-    failed[i] ? PLACEHOLDER : imgs[i]
+    failed[i] ? FALLBACK : imgs[i]
 
   const prev = () => setActive(i => (i - 1 + imgs.length) % imgs.length)
   const next = () => setActive(i => (i + 1) % imgs.length)
 
   const handleErr = (i: number) => setFailed(f => ({ ...f, [i]: true }))
-
-  const mainImgClass = objectFit === 'cover'
-    ? 'object-cover transition-opacity duration-200'
-    : 'object-contain p-6 transition-opacity duration-200'
 
   return (
     <>
@@ -37,7 +32,7 @@ export function ImageGallery({ images, alt, objectFit = 'contain' }: Props) {
           src={src(active)}
           alt={alt}
           fill
-          className={mainImgClass}
+          className="object-contain p-6 transition-opacity duration-200"
           onError={() => handleErr(active)}
           priority
           unoptimized
