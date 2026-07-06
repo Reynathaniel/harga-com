@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import { ProductCard } from '@/components/ProductCard'
 import { HeroRealSearch } from '@/components/HeroSection'
 import { DealTerbaikSection } from '@/components/DealTerbaikSection'
@@ -34,8 +33,8 @@ async function getTrendingProducts() {
   }
 }
 
-/* Eyebrow + title section head â matches design system SectionHead */
-function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: ReactNode; action?: ReactNode }) {
+/* Eyebrow + title section head — matches design system SectionHead */
+function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: string; action?: ReactNode }) {
   return (
     <div className="reveal flex justify-between items-end flex-wrap gap-4 mb-6">
       <div>
@@ -83,28 +82,10 @@ export default async function HomePage() {
     .sort((a, b) => b.savings - a.savings)
     .slice(0, 4)
 
-  // JSON-LD: WebSite schema with Sitelinks Search Box
-  const websiteJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'Harga.com',
-    url: 'https://harga.com',
-    description: 'Bandingkan harga dari 17+ marketplace Indonesia. Barang baru & bekas.',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: 'https://harga.com/cari?q={search_term_string}',
-      },
-      'query-input': 'required name=search_term_string',
-    },
-  }
-
   return (
     <div className="pt-[92px]">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
 
-      {/* ââ HERO ââ */}
+      {/* ── HERO ── */}
       <section className="hero-gradient relative overflow-hidden">
         {/* Animated mesh blobs */}
         <div className="harga-mesh">
@@ -124,7 +105,7 @@ export default async function HomePage() {
             letterSpacing: '0.01em',
           }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ADE80', display: 'inline-block', flexShrink: 0 }} />
-            {STATS.platforms}+ Marketplace Â· Barang Baru &amp; Bekas
+            {STATS.platforms}+ Marketplace · Barang Baru &amp; Bekas
           </div>
 
           {/* Instrument Serif headline */}
@@ -148,7 +129,7 @@ export default async function HomePage() {
             fontFamily: 'var(--font-ui)',
           }}>
             Bandingkan harga barang <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>baru &amp; bekas</strong> dari Shopee, Tokopedia,
-            Lazada &amp; {STATS.platforms - 3} marketplace lain â dalam satu pencarian.
+            Lazada &amp; {STATS.platforms - 3} marketplace lain — dalam satu pencarian.
           </p>
 
           {/* Search bar */}
@@ -176,7 +157,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ââ STATS STRIP ââ */}
+      {/* ── STATS STRIP ── */}
       <div style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="max-w-7xl mx-auto px-4 py-4 grid grid-cols-2 sm:grid-cols-4 divide-x divide-[var(--border-subtle)]">
           {[
@@ -193,18 +174,18 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ââ CATEGORY ROW ââ */}
+      {/* ── CATEGORY ROW ── */}
       <section className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {[
-            { label: 'Elektronik',   icon: 'ð¥ï¸',  color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',  href: '/cari?kategori=elektronik' },
-            { label: 'Fashion',      icon: 'ð',  color: '#F97316', bg: 'rgba(249,115,22,0.10)',  href: '/cari?kategori=fashion' },
-            { label: 'Rumah',        icon: 'ð ',  color: '#0EA5E9', bg: 'rgba(14,165,233,0.10)',  href: '/cari?kategori=rumah-tangga' },
-            { label: 'Hobi & Game', icon: 'ð®',  color: '#8B5CF6', bg: 'rgba(139,92,246,0.10)',  href: '/cari?kategori=gaming' },
-            { label: 'Olahraga',     icon: 'â½',  color: '#EF4444', bg: 'rgba(239,68,68,0.10)',   href: '/cari?kategori=olahraga' },
-            { label: 'Kecantikan',   icon: 'ð',  color: '#EC4899', bg: 'rgba(236,72,153,0.10)',  href: '/cari?kategori=kecantikan' },
-            { label: 'Motor Bekas',  icon: 'ðï¸',  color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',  href: '/cari?kategori=motor-bekas' },
-            { label: 'Mobil Bekas',  icon: 'ð',  color: '#64748B', bg: 'rgba(100,116,139,0.10)', href: '/cari?kategori=mobil-bekas' },
+            { label: 'Elektronik',   icon: '🖥️',  color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',  href: '/cari?kategori=elektronik' },
+            { label: 'Fashion',      icon: '👗',  color: '#F97316', bg: 'rgba(249,115,22,0.10)',  href: '/cari?kategori=fashion' },
+            { label: 'Rumah',        icon: '🏠',  color: '#0EA5E9', bg: 'rgba(14,165,233,0.10)',  href: '/cari?kategori=rumah-tangga' },
+            { label: 'Hobi & Game', icon: '🎮',  color: '#8B5CF6', bg: 'rgba(139,92,246,0.10)',  href: '/cari?kategori=gaming' },
+            { label: 'Olahraga',     icon: '⚽',  color: '#EF4444', bg: 'rgba(239,68,68,0.10)',   href: '/cari?kategori=olahraga' },
+            { label: 'Kecantikan',   icon: '💄',  color: '#EC4899', bg: 'rgba(236,72,153,0.10)',  href: '/cari?kategori=kecantikan' },
+            { label: 'Motor Bekas',  icon: '🏍️',  color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',  href: '/cari?kategori=motor-bekas' },
+            { label: 'Mobil Bekas',  icon: '🚙',  color: '#64748B', bg: 'rgba(100,116,139,0.10)', href: '/cari?kategori=mobil-bekas' },
           ].map(cat => (
             <Link key={cat.label} href={cat.href}
               className="group flex items-center gap-4 rounded-2xl transition-all hover:-translate-y-0.5"
@@ -229,12 +210,12 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ââ DEAL TERPANAS ââ */}
+      {/* ── DEAL TERPANAS ── */}
       {promoProducts.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 py-16">
           <SectionHead
-            eyebrow="Flash Sale Â· Diskon Gila"
-            title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--brand)' }} /> Deal Terpanas Hari Ini</span>}
+            eyebrow="Flash Sale · Diskon Gila"
+            title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--brand)' }} /> Deal Terpanas Hari Ini</span> as any}
             action={
               <Link href="/cari?sort=lowest"
                 className="flex items-center gap-1 transition-colors"
@@ -250,13 +231,13 @@ export default async function HomePage() {
                 ? Math.round(100 * (cheapest.originalPrice - cheapest.price) / cheapest.originalPrice)
                 : 0
               return (
-                <Link key={p.id} href={`/produk/${p.slug || p.id}`}
+                <Link key={p.id} href={`/produk/${p.id}`}
                   className="group rounded-2xl overflow-hidden transition-all hover:-translate-y-0.5"
                   style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-card)' }}>
                   {/* Image */}
                   <div className="relative aspect-square overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
                     {p.images?.[0]
-                      ? <Image src={p.images[0]} alt={p.name} fill sizes="(max-width:768px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
+                      ? <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       : <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--text-muted)' }}><Flame size={32} /></div>
                     }
                     {discountPct > 0 && (
@@ -288,7 +269,7 @@ export default async function HomePage() {
                     </div>
                     <div className="mt-1.5 flex items-center gap-1" style={{ fontSize: 'var(--text-10)', color: 'var(--text-muted)' }}>
                       <Flame size={10} style={{ color: 'var(--brand)' }} />
-                      <span>Flash Sale Â· Stok Terbatas</span>
+                      <span>Flash Sale · Stok Terbatas</span>
                     </div>
                   </div>
                 </Link>
@@ -298,15 +279,15 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ââ DEAL TERBAIK (with Semua / Baru / Bekas tabs) ââ */}
+      {/* ── DEAL TERBAIK (with Semua / Baru / Bekas tabs) ── */}
       <DealTerbaikSection allProducts={(allProducts ?? []).slice(0, 10)} usedProducts={usedProducts ?? []} />
 
-      {/* ââ TRENDING ââ */}
+      {/* ── TRENDING ── */}
       {trendingProducts.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 py-16">
           <SectionHead
             eyebrow="Real-Time"
-            title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--orange-500)' }} /> Produk Trending</span>}
+            title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--orange-500)' }} /> Produk Trending</span> as any}
             action={
               <Link href="/cari?sort=popular"
                 className="flex items-center gap-1 transition-colors"
@@ -316,15 +297,15 @@ export default async function HomePage() {
             }
           />
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-            {trendingProducts.map((p: { id: string; slug: string; name: string; image_url: string | null; best_price: number; click_count: number }) => (
-              <Link key={p.id} href={'/produk/' + (p.slug || p.id)}
+            {trendingProducts.map((p: { id: string; name: string; image_url: string | null; best_price: number; click_count: number }) => (
+              <Link key={p.id} href={'/produk/' + p.id}
                 className="group rounded-xl overflow-hidden transition-all"
                 style={{
                   background: 'var(--bg-card)', border: '1px solid var(--border-subtle)',
                 }}>
                 <div className="relative aspect-square overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
                   {p.image_url
-                    ? <Image src={p.image_url} alt={p.name} fill sizes="(max-width:768px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
+                    ? <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     : <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--text-muted)' }}><Flame size={24} /></div>
                   }
                   {p.click_count > 0 && (
@@ -354,7 +335,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ââ PRELOVED HIGHLIGHT BANNER ââ */}
+      {/* ── PRELOVED HIGHLIGHT BANNER ── */}
       <section className="max-w-7xl mx-auto px-4 py-8">
         <div className="relative overflow-hidden rounded-2xl"
           style={{
@@ -369,7 +350,7 @@ export default async function HomePage() {
                   color: 'var(--win)', fontSize: 'var(--text-10)', fontWeight: 'var(--fw-black)',
                   letterSpacing: 'var(--tracking-widest)', textTransform: 'uppercase',
                 }}>
-                Preloved Â· Barang Bekas
+                Preloved · Barang Bekas
               </div>
               <h2 style={{
                 margin: 0, marginBottom: 8,
@@ -377,7 +358,7 @@ export default async function HomePage() {
                 color: 'var(--text-primary)',
                 fontFamily: 'var(--font-editorial)',
               }}>
-                Bukan cuma baru â <em>yang bekas juga di sini.</em>
+                Bukan cuma baru — <em>yang bekas juga di sini.</em>
               </h2>
               <p style={{
                 margin: 0, marginBottom: 18,
@@ -394,18 +375,18 @@ export default async function HomePage() {
                   fontSize: 'var(--text-sm)', fontWeight: 'var(--fw-extrabold)',
                   boxShadow: 'var(--shadow-green)',
                 }}>
-                Jelajahi Preloved â
+                Jelajahi Preloved →
               </Link>
             </div>
             <div className="flex gap-3">
               {(usedProducts ?? []).slice(0, 2).map(p => {
                 const cheapest = lowestListingFirst(p.listings ?? [])[0]
                 return cheapest ? (
-                  <Link key={p.id} href={'/produk/' + (p.slug || p.id)}
+                  <Link key={p.id} href={'/produk/' + p.id}
                     className="w-36 rounded-xl overflow-hidden group transition-all"
                     style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                    <div className="aspect-square overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
-                      {p.images[0] && <Image src={p.images[0]} alt={p.name} fill sizes="(max-width:768px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />}
+                    <div className="relative aspect-square overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
+                      {p.images[0] && <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />}
                     </div>
                     <div className="p-2">
                       <p className="line-clamp-2 leading-snug mb-1"
@@ -425,14 +406,14 @@ export default async function HomePage() {
       </section>
 
 
-      {/* ââ HEMAT TERBESAR ââ */}
+      {/* ── HEMAT TERBESAR ── */}
       {hematProducts.length > 0 && (
         <section style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}
           className="py-16 px-4">
           <div className="max-w-7xl mx-auto">
             <SectionHead
               eyebrow="Selisih Terbesar"
-              title={<span className="flex items-center gap-2"><TrendingDown size={20} style={{ color: 'var(--win)' }} /> Hemat Terbesar Hari Ini</span>}
+              title={<span className="flex items-center gap-2"><TrendingDown size={20} style={{ color: 'var(--win)' }} /> Hemat Terbesar Hari Ini</span> as any}
               action={
                 <Link href="/cari?sort=lowest"
                   className="flex items-center gap-1 transition-colors"
@@ -449,7 +430,7 @@ export default async function HomePage() {
                 const platform = PLATFORMS[cheapest.platformId]
                 if (!platform) return null
                 return (
-                  <Link key={product.id} href={'/produk/' + (product.slug || product.id)}
+                  <Link key={product.id} href={'/produk/' + product.id}
                     className="group rounded-2xl p-4 transition-all"
                     style={{
                       background: 'var(--bg-hover)',
@@ -491,7 +472,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ââ FEATURES ââ */}
+      {/* ── FEATURES ── */}
       <section style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-subtle)' }}
         className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
@@ -538,7 +519,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ââ PLATFORM KAMI ââ */}
+      {/* ── PLATFORM KAMI ── */}
       <section className="max-w-7xl mx-auto px-4 py-16">
         <div className="text-center mb-10">
           <div className="harga-text-gradient mb-2" style={{
@@ -583,7 +564,7 @@ export default async function HomePage() {
         </p>
       </section>
 
-      {/* ââ HOW IT WORKS ââ */}
+      {/* ── HOW IT WORKS ── */}
       <section style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}
         className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
@@ -597,9 +578,9 @@ export default async function HomePage() {
           <p style={{ color: 'var(--text-secondary)', marginBottom: 48 }}>Hemat uang dalam 3 langkah mudah</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
-              { step: '01', icon: 'ð', title: 'Cari Produk', desc: 'Ketik nama produk atau paste link dari marketplace manapun' },
-              { step: '02', icon: 'ð¡', title: 'Bandingkan Harga', desc: 'Lihat harga dari semua marketplace sekaligus + grafik historis' },
-              { step: '03', icon: 'ð°', title: 'Beli & Dapat Cashback', desc: 'Beli melalui kami, cashback masuk otomatis ke wallet Anda' },
+              { step: '01', icon: '🔍', title: 'Cari Produk', desc: 'Ketik nama produk atau paste link dari marketplace manapun' },
+              { step: '02', icon: '💡', title: 'Bandingkan Harga', desc: 'Lihat harga dari semua marketplace sekaligus + grafik historis' },
+              { step: '03', icon: '💰', title: 'Beli & Dapat Cashback', desc: 'Beli melalui kami, cashback masuk otomatis ke wallet Anda' },
             ].map(s => (
               <div key={s.step} className="flex flex-col items-center">
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-4"
@@ -618,7 +599,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ââ CASHBACK CTA ââ */}
+      {/* ── CASHBACK CTA ── */}
       <section className="max-w-7xl mx-auto px-4 py-20">
         <div className="relative overflow-hidden rounded-2xl p-8 sm:p-12 text-center"
           style={{
@@ -631,7 +612,7 @@ export default async function HomePage() {
           <div className="absolute top-0 left-0 right-0 h-px"
             style={{ background: 'linear-gradient(to right, transparent, var(--brand-soft-border), transparent)' }} />
           <div className="relative">
-            <div className="text-5xl mb-4">ð°</div>
+            <div className="text-5xl mb-4">💰</div>
             <h2 style={{
               margin: 0, marginBottom: 12,
               fontSize: 'var(--text-3xl)', fontWeight: 400, color: 'var(--text-primary)',
@@ -676,7 +657,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ââ FOOTER ââ */}
+      {/* ── FOOTER ── */}
       <footer style={{ borderTop: '1px solid var(--border-subtle)', background: 'var(--bg-card)' }}
         className="px-4 py-12">
         <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-5 gap-8 mb-8">
@@ -708,21 +689,22 @@ export default async function HomePage() {
               Temukan harga terbaik barang baru &amp; bekas dari semua marketplace Indonesia.
             </p>
             <div className="flex gap-2">
-              <a href="https://instagram.com/hargacom" target="_blank" rel="noopener noreferrer" title="Instagram"
-                className="flex items-center justify-center rounded-lg transition-colors"
-                style={{ width: 28, height: 28, background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)', color: 'var(--text-muted)', textDecoration: 'none' }}>
-                <svg width={20} height={20} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z"/></svg>
-              </a>
-              <a href="https://twitter.com/hargacom" target="_blank" rel="noopener noreferrer" title="Twitter"
-                className="flex items-center justify-center rounded-lg transition-colors"
-                style={{ width: 28, height: 28, background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)', color: 'var(--text-muted)', textDecoration: 'none' }}>
-                <svg width={20} height={20} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-              </a>
-              <a href="https://tiktok.com/@hargacom" target="_blank" rel="noopener noreferrer" title="TikTok"
-                className="flex items-center justify-center rounded-lg transition-colors"
-                style={{ width: 28, height: 28, background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)', color: 'var(--text-muted)', textDecoration: 'none' }}>
-                <svg width={20} height={20} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.19 8.19 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z"/></svg>
-              </a>
+              {[
+                { label: 'Instagram', icon: 'IG', href: 'https://instagram.com/hargacom' },
+                { label: 'Twitter',   icon: 'X',  href: 'https://twitter.com/hargacom' },
+                { label: 'TikTok',   icon: 'TK', href: 'https://tiktok.com/@hargacom' },
+              ].map(s => (
+                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" title={s.label}
+                  className="flex items-center justify-center rounded-lg transition-colors"
+                  style={{
+                    width: 28, height: 28, background: 'var(--bg-hover)',
+                    border: '1px solid var(--border-subtle)',
+                    fontSize: 'var(--text-9)', fontWeight: 'var(--fw-extrabold)',
+                    color: 'var(--text-muted)', textDecoration: 'none',
+                  }}>
+                  {s.icon}
+                </a>
+              ))}
             </div>
           </div>
 
@@ -751,9 +733,10 @@ export default async function HomePage() {
             {
               title: 'Perusahaan',
               links: [
-                { label: 'Karir',  href: 'mailto:karir@harga.com' },
-                { label: 'Kontak', href: 'mailto:hello@harga.com' },
-                { label: 'Blog',   href: '/blog' },
+                { label: 'Tentang Kami', href: '/tentang' },
+                { label: 'Karir',        href: '/tentang' },
+                { label: 'Kontak',       href: '/tentang' },
+                { label: 'Blog',         href: '/blog' },
               ],
             },
             {
@@ -792,13 +775,13 @@ export default async function HomePage() {
         <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 24 }}
           className="flex flex-col sm:flex-row items-center justify-between gap-2">
           <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>
-            Â© 2026 Harga.com â Temukan Harga Terbaik.
+            © 2026 Harga.com — Temukan Harga Terbaik.
           </p>
-          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat di Indonesia ð®ð©</p>
+          <p style={{ margin: 0, fontSize: 'var(--text-11)', color: 'var(--text-muted)' }}>Dibuat di Indonesia 🇮🇩</p>
         </div>
       </footer>
 
-      {/* ââ SCROLL REVEAL OBSERVER ââ */}
+      {/* ── SCROLL REVEAL OBSERVER ── */}
       <Script id="harga-scroll-reveal" strategy="afterInteractive">{`
 (function(){
   if(typeof IntersectionObserver==='undefined')return;
@@ -806,7 +789,7 @@ export default async function HomePage() {
     entries.forEach(function(e){
       if(e.isIntersecting){e.target.classList.add('in-view');}
     });
-  },{threshold:0.07,rootMargin:'0px 0px -50px 0px'});
+  },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
   document.querySelectorAll('.reveal,.reveal-grid,.stat-pop').forEach(function(el){
     // Add js-ready so CSS hides them for the reveal animation
     el.classList.add('js-ready');
@@ -817,3 +800,4 @@ export default async function HomePage() {
     </div>
   )
 }
+        
