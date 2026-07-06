@@ -67,3 +67,4 @@ export function cleanProductName(name: string): string {
     // Truncate very long names at a word boundary
     .slice(0, 120).replace(/\s\S*$/, '')
 }
+
