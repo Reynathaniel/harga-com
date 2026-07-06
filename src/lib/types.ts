@@ -2,7 +2,7 @@ export type PlatformId =
   | 'tokopedia' | 'shopee' | 'lazada' | 'bukalapak' | 'blibli' | 'tiktok'
   | 'amazon' | 'alibaba' | 'aliexpress' | 'jd'
   | 'olx' | 'carousell'
-  | 'carsome' | 'mobil123' | 'momobil' | 'oto' | 'belanjamobil'
+  | 'carsome' | 'mobil123' | 'oto' | 'momobil' | 'belanjamobil' | 'belanjakendaraan'
 
 export interface Platform {
   id: PlatformId
