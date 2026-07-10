@@ -30,6 +30,7 @@ export interface CategoryConfig {
   isUsedGoods: boolean          // show BEKAS badge, restrict to used-goods platforms
   vehicleCategory?: boolean     // filter listing to vehicle platforms
   propertyCategory?: boolean    // filter listing to property platforms
+  forbiddenKeywords?: string[]  // exclude products whose name contains these terms
 }
 
 // ── Configs per category ────────────────────────────────────────────────────
@@ -250,6 +251,4 @@ export function buildBuyUrl(
   product: { name: string; brand?: string; category?: string; specifications?: Record<string, unknown> }
 ): string {
   if (offerUrl) return offerUrl
-  const config = getCategoryConfig(product.category)
-  return config.buyUrlFallback(product)
-}
+  const
