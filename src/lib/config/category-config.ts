@@ -251,4 +251,6 @@ export function buildBuyUrl(
   product: { name: string; brand?: string; category?: string; specifications?: Record<string, unknown> }
 ): string {
   if (offerUrl) return offerUrl
-  const
+  const config = getCategoryConfig(product.category)
+  return config.buyUrlFallback(product)
+}
