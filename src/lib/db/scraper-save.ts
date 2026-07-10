@@ -9,6 +9,55 @@
 import { tryGetServerClient } from '../supabase'
 import type { RawListing } from '../scrapers/types'
 
+// CDN domains that block hotlinking — images from these must be proxied to Supabase Storage
+const BLOCKED_CDN_DOMAINS = ['apollo.olx.co.id', 'olx.co.id', 'carousell.com', 'karousell.com']
+
+function needsProxy(url: string): boolean {
+  if (!url || !url.startsWith('http')) return false
+  return BLOCKED_CDN_DOMAINS.some(d => url.includes(d))
+}
+
+/**
+ * Download image from a CDN URL and upload to Supabase Storage.
+ * Returns the stable Supabase Storage public URL, or the original URL if upload fails.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function proxyImageToStorage(supabase: any, imageUrl: string, platformId: string, productId: string): Promise<string> {
+  try {
+    const referer = platformId === 'olx'
+      ? 'https://www.olx.co.id/'
+      : 'https://id.carousell.com/'
+
+    const res = await fetch(imageUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+        Referer: referer,
+        Accept: 'image/webp,image/avif,image/*,*/*;q=0.8',
+      },
+      signal: AbortSignal.timeout(12000),
+    })
+    if (!res.ok) return imageUrl
+
+    const buffer = await res.arrayBuffer()
+    if (buffer.byteLength < 1000) return imageUrl // too small, likely blocked
+
+    const contentType = res.headers.get('content-type') || 'image/jpeg'
+    const ext = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : 'jpg'
+    const path = `${platformId}/${productId.replace(/[^a-z0-9-]/gi, '_')}.${ext}`
+
+    const { error } = await supabase.storage
+      .from('product-images')
+      .upload(path, buffer, { contentType, upsert: true })
+
+    if (error) return imageUrl
+
+    const { data } = supabase.storage.from('product-images').getPublicUrl(path)
+    return data?.publicUrl ?? imageUrl
+  } catch {
+    return imageUrl
+  }
+}
+
 // Merchant UUID map (matches seeded rows in DB)
 const MERCHANT_ID: Record<string, string> = {
   tokopedia:    '00000000-0000-0000-0000-000000000001',
@@ -95,6 +144,13 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
 
       let product: { id: string } | null = null
 
+      // Proxy blocked CDN images to Supabase Storage for permanent hosting
+      let finalImageUrl = listing.imageUrl
+      if (isRealImageUrl(listing.imageUrl) && needsProxy(listing.imageUrl ?? '')) {
+        const pid = existing?.id ?? `tmp-${Date.now()}`
+        finalImageUrl = await proxyImageToStorage(anyDb, listing.imageUrl!, listing.platformId, pid)
+      }
+
       if (existing) {
         const hasRealImage = isRealImageUrl(existing.image_url) ||
           ((existing.images?.length ?? 0) > 0 && isRealImageUrl(existing.images?.[0]))
@@ -107,9 +163,9 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
           specifications: listing.specs ?? {},
           updated_at:     now,
         }
-        if (!hasRealImage && isRealImageUrl(listing.imageUrl)) {
-          patch.image_url = listing.imageUrl
-          patch.images    = [listing.imageUrl]
+        if (!hasRealImage && isRealImageUrl(finalImageUrl)) {
+          patch.image_url = finalImageUrl
+          patch.images    = [finalImageUrl]
         }
         const { error: uErr } = await anyDb.from('products').update(patch).eq('id', existing.id)
         if (uErr) { console.error('[scraper-save] product update:', uErr.message); errors++; continue }
@@ -122,8 +178,8 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
             name:           listing.title,
             brand:          listing.brand    ?? null,
             category:       listing.category ?? null,
-            image_url:      isRealImageUrl(listing.imageUrl) ? listing.imageUrl : null,
-            images:         isRealImageUrl(listing.imageUrl) ? [listing.imageUrl] : [],
+            image_url:      isRealImageUrl(finalImageUrl) ? finalImageUrl : null,
+            images:         isRealImageUrl(finalImageUrl) ? [finalImageUrl] : [],
             tags:           [],
             specifications: listing.specs ?? {},
             updated_at:     now,
