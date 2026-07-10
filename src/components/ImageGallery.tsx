@@ -13,7 +13,7 @@ export function ImageGallery({ images, alt }: Props) {
   const [failed, setFailed] = useState<Record<number, boolean>>({})
   const [zoomed, setZoomed] = useState(false)
 
-  const FALLBACK = 'https://placehold.co/400x400/f0f0f0/666666?text=Produk'
+  const FALLBACK = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80'
   const imgs = images.length > 0 ? images : [FALLBACK]
 
   const src = (i: number) =>
