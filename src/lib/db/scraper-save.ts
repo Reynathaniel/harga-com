@@ -10,6 +10,7 @@ import { tryGetServerClient } from '../supabase'
 import type { RawListing } from '../scrapers/types'
 
 // CDN domains that block hotlinking — images from these must be proxied to Supabase Storage
+// Note: ik.imagekit.io (PasHouses), img.lamudi.com (Lamudi) are NOT blocked and can be used directly
 const BLOCKED_CDN_DOMAINS = ['apollo.olx.co.id', 'olx.co.id', 'carousell.com', 'karousell.com']
 
 function needsProxy(url: string): boolean {
@@ -77,6 +78,9 @@ const MERCHANT_ID: Record<string, string> = {
   momobil:      '00000000-0000-0000-0000-000000000015',
   oto:          '00000000-0000-0000-0000-000000000016',
   belanjamobil: '00000000-0000-0000-0000-000000000017',
+  pashouses:    '00000000-0000-0000-0000-000000000018',
+  lamudi:       '00000000-0000-0000-0000-000000000019',
+  rumah123:     '00000000-0000-0000-0000-000000000020',
 }
 
 function isRealImageUrl(url: string | null | undefined): boolean {
@@ -243,17 +247,4 @@ export async function saveScraperResults(listings: RawListing[]): Promise<SaveRe
       if (!lastH || lastH.price !== listing.price) {
         await anyDb.from('price_history').insert({
           offer_id:    offer.id,
-          price:       listing.price,
-          recorded_at: now,
-        })
-      }
-
-      upserted++
-    } catch (err) {
-      console.error('[scraper-save] unexpected error:', err)
-      errors++
-    }
-  }
-
-  return { upserted, skipped, errors, durationMs: Date.now() - start }
-}
+          pri
