@@ -1,679 +1,365 @@
 #!/usr/bin/env node
 /**
- * scrape-vehicles.mjs — Vehicle marketplace scraper
+ * scrape-vehicles.mjs — Layer 2: Scrape Tokopedia + Shopee for vehicle photos.
  *
- * Scrapes used cars & motorcycles from:
- *   - OLX Mobil  (olx.co.id/mobil-bekas_c198)
- *   - OLX Motor  (olx.co.id/motor_c197)
- *   - Mobil123   (mobil123.com)
- *   - Carmudi    (carmudi.co.id)
- *   - Otolist    (otolist.co.id)
+ * Why Tokopedia first:
+ *   OLX/Carousell block HTTP scrapers (403/empty). Tokopedia's GraphQL API
+ *   returns real listings WITH images, including used vehicles listed as "bekas".
+ *   The images load reliably from *.tokopedia.net CDN (no hotlink protection).
+ *
+ * What it does:
+ *   1. Queries Tokopedia GraphQL for each vehicle search term
+ *   2. Queries Shopee search API as supplementary source
+ *   3. Upserts products into Supabase with category=Motor Bekas / Mobil Bekas
+ *   4. Real Tokopedia CDN image_url stored — loads in browser without issues
+ *   5. After saving, the existing Layer 1 SQL enrichment can propagate images
+ *      to same-brand products that still have no photo
  *
  * Usage:
- *   node scripts/scrape-vehicles.mjs --type mobil --pages 3
- *   node scripts/scrape-vehicles.mjs --type motor --pages 2
- *   node scripts/scrape-vehicles.mjs --type all
- *
- * Env vars:
- *   SUPABASE_URL          (or NEXT_PUBLIC_SUPABASE_URL)
- *   SUPABASE_SERVICE_KEY  (service role key)
+ *   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/scrape-vehicles.mjs
+ *   # Or load from .env.local automatically:
+ *   node -e "require('fs').readFileSync('.env.local','utf8').split('\n').forEach(l=>{const[k,...v]=l.split('=');if(k&&v.length)process.env[k.trim()]=v.join('=').trim()})" scripts/scrape-vehicles.mjs
  */
 
-import { parseArgs } from 'node:util'
+import { readFileSync } from 'node:fs'
 
-// ─── Config ─────────────────────────────────────────────────────────────────
+// Auto-load .env.local if present
+try {
+  const env = readFileSync('.env.local', 'utf8')
+  for (const line of env.split('\n')) {
+    const eq = line.indexOf('=')
+    if (eq > 0) {
+      const k = line.slice(0, eq).trim()
+      const v = line.slice(eq + 1).trim()
+      if (k && !process.env[k]) process.env[k] = v
+    }
+  }
+} catch { /* .env.local not found — use existing env vars */ }
 
-const SUPABASE_URL =
-  process.env.SUPABASE_URL ||
-  process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  'https://rtdbfbmbvuqentvxcstf.supabase.co'
+import { createClient } from '@supabase/supabase-js'
 
-const SUPABASE_KEY =
-  process.env.SUPABASE_SERVICE_KEY ||
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  ''
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
 
-// OLX = merchant 011, Carousell = 012
-const VEHICLE_MERCHANT_UUID = {
-  olx:       '00000000-0000-0000-0000-000000000011',
-  carousell: '00000000-0000-0000-0000-000000000012',
-  mobil123:  '00000000-0000-0000-0000-000000000011',  // mapped to OLX slot for now
-  carmudi:   '00000000-0000-0000-0000-000000000012',  // mapped to Carousell slot
-  otolist:   '00000000-0000-0000-0000-000000000011',
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('❌ Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY')
+  console.error('   Set them in .env.local or as environment variables')
+  process.exit(1)
 }
 
-const CAR_BRANDS = [
-  'toyota', 'honda', 'suzuki', 'daihatsu', 'mitsubishi', 'nissan', 'mazda',
-  'hyundai', 'kia', 'bmw', 'mercedes', 'audi', 'wuling', 'chery', 'byd',
-  'isuzu', 'chevrolet', 'ford', 'volkswagen', 'subaru', 'lexus', 'volvo',
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+const MERCHANT_ID = {
+  tokopedia: '00000000-0000-0000-0000-000000000001',
+  shopee:    '00000000-0000-0000-0000-000000000002',
+}
+
+const UA = [
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+]
+const randUA = () => UA[Math.floor(Math.random() * UA.length)]
+
+// ── Vehicle search queries ─────────────────────────────────────────────────
+const VEHICLE_QUERIES = [
+  // Motor bekas
+  { query: 'Honda Beat bekas',      category: 'Motor Bekas', brand: 'Honda'    },
+  { query: 'Yamaha NMAX bekas',     category: 'Motor Bekas', brand: 'Yamaha'   },
+  { query: 'Yamaha Mio bekas',      category: 'Motor Bekas', brand: 'Yamaha'   },
+  { query: 'Honda Vario bekas',     category: 'Motor Bekas', brand: 'Honda'    },
+  { query: 'Honda PCX bekas',       category: 'Motor Bekas', brand: 'Honda'    },
+  { query: 'Kawasaki Ninja bekas',  category: 'Motor Bekas', brand: 'Kawasaki' },
+  { query: 'Yamaha Aerox bekas',    category: 'Motor Bekas', brand: 'Yamaha'   },
+  { query: 'Honda Scoopy bekas',    category: 'Motor Bekas', brand: 'Honda'    },
+  // Mobil bekas
+  { query: 'Toyota Avanza bekas',   category: 'Mobil Bekas', brand: 'Toyota'   },
+  { query: 'Honda Brio bekas',      category: 'Mobil Bekas', brand: 'Honda'    },
+  { query: 'Daihatsu Ayla bekas',   category: 'Mobil Bekas', brand: 'Daihatsu' },
+  { query: 'Toyota Rush bekas',     category: 'Mobil Bekas', brand: 'Toyota'   },
+  { query: 'Honda Jazz bekas',      category: 'Mobil Bekas', brand: 'Honda'    },
+  { query: 'Daihatsu Xenia bekas',  category: 'Mobil Bekas', brand: 'Daihatsu' },
+  { query: 'Suzuki Ertiga bekas',   category: 'Mobil Bekas', brand: 'Suzuki'   },
+  { query: 'Toyota Innova bekas',   category: 'Mobil Bekas', brand: 'Toyota'   },
 ]
 
-const MOTO_BRANDS = [
-  'honda', 'yamaha', 'suzuki', 'kawasaki', 'tvs', 'royal enfield',
-  'benelli', 'viar', 'piaggio', 'vespa', 'ktm', 'cfmoto',
-]
-
-const TRANSMISSIONS = ['Manual', 'Otomatis', 'CVT', 'Tiptronic']
-const COLORS = ['Putih', 'Hitam', 'Silver', 'Abu-abu', 'Merah', 'Biru', 'Hijau', 'Coklat', 'Kuning', 'Orange']
-const LOCATIONS = [
-  'Jakarta Selatan', 'Jakarta Utara', 'Jakarta Barat', 'Jakarta Timur', 'Jakarta Pusat',
-  'Bekasi', 'Depok', 'Tangerang', 'Bogor', 'Bandung', 'Surabaya', 'Yogyakarta',
-  'Semarang', 'Medan', 'Makassar', 'Palembang', 'Denpasar',
-]
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
-function slugify(text) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .trim()
-    .slice(0, 100)
-}
-
-function rand(arr) {
-  return arr[Math.floor(Math.random() * arr.length)]
-}
-
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
-async function sbFetch(path, options = {}) {
-  if (!SUPABASE_KEY) throw new Error('SUPABASE_SERVICE_KEY not set')
-  const res = await fetch(`${SUPABASE_URL}/rest/v1${path}`, {
-    ...options,
-    headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
-      'Content-Type': 'application/json',
-      Prefer: options.prefer || 'return=representation',
-      ...options.headers,
-    },
-  })
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`Supabase ${options.method || 'GET'} ${path} → ${res.status}: ${text}`)
-  }
-  const ct = res.headers.get('content-type') || ''
-  return ct.includes('json') ? res.json() : null
-}
-
-// ─── OLX scraper (public listing pages) ─────────────────────────────────────
-
-async function scrapeOlxMobil(pages = 2) {
-  console.log(`  [OLX Mobil] Scraping ${pages} page(s)...`)
-  const listings = []
-
-  for (let page = 1; page <= pages; page++) {
-    try {
-      const url = `https://www.olx.co.id/mobil-bekas_c198?page=${page}`
-      const controller = new AbortController()
-      setTimeout(() => controller.abort(), 15_000)
-      const res = await fetch(url, {
-        signal: controller.signal,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Accept-Language': 'id-ID,id;q=0.9',
-        },
-      })
-      if (!res.ok) {
-        console.warn(`    OLX page ${page}: HTTP ${res.status}`)
-        continue
-      }
-      const html = await res.text()
-      listings.push(...parseOlxCarListings(html, 'olx', 'mobil'))
-    } catch (err) {
-      console.warn(`    OLX mobil page ${page} error: ${err.message}`)
-    }
-    await sleep(1500)
-  }
-
-  console.log(`    → Found ${listings.length} OLX mobil listings`)
-  return listings
-}
-
-async function scrapeOlxMotor(pages = 2) {
-  console.log(`  [OLX Motor] Scraping ${pages} page(s)...`)
-  const listings = []
-
-  for (let page = 1; page <= pages; page++) {
-    try {
-      const url = `https://www.olx.co.id/motor_c197?page=${page}`
-      const controller = new AbortController()
-      setTimeout(() => controller.abort(), 15_000)
-      const res = await fetch(url, {
-        signal: controller.signal,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Accept-Language': 'id-ID,id;q=0.9',
-        },
-      })
-      if (!res.ok) {
-        console.warn(`    OLX motor page ${page}: HTTP ${res.status}`)
-        continue
-      }
-      const html = await res.text()
-      listings.push(...parseOlxCarListings(html, 'olx', 'motor'))
-    } catch (err) {
-      console.warn(`    OLX motor page ${page} error: ${err.message}`)
-    }
-    await sleep(1500)
-  }
-
-  console.log(`    → Found ${listings.length} OLX motor listings`)
-  return listings
-}
-
-/** Parse OLX listing HTML — extract cards via regex (no jsdom needed) */
-function parseOlxCarListings(html, platform, vehicleType) {
-  const listings = []
-  // OLX renders JSON data in window.__APP_STATE__ or similar — try to parse
-  const jsonMatch = html.match(/"items"\s*:\s*\[(\{[\s\S]*?)\]/)
-
-  // Fallback: extract from meta og tags + structured data
-  // OLX cards typically have data-aut-id="itemBox" attributes
-  const titlePattern = /data-aut-id="itemTitle"[^>]*>([^<]+)<\/[a-z]+>/g
-  const pricePattern = /data-aut-id="itemPrice"[^>]*>([^<]+)<\/[a-z]+>/g
-  const urlPattern   = /href="(\/item\/[^"]+)"/g
-  const imgPattern   = /data-aut-id="itemImage"[^>]*src="([^"]+)"/g
-
-  const titles = [...html.matchAll(titlePattern)].map(m => m[1].trim())
-  const prices = [...html.matchAll(pricePattern)].map(m => m[1].trim())
-  const urls   = [...html.matchAll(urlPattern)].map(m => `https://www.olx.co.id${m[1]}`)
-  const imgs   = [...html.matchAll(imgPattern)].map(m => m[1])
-
-  const count = Math.min(titles.length, 20)
-  for (let i = 0; i < count; i++) {
-    const title = titles[i]
-    if (!title) continue
-    const parsed = parseVehicleTitle(title, vehicleType)
-    if (!parsed) continue
-
-    const rawPrice = prices[i] || ''
-    const price = parseRupiah(rawPrice) || generateVehiclePrice(parsed, vehicleType)
-
-    listings.push({
-      title,
-      platform,
-      merchantId: VEHICLE_MERCHANT_UUID[platform],
-      price,
-      url: urls[i] || `https://www.olx.co.id/otomotif/`,
-      imageUrl: imgs[i] || generatePlaceholder(title),
-      vehicleType,
-      ...parsed,
-    })
-  }
-
-  // If parsing yielded nothing (JS-rendered page), generate synthetic data
-  if (listings.length === 0) {
-    return generateSyntheticVehicleListings(platform, vehicleType, 15)
-  }
-
-  return listings
-}
-
-// ─── Mobil123 scraper ────────────────────────────────────────────────────────
-
-async function scrapeMobil123(pages = 2) {
-  console.log(`  [Mobil123] Scraping ${pages} page(s)...`)
-  const listings = []
-
-  for (let page = 1; page <= pages; page++) {
-    try {
-      const url = `https://www.mobil123.com/mobil-dijual/indonesia?page_number=${page}`
-      const controller = new AbortController()
-      setTimeout(() => controller.abort(), 15_000)
-      const res = await fetch(url, {
-        signal: controller.signal,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Accept-Language': 'id-ID,id;q=0.9',
-        },
-      })
-      if (!res.ok) {
-        console.warn(`    Mobil123 page ${page}: HTTP ${res.status}`)
-        listings.push(...generateSyntheticVehicleListings('mobil123', 'mobil', 10))
-        continue
-      }
-      const html = await res.text()
-      listings.push(...parseMobil123Listings(html))
-    } catch (err) {
-      console.warn(`    Mobil123 page ${page} error: ${err.message} — using synthetic`)
-      listings.push(...generateSyntheticVehicleListings('mobil123', 'mobil', 10))
-    }
-    await sleep(2000)
-  }
-
-  console.log(`    → Found ${listings.length} Mobil123 listings`)
-  return listings
-}
-
-function parseMobil123Listings(html) {
-  const listings = []
-  // Try to extract JSON-LD structured data
-  const jsonLdMatches = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
-  for (const m of jsonLdMatches) {
-    try {
-      const data = JSON.parse(m[1])
-      if (data['@type'] === 'ItemList' && Array.isArray(data.itemListElement)) {
-        for (const item of data.itemListElement.slice(0, 20)) {
-          const listing = parseJsonLdVehicle(item, 'mobil123')
-          if (listing) listings.push(listing)
-        }
-      }
-    } catch { /* skip */ }
-  }
-  return listings.length > 0 ? listings : generateSyntheticVehicleListings('mobil123', 'mobil', 12)
-}
-
-function parseJsonLdVehicle(item, platform) {
+// ── Tokopedia GraphQL ──────────────────────────────────────────────────────
+async function scrapeTokopedia(query, limit = 20) {
   try {
-    const name = item.name || item.item?.name
-    if (!name) return null
-    const parsed = parseVehicleTitle(name, 'mobil')
-    if (!parsed) return null
-    const price = item.offers?.price || item.item?.offers?.price || 0
-    return {
-      title: name,
-      platform,
-      merchantId: VEHICLE_MERCHANT_UUID[platform],
-      price: price || generateVehiclePrice(parsed, 'mobil'),
-      url: item.url || item.item?.url || 'https://www.mobil123.com/',
-      imageUrl: item.image || item.item?.image || generatePlaceholder(name),
-      vehicleType: 'mobil',
-      ...parsed,
-    }
-  } catch {
-    return null
-  }
-}
-
-// ─── Carmudi scraper ─────────────────────────────────────────────────────────
-
-async function scrapeCarmudi(pages = 2) {
-  console.log(`  [Carmudi] Scraping ${pages} page(s)...`)
-  const listings = []
-
-  for (let page = 1; page <= pages; page++) {
-    try {
-      const url = `https://www.carmudi.co.id/cars/?page=${page}`
-      const controller = new AbortController()
-      setTimeout(() => controller.abort(), 15_000)
-      const res = await fetch(url, {
-        signal: controller.signal,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Accept-Language': 'id-ID,id;q=0.9',
+    const res = await fetch('https://gql.tokopedia.com/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': randUA(),
+        'Origin': 'https://www.tokopedia.com',
+        'Referer': `https://www.tokopedia.com/search?q=${encodeURIComponent(query)}`,
+        'X-Source': 'tokopedia-lite',
+        'Accept': 'application/json',
+        'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8',
+      },
+      body: JSON.stringify([{
+        operationName: 'SearchProductQueryV4',
+        variables: {
+          params: `q=${encodeURIComponent(query)}&rows=${Math.min(limit, 40)}&start=0&ob=23&rt=4,7&page=1&user_id=0&device=desktop&source=search`,
         },
-      })
-      if (!res.ok) {
-        console.warn(`    Carmudi page ${page}: HTTP ${res.status} — using synthetic`)
-        listings.push(...generateSyntheticVehicleListings('carmudi', 'mobil', 10))
-        continue
-      }
-      const html = await res.text()
-      // Carmudi uses JSON embedded in page
-      const dataMatch = html.match(/window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});/)
-      if (dataMatch) {
-        try {
-          const state = JSON.parse(dataMatch[1])
-          const items = state?.listings?.items || state?.search?.results || []
-          for (const item of items.slice(0, 20)) {
-            const title = item.title || item.name || `${item.make} ${item.model} ${item.year}`
-            const parsed = parseVehicleTitle(title, 'mobil')
-            if (!parsed) continue
-            listings.push({
-              title,
-              platform: 'carmudi',
-              merchantId: VEHICLE_MERCHANT_UUID['carmudi'],
-              price: item.price || generateVehiclePrice(parsed, 'mobil'),
-              url: item.url || item.permalink || 'https://www.carmudi.co.id/',
-              imageUrl: item.image || item.thumbnail || generatePlaceholder(title),
-              vehicleType: 'mobil',
-              ...parsed,
-            })
+        query: `query SearchProductQueryV4($params: String) {
+          ace_search_product_v4(params: $params) {
+            data { products {
+              id name url imageUrl
+              price { text value }
+              originalPrice discountPercentage
+              shop { name isOfficial }
+            }}
           }
-        } catch { /* fall through to synthetic */ }
-      }
-    } catch (err) {
-      console.warn(`    Carmudi page ${page} error: ${err.message}`)
-    }
-    await sleep(2000)
-  }
-
-  if (listings.length === 0) {
-    listings.push(...generateSyntheticVehicleListings('carmudi', 'mobil', 15))
-  }
-
-  console.log(`    → Found ${listings.length} Carmudi listings`)
-  return listings
-}
-
-// ─── Otolist scraper ─────────────────────────────────────────────────────────
-
-async function scrapeOtolist(pages = 2) {
-  console.log(`  [Otolist] Scraping ${pages} page(s)...`)
-  // Otolist is often JS-rendered; use synthetic with realistic data
-  const listings = generateSyntheticVehicleListings('otolist', 'mobil', 15)
-  console.log(`    → Generated ${listings.length} Otolist listings (JS-rendered site)`)
-  return listings
-}
-
-// ─── Parser helpers ──────────────────────────────────────────────────────────
-
-/**
- * Extract brand, model, year from title like "Toyota Avanza 1.3 G 2020 Manual Silver"
- */
-function parseVehicleTitle(title, vehicleType) {
-  if (!title) return null
-  const text = title.toLowerCase()
-
-  // Extract year (4-digit 1990–2026)
-  const yearMatch = text.match(/\b(19[9][0-9]|20[0-2][0-9])\b/)
-  const year = yearMatch ? parseInt(yearMatch[1]) : null
-
-  // Extract brand
-  const brands = vehicleType === 'motor' ? MOTO_BRANDS : [...CAR_BRANDS, ...MOTO_BRANDS]
-  let brand = null
-  let brandEnd = 0
-  for (const b of brands) {
-    if (text.includes(b)) {
-      brand = b.charAt(0).toUpperCase() + b.slice(1)
-      brandEnd = text.indexOf(b) + b.length
-      break
-    }
-  }
-
-  // Extract model (words after brand, before year/transmission keywords)
-  let model = null
-  if (brand) {
-    const afterBrand = title.slice(brandEnd).trim()
-    const stopWords = /\b(manual|otomatis|cvt|tiptronic|bensin|diesel|hybrid|\d{4})\b/i
-    const stopMatch = afterBrand.search(stopWords)
-    model = stopMatch > 0
-      ? afterBrand.slice(0, stopMatch).trim()
-      : afterBrand.split(' ').slice(0, 3).join(' ').trim()
-  }
-
-  if (!brand && !year) return null  // can't identify as vehicle
-
-  // Extract transmission
-  let transmission = null
-  if (text.includes('manual')) transmission = 'Manual'
-  else if (text.includes('cvt')) transmission = 'CVT'
-  else if (text.includes('otomatis') || text.includes('matic') || text.includes('automatic')) transmission = 'Otomatis'
-
-  // Extract color
-  let color = null
-  for (const c of COLORS) {
-    if (text.includes(c.toLowerCase())) {
-      color = c
-      break
-    }
-  }
-
-  return {
-    vehicleBrand:        brand,
-    vehicleModel:        model || brand,
-    vehicleYear:         year,
-    vehicleTransmission: transmission,
-    vehicleColor:        color,
-    vehicleLocation:     rand(LOCATIONS),
-    vehicleMileage:      randInt(5_000, 150_000),
-  }
-}
-
-function parseRupiah(str) {
-  const cleaned = str.replace(/[^0-9]/g, '')
-  return cleaned ? parseInt(cleaned) : 0
-}
-
-function generateVehiclePrice(parsed, vehicleType) {
-  if (vehicleType === 'motor') {
-    const base = (parsed.vehicleYear || 2015) < 2015 ? 5_000_000 : 15_000_000
-    return base + randInt(0, 10_000_000)
-  }
-  // Cars: price based on year
-  const year = parsed.vehicleYear || 2015
-  const base = year >= 2020 ? 150_000_000
-    : year >= 2017 ? 100_000_000
-    : year >= 2013 ? 80_000_000
-    : 50_000_000
-  return base + randInt(-20_000_000, 30_000_000)
-}
-
-function generatePlaceholder(_title) {
-  // Return empty string so the UI falls back to /placeholder-product.png
-  // (placehold.co text-images look like "gambar tidak sesuai" to users)
-  return ''
-}
-
-/**
- * Generate realistic synthetic vehicle listings when scraping fails (JS-rendered pages)
- */
-function generateSyntheticVehicleListings(platform, vehicleType, count) {
-  const brands = vehicleType === 'motor' ? MOTO_BRANDS : CAR_BRANDS
-
-  const CAR_MODELS = {
-    toyota:     ['Avanza', 'Kijang Innova', 'Agya', 'Rush', 'Fortuner', 'Hilux'],
-    honda:      ['Brio', 'Jazz', 'CR-V', 'HR-V', 'Civic', 'Beat', 'Vario', 'PCX'],
-    daihatsu:   ['Xenia', 'Ayla', 'Sigra', 'Terios', 'Gran Max'],
-    suzuki:     ['Ertiga', 'Ignis', 'Baleno', 'XL7', 'Carry', 'GSX-R150'],
-    yamaha:     ['NMAX', 'Aerox', 'Mio', 'R15', 'MT-15', 'Lexi'],
-    kawasaki:   ['Ninja', 'Z250', 'KLX', 'W175'],
-    mitsubishi: ['Xpander', 'Pajero Sport', 'L300', 'Outlander'],
-    nissan:     ['Grand Livina', 'X-Trail', 'Juke', 'March'],
-    hyundai:    ['Creta', 'Stargazer', 'Tucson', 'i20'],
-    wuling:     ['Almaz', 'Cortez', 'Confero', 'Air ev'],
-  }
-
-  const listings = []
-  for (let i = 0; i < count; i++) {
-    const brand = rand(brands)
-    const brandCap = brand.charAt(0).toUpperCase() + brand.slice(1)
-    const models = CAR_MODELS[brand] || ['Seri A', 'Seri B', 'Classic']
-    const model = rand(models)
-    const year = randInt(2012, 2024)
-    const transmission = rand(TRANSMISSIONS)
-    const color = rand(COLORS)
-    const location = rand(LOCATIONS)
-    const mileage = randInt(5_000, 200_000)
-
-    const title = vehicleType === 'motor'
-      ? `${brandCap} ${model} ${year} ${transmission} ${color} ${mileage.toLocaleString('id-ID')}km`
-      : `${brandCap} ${model} ${year} ${transmission} ${color}`
-
-    const parsed = { vehicleBrand: brandCap, vehicleModel: model, vehicleYear: year, vehicleTransmission: transmission, vehicleColor: color, vehicleLocation: location, vehicleMileage: mileage }
-    const price = generateVehiclePrice(parsed, vehicleType)
-
-    listings.push({
-      title,
-      platform,
-      merchantId: VEHICLE_MERCHANT_UUID[platform] || VEHICLE_MERCHANT_UUID['olx'],
-      price,
-      url: `https://www.olx.co.id/item/${slugify(title)}_${i}`,
-      imageUrl: '',
-      vehicleType,
-      ...parsed,
+        }`,
+      }]),
+      signal: AbortSignal.timeout(20000),
     })
+
+    if (!res.ok) { console.log(`  Tokopedia HTTP ${res.status}`); return [] }
+    const json = await res.json()
+    const products = json?.[0]?.data?.ace_search_product_v4?.data?.products ?? []
+
+    return products
+      .filter(p => (p.price?.value ?? 0) > 0 && p.imageUrl)
+      .map(p => ({
+        platformId: 'tokopedia',
+        productId:  String(p.id),
+        title:      p.name,
+        price:      p.price?.value ?? 0,
+        originalPrice: p.originalPrice || null,
+        discountPct:   p.discountPercentage || null,
+        imageUrl:   p.imageUrl,
+        productUrl: p.url,
+        shopName:   p.shop?.name ?? null,
+      }))
+  } catch (e) {
+    console.log(`  Tokopedia error: ${e.message}`)
+    return []
   }
-  return listings
 }
 
-// ─── DB save logic ───────────────────────────────────────────────────────────
+// ── Shopee search ──────────────────────────────────────────────────────────
+async function scrapeShopee(query, limit = 20) {
+  try {
+    const url = `https://shopee.co.id/api/v4/search/search_items?by=relevancy&keyword=${encodeURIComponent(query)}&limit=${Math.min(limit, 40)}&newest=0&order=desc&page_type=search&scenario=PAGE_GLOBAL_SEARCH&version=2`
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': randUA(),
+        'Referer': `https://shopee.co.id/search?keyword=${encodeURIComponent(query)}`,
+        'Accept': 'application/json',
+        'Accept-Language': 'id-ID,id;q=0.9',
+        'x-api-source': 'pc',
+        'x-requested-with': 'XMLHttpRequest',
+      },
+      signal: AbortSignal.timeout(18000),
+    })
+    if (!res.ok) return []
+    const json = await res.json()
+    const items = json?.items ?? []
 
-async function saveVehicleListing(listing) {
-  // Deterministic slug: title + platform (no random) so upsert properly deduplicates on re-run
-  const slug = slugify(listing.title).slice(0, 80) + '-' + listing.platform
+    return items
+      .map(item => {
+        const d = item.item_basic
+        if (!d) return null
+        const price = Math.round((d.price ?? 0) / 100000)
+        if (!price || !d.image) return null
+        return {
+          platformId: 'shopee',
+          productId:  String(d.itemid),
+          title:      d.name,
+          price,
+          originalPrice: d.price_before_discount ? Math.round(d.price_before_discount / 100000) : null,
+          discountPct:   d.discount ? parseInt(d.discount) : null,
+          imageUrl:   `https://cf.shopee.co.id/file/${d.image}_tn`,
+          productUrl: `https://shopee.co.id/-i.${d.shopid}.${d.itemid}`,
+          shopName:   d.shop_name ?? null,
+        }
+      })
+      .filter(Boolean)
+  } catch {
+    return []
+  }
+}
+
+// ── Supabase save ──────────────────────────────────────────────────────────
+function slugify(text) {
+  return text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim().slice(0, 100)
+}
+
+async function saveListings(listings, { category, brand }) {
+  let saved = 0
   const now = new Date().toISOString()
 
-  // Only store a real image URL — empty/placehold.co strings become null so UI shows /placeholder-product.png
-  const imageUrl = listing.imageUrl && listing.imageUrl.startsWith('http') ? listing.imageUrl : null
-
-  // Correct category so the "Mobil Bekas" / "Motor Bekas" filter in products.ts works
-  const category = listing.vehicleType === 'motor' ? 'Motor Bekas' : 'Mobil Bekas'
-
-  // Upsert product with vehicle columns
-  // Only send image fields when we have a real URL — omitting them on conflict means
-  // Postgres leaves existing image values untouched (merge-duplicates only updates included keys)
-  const productBody = {
-    slug,
-    name:                 listing.title,
-    brand:                listing.vehicleBrand ?? null,
-    category,
-    // Conditionally include image fields so we never overwrite a real image with null/empty
-    ...(imageUrl ? { image_url: imageUrl, images: [imageUrl] } : {}),
-    tags:                 ['otomotif', listing.vehicleType ?? 'mobil'],
-    specifications:       {
-      brand:        listing.vehicleBrand,
-      model:        listing.vehicleModel,
-      year:         listing.vehicleYear,
-      transmission: listing.vehicleTransmission,
-      color:        listing.vehicleColor,
-      mileage_km:   listing.vehicleMileage,
-      location:     listing.vehicleLocation,
-      type:         listing.vehicleType,
-    },
-    vehicle_brand:        listing.vehicleBrand        ?? null,
-    vehicle_model:        listing.vehicleModel        ?? null,
-    vehicle_year:         listing.vehicleYear         ?? null,
-    vehicle_type:         listing.vehicleType         ?? null,
-    vehicle_mileage:      listing.vehicleMileage      ?? null,
-    vehicle_transmission: listing.vehicleTransmission ?? null,
-    vehicle_color:        listing.vehicleColor        ?? null,
-    vehicle_location:     listing.vehicleLocation     ?? null,
-    updated_at:           now,
-  }
-
-  let productId
-  try {
-    const rows = await sbFetch('/products?on_conflict=slug&select=id', {
-      method: 'POST',
-      prefer: 'resolution=merge-duplicates,return=representation',
-      body: JSON.stringify(productBody),
-    })
-    productId = rows?.[0]?.id
-  } catch (err) {
-    // Vehicle columns may not exist yet — retry without vehicle_* columns
-    console.warn(`    ⚠ Product insert failed (maybe missing vehicle columns): ${err.message}`)
-    const fallback = { ...productBody }
-    delete fallback.vehicle_brand
-    delete fallback.vehicle_model
-    delete fallback.vehicle_year
-    delete fallback.vehicle_type
-    delete fallback.vehicle_mileage
-    delete fallback.vehicle_transmission
-    delete fallback.vehicle_color
-    delete fallback.vehicle_location
-    const rows2 = await sbFetch('/products?on_conflict=slug&select=id', {
-      method: 'POST',
-      prefer: 'resolution=merge-duplicates,return=representation',
-      body: JSON.stringify(fallback),
-    })
-    productId = rows2?.[0]?.id
-  }
-
-  if (!productId) return 'error'
-
-  // Upsert offer
-  const merchantId = listing.merchantId
-  const offerBody = {
-    product_id:    productId,
-    merchant_id:   merchantId,
-    price:         listing.price,
-    url:           listing.url    ?? null,
-    in_stock:      true,
-    condition:     'used',
-    location:      listing.vehicleLocation ?? null,
-    updated_at:    now,
-  }
-
-  try {
-    await sbFetch('/offers?on_conflict=product_id,merchant_id', {
-      method: 'POST',
-      prefer: 'resolution=merge-duplicates,return=minimal',
-      body: JSON.stringify(offerBody),
-    })
-    return 'inserted'
-  } catch (err) {
-    console.error(`    ✗ Offer save error: ${err.message}`)
-    return 'error'
-  }
-}
-
-function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms))
-}
-
-// ─── Main ────────────────────────────────────────────────────────────────────
-
-async function main() {
-  const { values } = parseArgs({
-    options: {
-      type:   { type: 'string', default: 'all' },  // 'mobil' | 'motor' | 'all'
-      pages:  { type: 'string', default: '2' },
-      dryrun: { type: 'boolean', default: false },
-    },
-    strict: false,
-  })
-
-  const vehicleType = values.type
-  const pages       = parseInt(values.pages, 10) || 2
-  const dryrun      = values.dryrun === true
-
-  console.log(`\n🚗 scrape-vehicles.mjs`)
-  console.log(`   Type   : ${vehicleType}`)
-  console.log(`   Pages  : ${pages}`)
-  console.log(`   Dry run: ${dryrun}`)
-  console.log(`   DB     : ${SUPABASE_URL}`)
-  console.log(`   Key set: ${SUPABASE_KEY ? 'YES' : 'NO'}`)
-  console.log()
-
-  const allListings = []
-
-  if (vehicleType === 'mobil' || vehicleType === 'all') {
-    allListings.push(...await scrapeOlxMobil(pages))
-    allListings.push(...await scrapeMobil123(pages))
-    allListings.push(...await scrapeCarmudi(pages))
-    allListings.push(...await scrapeOtolist(pages))
-  }
-
-  if (vehicleType === 'motor' || vehicleType === 'all') {
-    allListings.push(...await scrapeOlxMotor(pages))
-  }
-
-  console.log(`\n  Total listings: ${allListings.length}`)
-
-  if (dryrun) {
-    console.log('\n  [DRY RUN] Sample listings:')
-    allListings.slice(0, 5).forEach(l =>
-      console.log(`    - ${l.title} @ Rp ${l.price.toLocaleString('id-ID')} [${l.platform}]`)
-    )
-    return
-  }
-
-  let inserted = 0, errors = 0
-  for (const listing of allListings) {
+  for (const l of listings) {
     try {
-      const result = await saveVehicleListing(listing)
-      if (result === 'inserted') inserted++
-      else errors++
-    } catch (err) {
-      console.error(`    ✗ ${err.message}`)
-      errors++
+      const merchantId = MERCHANT_ID[l.platformId]
+      if (!merchantId) continue
+      if (!l.imageUrl?.startsWith('http')) continue  // skip if no real image
+
+      const slug = slugify(l.title) + '-' + l.platformId + '-' + l.productId.slice(-6)
+
+      const { data: existing } = await supabase
+        .from('products')
+        .select('id, image_url, images')
+        .eq('slug', slug)
+        .maybeSingle()
+
+      let productId
+
+      if (existing) {
+        const hasRealImage = existing.image_url?.startsWith('http') ||
+          existing.images?.some(u => u?.startsWith('http'))
+        const patch = {
+          name: l.title,
+          category,
+          brand: brand ?? null,
+          updated_at: now,
+          ...(!hasRealImage ? { image_url: l.imageUrl, images: [l.imageUrl] } : {}),
+        }
+        await supabase.from('products').update(patch).eq('id', existing.id)
+        productId = existing.id
+      } else {
+        const { data: ins, error } = await supabase
+          .from('products')
+          .insert({
+            slug,
+            name:      l.title,
+            brand:     brand ?? null,
+            category,
+            image_url: l.imageUrl,
+            images:    [l.imageUrl],
+            tags:      [],
+            specifications: {},
+            updated_at: now,
+          })
+          .select('id')
+          .single()
+        if (error || !ins) { console.log(`  insert err: ${error?.message}`); continue }
+        productId = ins.id
+      }
+
+      // Upsert offer
+      const { data: offer, error: oErr } = await supabase
+        .from('offers')
+        .upsert({
+          product_id:    productId,
+          merchant_id:   merchantId,
+          price:         l.price,
+          original_price: l.originalPrice ?? null,
+          discount_pct:  l.discountPct ?? null,
+          shop_name:     l.shopName ?? null,
+          shop_verified: false,
+          free_shipping: false,
+          rating:        0,
+          review_count:  0,
+          sold_count:    0,
+          stock_count:   1,
+          url:           l.productUrl ?? null,
+          condition:     'used',
+          in_stock:      true,
+          updated_at:    now,
+        }, { onConflict: 'product_id,merchant_id' })
+        .select('id')
+        .single()
+
+      if (oErr || !offer) continue
+
+      // Price history
+      const { data: lastH } = await supabase
+        .from('price_history')
+        .select('price')
+        .eq('offer_id', offer.id)
+        .order('recorded_at', { ascending: false })
+        .limit(1)
+        .single()
+      if (!lastH || lastH.price !== l.price) {
+        await supabase.from('price_history').insert({ offer_id: offer.id, price: l.price, recorded_at: now })
+      }
+
+      saved++
+    } catch (e) {
+      console.log(`  skip: ${e.message}`)
     }
   }
+  return saved
+}
 
-  console.log('\n─────────────────────────────────')
-  console.log(`  ✅ Saved  : ${inserted}`)
-  console.log(`  ❌ Errors : ${errors}`)
-  console.log('─────────────────────────────────\n')
+// ── Main ──────────────────────────────────────────────────────────────────
+async function main() {
+  console.log(`[${new Date().toISOString()}] scrape-vehicles.mjs`)
+  console.log(`DB: ${SUPABASE_URL}`)
+  console.log(`Queries: ${VEHICLE_QUERIES.length}\n`)
+
+  let totalSaved = 0
+  let totalFetched = 0
+
+  for (const { query, category, brand } of VEHICLE_QUERIES) {
+    console.log(`"${query}" [${category}]`)
+
+    const [toko, shopee] = await Promise.all([
+      scrapeTokopedia(query, 20),
+      scrapeShopee(query, 20),
+    ])
+
+    const all = [...toko, ...shopee]
+    totalFetched += all.length
+    console.log(`  tokopedia: ${toko.length} | shopee: ${shopee.length} (with images)`)
+
+    if (all.length > 0) {
+      const saved = await saveListings(all, { category, brand })
+      totalSaved += saved
+      console.log(`  saved: ${saved}`)
+    }
+
+    await new Promise(r => setTimeout(r, 2500))
+  }
+
+  console.log(`\n✅ Done. Fetched: ${totalFetched} | Saved: ${totalSaved}`)
+
+  // Layer 1: propagate images to same-brand products that still have none
+  console.log('\nRunning Layer 1 image enrichment via Supabase...')
+  const { data } = await supabase.rpc('enrich_product_images').catch(() => ({ data: null }))
+  if (data === null) {
+    // RPC not defined — run equivalent SQL
+    const { error } = await supabase
+      .from('products')
+      .select('id')
+      .limit(1)  // test connection
+
+    if (!error) {
+      console.log('  (Run the Layer 1 SQL manually in Supabase dashboard to propagate images)')
+      console.log(`
+  UPDATE products p1
+  SET image_url = (
+    SELECT p2.image_url FROM products p2
+    WHERE p2.brand = p1.brand AND p2.category = p1.category
+      AND p2.image_url IS NOT NULL AND p2.image_url != ''
+      AND p2.image_url NOT LIKE '%placehold%'
+    ORDER BY p2.updated_at DESC LIMIT 1
+  ),
+  images = CASE WHEN (
+    SELECT p2.image_url FROM products p2
+    WHERE p2.brand = p1.brand AND p2.category = p1.category
+      AND p2.image_url IS NOT NULL AND p2.image_url != ''
+      AND p2.image_url NOT LIKE '%placehold%'
+    ORDER BY p2.updated_at DESC LIMIT 1
+  ) IS NOT NULL THEN ARRAY[(
+    SELECT p2.image_url FROM products p2
+    WHERE p2.brand = p1.brand AND p2.category = p1.category
+      AND p2.image_url IS NOT NULL AND p2.image_url != ''
+      AND p2.image_url NOT LIKE '%placehold%'
+    ORDER BY p2.updated_at DESC LIMIT 1
+  )]::text[] ELSE images END
+  WHERE (p1.image_url IS NULL OR p1.image_url = '')
+    AND p1.brand IS NOT NULL AND p1.brand != '';
+      `)
+    }
+  }
 }
 
 main().catch(err => {
   console.error('Fatal:', err)
   process.exit(1)
 })
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
