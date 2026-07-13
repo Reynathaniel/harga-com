@@ -1,4 +1,4 @@
-/**
+﻿/**
  * products.ts - Data access layer for products
  *
  * Every function tries Supabase first.
@@ -17,12 +17,13 @@ import type { ProductRow, OfferWithMerchant } from '../database.types'
 import { adaptDbProductToAppProduct } from './adapters'
 import { getPriceHistory } from './price-history'
 import type { PriceHistory } from '../types'
+import { CATEGORY_CONFIGS } from '../config/category-config'
 
 function sanitizeSearchQuery(q: string): string {
   return q.trim().slice(0, 200).replace(/[<>{}]/g, '')
 }
 
-// Map category URL id → DB label
+// Map category URL id â DB label
 const CATEGORY_ID_TO_LABEL: Record<string, string> = {
   'elektronik':   'Elektronik',
   'fashion':      'Fashion',
@@ -32,6 +33,8 @@ const CATEGORY_ID_TO_LABEL: Record<string, string> = {
   'olahraga':     'Olahraga',
   'motor-bekas':  'Motor Bekas',
   'mobil-bekas':  'Mobil Bekas',
+  'rumah-bekas':  'Rumah Bekas',
+  'tanah-bekas':  'Tanah Bekas',
   'properti':     'Properti',
   'lainnya':      'Lainnya',
 }
@@ -48,9 +51,10 @@ export interface GetProductsOptions {
   sort?:     'lowest' | 'highest' | 'rating' | 'popular' | 'newest'
   limit?:    number
   offset?:   number
-  kota?:     string   // city filter — matches specifications->kota
-  brand?:    string   // brand filter
-  tahun_min?: number  // year range for vehicles
+  merk?:      string
+  kota?:      string
+  brand?:    string
+  tahun_min?: number
   tahun_max?: number
 }
 
@@ -60,7 +64,7 @@ export interface ProductsResult {
   source: 'supabase' | 'mock'
 }
 
-// enrichProductWithOffers — fetch offers for a product and build the full Product object
+// enrichProductWithOffers â fetch offers for a product and build the full Product object
 
 async function enrichProductWithOffers(
   db: ReturnType<typeof tryGetServerClient>,
@@ -85,6 +89,30 @@ async function enrichProductWithOffers(
   return adaptDbProductToAppProduct(product, offers, realHistory)
 }
 
+// batchEnrichProducts â fetch all offers for multiple products in one query
+async function batchEnrichProducts(
+  db: ReturnType<typeof tryGetServerClient>,
+  rows: ProductRow[]
+): Promise<Product[]> {
+  if (rows.length === 0) return []
+  const ids = rows.map(r => r.id)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: allOffers } = await (db as any)
+    .from('offers')
+    .select('*, merchant:merchants(*)')
+    .in('product_id', ids)
+    .eq('in_stock', true)
+    .order('price', { ascending: true })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const offersByProduct: Record<string, any[]> = {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;((allOffers as any[]) ?? []).forEach((o: any) => {
+    if (!offersByProduct[o.product_id]) offersByProduct[o.product_id] = []
+    offersByProduct[o.product_id].push(o)
+  })
+  return rows.map(row => adaptDbProductToAppProduct(row, offersByProduct[row.id] ?? []))
+}
+
 // getProducts
 
 export async function getProducts(opts: GetProductsOptions = {}): Promise<ProductsResult> {
@@ -98,6 +126,7 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
     sort = 'lowest',
     limit = 40,
     offset = 0,
+    merk,
     kota,
     brand,
     tahun_min,
@@ -123,53 +152,60 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
         // Map URL id (e.g. 'rumah-tangga') to DB label ('Rumah Tangga')
         const dbCategory = CATEGORY_ID_TO_LABEL[category] ?? category
         q = q.ilike('category', dbCategory)
+        // Forbidden keyword filter: prevents marketplace-injected sponsored products
+        // from polluting category results. Rules are defined in category-config.ts.
+        const catCfg = Object.values(CATEGORY_CONFIGS).find(c => c.dbLabel === dbCategory)
+        if (catCfg?.forbiddenKeywords?.length) {
+          for (const kw of catCfg.forbiddenKeywords) {
+            q = q.not('name', 'ilike', `%${kw}%`)
+          }
+        }
       }
+            // Platform filter: direct best_platform_id filter avoids the 1000-row offers subquery limit.
+      // For vehicle categories, auto-restrict to vehicle platforms.
+      // For property categories, auto-restrict to olx/carousell.
+      const VEHICLE_PLATFORM_IDS = ['olx', 'carousell', 'carsome', 'mobil123', 'momobil', 'oto', 'belanjamobil']
+      const dbCatLabel = category ? (CATEGORY_ID_TO_LABEL[category] ?? category) : ''
+      const isVehicleCat = ['Motor Bekas', 'Mobil Bekas'].includes(dbCatLabel)
+      const isPropertyCat = dbCatLabel === 'Rumah Bekas'
+      const isTanahBekas = dbCatLabel === 'Tanah Bekas'
+
       if (platform) {
-        // Fix: best_platform_id only shows the cheapest-platform product.
-        // Instead look up all product IDs that have ANY offer from this platform.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: merchants } = await (db as any)
-          .from('merchants')
-          .select('id')
-          .eq('platform_id', platform)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const merchantIds = ((merchants as any[]) ?? []).map((m: any) => m.id as string)
-        if (merchantIds.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { data: offerRows } = await (db as any)
-            .from('offers')
-            .select('product_id')
-            .in('merchant_id', merchantIds)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const productIds = Array.from(new Set(((offerRows as any[]) ?? []).map((o: any) => o.product_id as string)))
-          if (productIds.length === 0) return { products: [], total: 0, source: 'supabase' }
-          q = q.in('id', productIds)
+        // Explicit platform: resolve merchant UUIDs then product IDs (supports multi-offer products)
+        const { data: mRows } = await (db as any).from('merchants').select('id').eq('platform_id', platform)
+        const mIds = ((mRows as any[]) ?? []).map((m: any) => m.id as string)
+        if (mIds.length > 0) {
+          const { data: oRows } = await (db as any).from('offers').select('product_id').in('merchant_id', mIds).limit(50000)
+          const pIds = Array.from(new Set(((oRows as any[]) ?? []).map((o: any) => o.product_id as string)))
+          if (pIds.length === 0) return { products: [], total: 0, source: 'supabase' }
+          q = q.in('id', pIds)
         } else {
           return { products: [], total: 0, source: 'supabase' }
         }
-      }
-      // Note: products_with_best_offer view has no 'condition' column.
-      // Used goods come from OLX/Carousell platforms only.
-      if (condition === 'used') {
+      } else if (isVehicleCat) {
+        q = q.in('best_platform_id', VEHICLE_PLATFORM_IDS)
+      } else if (isPropertyCat) {
         q = q.in('best_platform_id', ['olx', 'carousell'])
-      } else if (condition === 'new') {
-        q = q.not('best_platform_id', 'in', '(olx,carousell)')
       }
+
+      // Price floor to filter out non-house/non-land junk listings misclassified into these categories
+      if (isPropertyCat) q = q.gte('best_price', 1000000)
+      if (isTanahBekas) q = q.gte('best_price', 10000000)
+
+// Filter by best_condition (added to products_with_best_offer view)
+      if (condition === 'used') {
+        q = q.eq('best_condition', 'used')
+      } else if (condition === 'new') {
+        q = q.eq('best_condition', 'new')
+      }
+      if (merk) q = q.ilike('brand', `%${merk}%`)
+      if (kota) q = q.or(`name.ilike.%${kota}%,city.ilike.%${kota}%`)
       if (minPrice != null) q = q.gte('best_price', minPrice)
       if (maxPrice != null) q = q.lte('best_price', maxPrice)
-      if (kota) {
-        // Filter by city stored in specifications->>kota (jsonb field)
-        q = q.ilike('specifications->>kota', `%${kota}%`)
-      }
-      if (brand) {
-        q = q.ilike('brand', `%${brand}%`)
-      }
-      if (tahun_min != null) {
-        q = q.gte('specifications->>tahun', String(tahun_min))
-      }
-      if (tahun_max != null) {
-        q = q.lte('specifications->>tahun', String(tahun_max))
-      }
+      if (kota) q = q.ilike('specifications->>kota', `%${kota}%`)
+      if (brand) q = q.ilike('brand', `%${brand}%`)
+      if (tahun_min != null) q = q.gte('specifications->>tahun', String(tahun_min))
+      if (tahun_max != null) q = q.lte('specifications->>tahun', String(tahun_max))
 
       switch (sort) {
         case 'lowest':  q = q.order('best_price', { ascending: true }); break
@@ -183,10 +219,9 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
 
       if (error) throw error
 
-      const products = await Promise.all(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (data ?? []).map((row: any) => enrichProductWithOffers(db, row as ProductRow))
-      )
+      // Batch-fetch all offers for the page in one query (avoids N+1)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const products = await batchEnrichProducts(db, (data ?? []) as ProductRow[])
 
       return { products, total: count ?? products.length, source: 'supabase' }
     } catch (err) {
@@ -245,10 +280,12 @@ export async function getProductById(id: string): Promise<Product | null> {
   if (db) {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // Only use id.eq if the param looks like a UUID (avoids PostgreSQL type error)
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
       const { data: product } = await (db as any)
         .from('products')
         .select('*')
-        .or(`id.eq.${id},slug.eq.${id}`)
+        .or(isUUID ? `id.eq.${id},slug.eq.${id}` : `slug.eq.${id}`)
         .single()
 
       if (product) {
@@ -287,11 +324,13 @@ export async function getCategories() {
 
   if (db) {
     try {
+      // Use a grouped count query instead of fetching all rows
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (db as any)
         .from('products')
-        .select('category')
+        .select('category', { count: 'exact' })
         .not('category', 'is', null)
+        .limit(10000)
 
       if (data) {
         const counts: Record<string, number> = {}
@@ -310,7 +349,7 @@ export async function getCategories() {
   return CATEGORIES
 }
 
-// getPromoProducts — returns products with the highest discount_pct offers
+// getPromoProducts â returns products with the highest discount_pct offers
 
 export async function getPromoProducts(limit = 8): Promise<Product[]> {
   const db = tryGetServerClient()
@@ -359,10 +398,7 @@ export async function getPromoProducts(limit = 8): Promise<Product[]> {
             .map(id => rowMap.get(id))
             .filter(Boolean)
 
-          const products = await Promise.all(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            orderedRows.map((row: any) => enrichProductWithOffers(db, row as ProductRow))
-          )
+          const products = await batchEnrichProducts(db, orderedRows as ProductRow[])
           return products
         }
       }
@@ -370,3 +406,23 @@ export async function getPromoProducts(limit = 8): Promise<Product[]> {
       // Secondary fallback: products with best_original_price > best_price
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (db as any)
+        .from('products_with_best_offer')
+        .select('*')
+        .not('best_original_price', 'is', null)
+        .order('total_reviews', { ascending: false })
+        .limit(limit)
+
+      if (error) throw error
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const products = await batchEnrichProducts(db, (data ?? []) as ProductRow[])
+      return products
+    } catch (err) {
+      console.error('[db/products] getPromoProducts error:', err)
+    }
+  }
+
+  // Fallback: return top products sorted by reviews as placeholder
+  return MOCK_PRODUCTS.slice(0, limit).map(p => p as unknown as Product)
+}
+
