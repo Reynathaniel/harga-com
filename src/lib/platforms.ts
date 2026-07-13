@@ -91,6 +91,16 @@ export const PLATFORMS: Record<string, Platform> = {
     affiliateBase: 'https://www.aliexpress.com/item/',
     cashbackPct: 5,
   },
+  jd: {
+    id: 'jd',
+    name: 'JD.id',
+    shortName: 'JD',
+    color: '#e1251b',
+    bgColor: '#fdecea',
+    logo: '/logos/jd.svg',
+    affiliateBase: 'https://www.jd.id/product/',
+    cashbackPct: 3,
+  },
   olx: {
     id: 'olx',
     name: 'OLX',
@@ -161,28 +171,25 @@ export const PLATFORMS: Record<string, Platform> = {
     affiliateBase: 'https://belanjamobil.co.id/mobil/',
     cashbackPct: 0,
   },
-  pashouses: {
-    id: 'pashouses',
-    name: 'PasHouses',
-    shortName: 'PasHouses',
-    color: '#e85d04',
-    bgColor: '#fff4ee',
-    logo: '/logos/pashouses.svg',
-    affiliateBase: 'https://pashouses.id/rumah/',
-    cashbackPct: 0,
-  },
-  lamudi: {
-    id: 'lamudi',
-    name: 'Lamudi',
-    shortName: 'Lamudi',
-    color: '#0a6e37',
-    bgColor: '#edf7ef',
-    logo: '/logos/lamudi.svg',
-    affiliateBase: 'https://www.lamudi.co.id/properti/',
-    cashbackPct: 0,
-  },
-  rumah123: {
-    id: 'rumah123',
-    name: 'Rumah123',
-    shortName: 'R123',
-    color: '#
+}
+
+export const PLATFORM_ORDER: string[] = [
+  'tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak',
+  'amazon', 'aliexpress', 'alibaba', 'olx', 'carousell',
+  'carsome', 'mobil123', 'momobil', 'oto', 'belanjamobil',
+]
+
+export const PLATFORM_PRIMARY: string[] = [
+  'tokopedia', 'shopee', 'tiktok', 'lazada', 'blibli', 'bukalapak',
+]
+
+export const PLATFORM_INTL: string[] = [
+  'amazon', 'aliexpress', 'alibaba', 'olx', 'carousell',
+]
+
+export const PLATFORM_VEHICLE: string[] = [
+  'carsome', 'mobil123', 'momobil', 'oto', 'belanjamobil', 'olx', 'carousell',
+]
+
+/** Platforms that carry property listings (Rumah Bekas / Tanah Bekas) */
+export const PLATFORM_PROPERTY: string[] = ['olx', 'carousell']
