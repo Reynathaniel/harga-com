@@ -23,7 +23,7 @@ export function DealTerbaikSection({ allProducts, usedProducts }: Props) {
   ] as const
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-16">
+    <section className="max-w-[1440px] mx-auto px-4 py-16">
       {/* Section header */}
       <div className="reveal flex justify-between items-end flex-wrap gap-4 mb-6">
         <div>
