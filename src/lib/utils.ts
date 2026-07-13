@@ -6,8 +6,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatRupiah(amount: number, compact = false): string {
-  // Always show full numbers with dot-separator (Indonesian convention: Rp 848.000)
-  // compact=true only abbreviates for very large amounts (>= 1 billion)
+  // Always show full numbers with dot-separator (Indonesian: Rp 848.000)
+  // compact=true only abbreviates for amounts >= 1 billion
   if (compact && amount >= 1_000_000_000) {
     return `Rp ${(amount / 1_000_000_000).toFixed(1).replace('.', ',')} M`
   }
@@ -65,4 +65,6 @@ export function cleanProductName(name: string): string {
     .replace(/[\s\-\u2013\u2014,|]+$/, '')
     .trim()
     // Truncate very long names at a word boundary
-    .slice(0, 120).replace(/\s\S
+    .slice(0, 120).replace(/\s\S*$/, '')
+}
+
