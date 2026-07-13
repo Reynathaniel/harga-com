@@ -34,8 +34,9 @@ export class OlxScraper extends BaseScraper {
       const data = await this.fetchJson<unknown>(
         `https://www.olx.co.id/api/relevance/v4/search?${params}`
       )
-      const ads = this.get<unknown[]>(data, 'data.ads', [])
-      if (ads.length > 0) {
+      // OLX API v4: response is { data: [...ads] } — NOT data.ads
+      const ads = this.get<unknown[]>(data, 'data', [])
+      if (Array.isArray(ads) && ads.length > 0) {
         return ads.map(ad => this.parseProduct(ad)).filter(Boolean) as RawListing[]
       }
     } catch {
@@ -89,17 +90,12 @@ export class OlxScraper extends BaseScraper {
       const price = this.parsePrice(String(priceRaw ?? '0'))
       if (!price) return null
 
-      // Image — OLX API returns various structures across endpoint versions
+      // Image
       const images = this.get<unknown[]>(raw, 'images', [])
       const imageUrl =
         this.get<string>(images, '0.url', '')
-        || this.get<string>(images, '0.thumbnail', '')
-        || this.get<string>(images, '0.picture_url', '')
-        || this.get<string>(images, '0.link', '')
         || this.get<string>(raw, 'thumbnail', '')
         || this.get<string>(raw, 'mainImage.url', '')
-        || this.get<string>(raw, 'image_url', '')
-        || this.get<string>(raw, 'media.0.url', '')
         || ''
 
       // URL
@@ -108,9 +104,10 @@ export class OlxScraper extends BaseScraper {
         ? urlRaw
         : `https://www.olx.co.id/item/${id}.html`
 
-      // Location
+      // Location — OLX v4 API uses locations[] array; HTML embeds location.name
       const location =
-        this.get<string>(raw, 'location.name', '')
+        this.get<string>(raw, 'locations.0.name', '')
+        || this.get<string>(raw, 'location.name', '')
         || this.get<string>(raw, 'geo.cityName', '')
         || this.get<string>(raw, 'city', '')
         || ''
@@ -133,16 +130,4 @@ export class OlxScraper extends BaseScraper {
         stock: 1,
         shopName,
         shopVerified: this.get<boolean>(raw, 'user.is_pro', false) ?? false,
-        freeShipping: false,
-        url,
-        imageUrl,
-        condition: 'used',
-        isUsed: true,
-        location,
-        scrapedAt: new Date(),
-      }
-    } catch {
-      return null
-    }
-  }
-}
+        free
