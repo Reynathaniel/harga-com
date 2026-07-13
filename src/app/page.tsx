@@ -159,7 +159,7 @@ export default async function HomePage() {
 
       {/* ── STATS STRIP ── */}
       <div style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="max-w-7xl mx-auto px-4 py-4 grid grid-cols-2 sm:grid-cols-4 divide-x divide-[var(--border-subtle)]">
+        <div className="max-w-[1440px] mx-auto px-4 py-4 grid grid-cols-2 sm:grid-cols-4 divide-x divide-[var(--border-subtle)]">
           {[
             { label: 'Produk Aktif', value: STATS.totalProducts + '+', color: 'var(--brand)' },
             { label: 'Marketplace',  value: STATS.platforms + '+',                      color: 'var(--win)' },
@@ -175,7 +175,7 @@ export default async function HomePage() {
       </div>
 
       {/* ── CATEGORY ROW ── */}
-      <section className="max-w-7xl mx-auto px-4 py-8">
+      <section className="max-w-[1440px] mx-auto px-4 py-8">
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {[
             { label: 'Elektronik',   icon: '🖥️',  color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',  href: '/cari?kategori=elektronik' },
@@ -212,7 +212,7 @@ export default async function HomePage() {
 
       {/* ── DEAL TERPANAS ── */}
       {promoProducts.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 py-16">
+        <section className="max-w-[1440px] mx-auto px-4 py-16">
           <SectionHead
             eyebrow="Flash Sale · Diskon Gila"
             title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--brand)' }} /> Deal Terpanas Hari Ini</span> as any}
@@ -284,7 +284,7 @@ export default async function HomePage() {
 
       {/* ── TRENDING ── */}
       {trendingProducts.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 py-16">
+        <section className="max-w-[1440px] mx-auto px-4 py-16">
           <SectionHead
             eyebrow="Real-Time"
             title={<span className="flex items-center gap-2"><Flame size={22} style={{ color: 'var(--orange-500)' }} /> Produk Trending</span> as any}
@@ -336,7 +336,7 @@ export default async function HomePage() {
       )}
 
       {/* ── PRELOVED HIGHLIGHT BANNER ── */}
-      <section className="max-w-7xl mx-auto px-4 py-8">
+      <section className="max-w-[1440px] mx-auto px-4 py-8">
         <div className="relative overflow-hidden rounded-2xl"
           style={{
             border: '1px solid var(--border)',
@@ -410,7 +410,7 @@ export default async function HomePage() {
       {hematProducts.length > 0 && (
         <section style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}
           className="py-16 px-4">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-[1440px] mx-auto">
             <SectionHead
               eyebrow="Selisih Terbesar"
               title={<span className="flex items-center gap-2"><TrendingDown size={20} style={{ color: 'var(--win)' }} /> Hemat Terbesar Hari Ini</span> as any}
@@ -475,7 +475,7 @@ export default async function HomePage() {
       {/* ── FEATURES ── */}
       <section style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-subtle)' }}
         className="py-20 px-4">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-[1440px] mx-auto">
           <div className="text-center mb-12">
             <div style={{
               fontSize: 10, fontWeight: 700, letterSpacing: '0.14em',
@@ -520,7 +520,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── PLATFORM KAMI ── */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
+      <section className="max-w-[1440px] mx-auto px-4 py-16">
         <div className="text-center mb-10">
           <div className="harga-text-gradient mb-2" style={{
             fontSize: 'var(--text-10)', fontWeight: 'var(--fw-black)',
@@ -600,7 +600,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── CASHBACK CTA ── */}
-      <section className="max-w-7xl mx-auto px-4 py-20">
+      <section className="max-w-[1440px] mx-auto px-4 py-20">
         <div className="relative overflow-hidden rounded-2xl p-8 sm:p-12 text-center"
           style={{
             background: 'var(--bg-card)',
@@ -660,7 +660,7 @@ export default async function HomePage() {
       {/* ── FOOTER ── */}
       <footer style={{ borderTop: '1px solid var(--border-subtle)', background: 'var(--bg-card)' }}
         className="px-4 py-12">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-5 gap-8 mb-8">
+        <div className="max-w-[1440px] mx-auto grid grid-cols-2 sm:grid-cols-5 gap-8 mb-8">
           {/* Brand column */}
           <div className="col-span-2 sm:col-span-1">
             <div className="flex items-center gap-2 mb-3">
