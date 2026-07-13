@@ -3,7 +3,6 @@ export type PlatformId =
   | 'amazon' | 'alibaba' | 'aliexpress' | 'jd'
   | 'olx' | 'carousell'
   | 'carsome' | 'mobil123' | 'oto' | 'momobil' | 'belanjamobil' | 'belanjakendaraan'
-  | 'pashouses' | 'lamudi' | 'rumah123'
 
 export interface Platform {
   id: PlatformId
@@ -111,3 +110,5 @@ export interface UserWallet {
   totalEarned: number
   totalWithdrawn: number
   pendingAmount: number
+  transactions: CashbackTransaction[]
+}
