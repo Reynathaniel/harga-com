@@ -48,6 +48,10 @@ export interface GetProductsOptions {
   sort?:     'lowest' | 'highest' | 'rating' | 'popular' | 'newest'
   limit?:    number
   offset?:   number
+  kota?:     string   // city filter — matches specifications->kota
+  brand?:    string   // brand filter
+  tahun_min?: number  // year range for vehicles
+  tahun_max?: number
 }
 
 export interface ProductsResult {
@@ -94,6 +98,10 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
     sort = 'lowest',
     limit = 40,
     offset = 0,
+    kota,
+    brand,
+    tahun_min,
+    tahun_max,
   } = opts
 
   const query = sanitizeSearchQuery(rawQuery)
@@ -149,6 +157,19 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
       }
       if (minPrice != null) q = q.gte('best_price', minPrice)
       if (maxPrice != null) q = q.lte('best_price', maxPrice)
+      if (kota) {
+        // Filter by city stored in specifications->>kota (jsonb field)
+        q = q.ilike('specifications->>kota', `%${kota}%`)
+      }
+      if (brand) {
+        q = q.ilike('brand', `%${brand}%`)
+      }
+      if (tahun_min != null) {
+        q = q.gte('specifications->>tahun', String(tahun_min))
+      }
+      if (tahun_max != null) {
+        q = q.lte('specifications->>tahun', String(tahun_max))
+      }
 
       switch (sort) {
         case 'lowest':  q = q.order('best_price', { ascending: true }); break
@@ -349,23 +370,3 @@ export async function getPromoProducts(limit = 8): Promise<Product[]> {
       // Secondary fallback: products with best_original_price > best_price
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (db as any)
-        .from('products_with_best_offer')
-        .select('*')
-        .not('best_original_price', 'is', null)
-        .order('total_reviews', { ascending: false })
-        .limit(limit)
-
-      if (error) throw error
-
-      const products = await Promise.all(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (data ?? []).map((row: any) => enrichProductWithOffers(db, row as ProductRow))
-      )
-      return products
-    } catch (err) {
-      console.error('[db/products] getPromoProducts error:', err)
-    }
-  }
-
-  // Fallback: return top products sorted by reviews as placeholder
-  return MOCK_PRODUCTS.slice(0, limit).map(p => 
