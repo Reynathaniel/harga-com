@@ -483,6 +483,35 @@ async function saveListings(listings, { proxyImages = false } = {}) {
   return saved
 }
 
+// ── Keyword validators for bekas categories ─────────────────────────────────
+const MOTOR_KEYWORDS = [
+  'honda', 'yamaha', 'suzuki', 'kawasaki', 'motor', 'cbr', 'beat', 'vario', 'mio',
+  'nmax', 'pcx', 'ninja', 'r15', 'r25', 'gsx', 'byson', 'revo', 'supra', 'cb150',
+  'aerox', 'lexi', 'xmax', 'xabre', 'matic', 'bebek', 'sport', 'vespa', 'kymco',
+  'vixion', 'jupiter', 'scoopy', 'spacy', 'mx', 'rx', 'satria', 'thunder', 'nouvo',
+]
+const MOBIL_KEYWORDS = [
+  'toyota', 'honda', 'daihatsu', 'suzuki', 'mitsubishi', 'nissan', 'hyundai', 'kia',
+  'mobil', 'avanza', 'brio', 'ayla', 'calya', 'agya', 'jazz', 'rush', 'hrv', 'crv',
+  'innova', 'fortuner', 'xpander', 'pajero', 'ertiga', 'carry', 'sigra', 'terios',
+  'xenia', 'freed', 'city', 'civic', 'accord', 'camry', 'yaris', 'vios', 'raize',
+  'veloz', 'wuling', 'almaz', 'cortez', 'mobilio', 'brv', 'rocky', 'starex',
+]
+
+function isMotorTitle(title) {
+  const lower = title.toLowerCase()
+  return MOTOR_KEYWORDS.some(kw => lower.includes(kw))
+}
+function isMobilTitle(title) {
+  const lower = title.toLowerCase()
+  return MOBIL_KEYWORDS.some(kw => lower.includes(kw))
+}
+function filterBekasByCategory(listings, category) {
+  if (category === 'Motor Bekas') return listings.filter(l => isMotorTitle(l.title))
+  if (category === 'Mobil Bekas') return listings.filter(l => isMobilTitle(l.title))
+  return listings
+}
+
 // ── Bekas queries (OLX + Carousell with Playwright) ───────────────────────
 const BEKAS_QUERIES = [
   // Motor bekas
@@ -548,8 +577,13 @@ async function main() {
       scrapeCarousellPlaywright(query, 20),
     ])
 
-    // Override category per query
-    const withCategory = [...olxResults, ...carousellResults].map(r => ({ ...r, category }))
+    // Override category per query — then validate by keyword to reject wrong OLX items
+    const withCategory = filterBekasByCategory(
+      [...olxResults, ...carousellResults].map(r => ({ ...r, category })),
+      category
+    )
+    const rejected = (olxResults.length + carousellResults.length) - withCategory.length
+    if (rejected > 0) console.log(`  [keyword filter] rejected ${rejected} non-matching items`)
     console.log(`  olx: ${olxResults.length} | carousell: ${carousellResults.length}`)
 
     if (withCategory.length > 0) {
