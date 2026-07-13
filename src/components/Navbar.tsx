@@ -70,7 +70,7 @@ export function Navbar() {
           boxShadow: scrolled ? '0 2px 16px rgba(26,24,20,0.08)' : 'none',
         }}
       >
-        <div className="max-w-7xl mx-auto px-4"
+        <div className="max-w-[1440px] mx-auto px-4"
           style={{ height: 56, display: 'flex', alignItems: 'center', gap: 8 }}>
 
           {/* Logo */}
