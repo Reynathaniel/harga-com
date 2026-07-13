@@ -9,7 +9,7 @@ import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent, cleanProductName } from '@/lib/utils'
 import { getCategoryConfig } from '@/lib/config/category-config'
 
-const PROPERTY_CATEGORIES = ['Rumah Bekas', 'Tanah Bekas']
+const PROPERTY_CATEGORIES = ['Properti', 'Rumah Bekas', 'Tanah Bekas']
 const VEHICLE_CATEGORIES = ['Motor Bekas', 'Mobil Bekas']
 const INT32_MAX = 2147483647
 
@@ -50,7 +50,7 @@ export function ProductCard({ product, compact = false }: Props) {
   const isProperty = PROPERTY_CATEGORIES.includes(product.category)
   const isVehicle = VEHICLE_CATEGORIES.includes(product.category)
   const specs = product.specifications as Record<string, string> | undefined
-  const vehicleCity = isVehicle ? (specs?.['city'] ?? '') : ''
+  const vehicleCity = isVehicle ? (specs?.['city'] || '') : ''
   // Read specs — support both new (snake_case) and old (Indonesian label) formats
   const landAreaStr = specs?.['land_area_m2'] || specs?.['Luas Tanah']?.replace(/[^0-9.]/g, '') || ''
   const buildingAreaStr = specs?.['building_area_m2'] || specs?.['Luas Bangunan']?.replace(/[^0-9.]/g, '') || ''
@@ -183,7 +183,7 @@ export function ProductCard({ product, compact = false }: Props) {
           </p>
 
           {/* Vehicle city display */}
-          {isVehicle && vehicleCity && vehicleCity !== 'null' && (
+          {isVehicle && vehicleCity && (
             <p className="text-[10px] text-[var(--text-muted)] flex items-center gap-0.5 -mt-1.5 mb-1.5 truncate">
               <span>📍</span> {vehicleCity}
             </p>
@@ -200,7 +200,7 @@ export function ProductCard({ product, compact = false }: Props) {
                 <span className="text-base font-bold" style={{ color: 'var(--brand)' }}>
                   {formatRupiah(cheapest.price, true)}
                 </span>
-                {cheapest.originalPrice && cheapest.discount && cheapest.discount > 0 && !isProperty && (
+                {!!cheapest.originalPrice && !!cheapest.discount && cheapest.discount > 0 && !isProperty && (
                   <span className="text-[11px] text-[var(--text-muted)] line-through">
                     {formatRupiah(cheapest.originalPrice, true)}
                   </span>
