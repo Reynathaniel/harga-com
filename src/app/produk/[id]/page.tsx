@@ -75,7 +75,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
   return (
     <div className="pt-[88px] min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-[1440px] mx-auto px-4 py-6">
 
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] mb-6 flex-wrap">
