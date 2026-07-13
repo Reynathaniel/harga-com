@@ -130,4 +130,16 @@ export class OlxScraper extends BaseScraper {
         stock: 1,
         shopName,
         shopVerified: this.get<boolean>(raw, 'user.is_pro', false) ?? false,
-        free
+        freeShipping: false,
+        url,
+        imageUrl,
+        condition: 'used',
+        isUsed: true,
+        location,
+        scrapedAt: new Date(),
+      }
+    } catch {
+      return null
+    }
+  }
+}
