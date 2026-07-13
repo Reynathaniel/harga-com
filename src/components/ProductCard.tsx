@@ -84,7 +84,12 @@ export function ProductCard({ product, compact = false }: Props) {
     !rawImg.includes('placeholder') &&
     !rawImg.includes('picsum.photos')
   )
-  const imgSrc = isValidImg ? rawImg : catConfig.placeholderUrl
+  // OLX images (apollo.olx.co.id) require Referer header — proxy server-side
+  const proxyImg = (url: string) =>
+    url.includes('apollo.olx') || url.includes('olx.co.id/image')
+      ? `/api/img?url=${encodeURIComponent(url)}`
+      : url
+  const imgSrc = isValidImg ? proxyImg(rawImg!) : catConfig.placeholderUrl
 
   return (
     <Link href={`/produk/${product.slug || product.id}`} className="block group">
@@ -268,13 +273,4 @@ export function ProductCard({ product, compact = false }: Props) {
               style={{ borderTop: '1px solid var(--border-subtle)' }}
             >
               <TrendingDown size={10} className="shrink-0" style={{ color: 'var(--win)' }} />
-              <span className="text-[10px] font-medium" style={{ color: 'var(--win)' }}>
-                Hemat {formatRupiah(savings, true)} vs termahal
-              </span>
-            </div>
-          )}
-        </div>
-      </article>
-    </Link>
-  )
-}
+  
