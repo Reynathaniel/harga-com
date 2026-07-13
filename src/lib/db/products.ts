@@ -184,8 +184,8 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
         }
       } else if (isVehicleCat) {
         q = q.in('best_platform_id', VEHICLE_PLATFORM_IDS)
-      } else if (isPropertyCat) {
-        q = q.in('best_platform_id', ['olx', 'carousell'])
+      } else if (isPropertyCat || isTanahBekas) {
+        q = q.in('best_platform_id', ['olx', 'carousell', 'rumah123'])
       }
 
       // Price floor to filter out non-house/non-land junk listings misclassified into these categories
@@ -200,9 +200,9 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
       }
       if (merk) q = q.ilike('brand', `%${merk}%`)
       if (kota) q = q.or(`name.ilike.%${kota}%,city.ilike.%${kota}%`)
-      if (minPrice != null) q = q.gte('best_price', minPrice)
-      if (maxPrice != null) q = q.lte('best_price', maxPrice)
-      if (kota) q = q.ilike('specifications->>kota', `%${kota}%`)
+      // Math.round() prevents bigint cast error when URL params contain floats (e.g. 75743666.60000001)
+      if (minPrice != null) q = q.gte('best_price', Math.round(minPrice))
+      if (maxPrice != null) q = q.lte('best_price', Math.round(maxPrice))
       if (brand) q = q.ilike('brand', `%${brand}%`)
       if (tahun_min != null) q = q.gte('specifications->>tahun', String(tahun_min))
       if (tahun_max != null) q = q.lte('specifications->>tahun', String(tahun_max))
