@@ -273,4 +273,13 @@ export function ProductCard({ product, compact = false }: Props) {
               style={{ borderTop: '1px solid var(--border-subtle)' }}
             >
               <TrendingDown size={10} className="shrink-0" style={{ color: 'var(--win)' }} />
-  
+              <span className="text-[10px] font-medium" style={{ color: 'var(--win)' }}>
+                Hemat {formatRupiah(savings, true)} vs termahal
+              </span>
+            </div>
+          )}
+        </div>
+      </article>
+    </Link>
+  )
+}
