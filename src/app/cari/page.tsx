@@ -44,7 +44,7 @@ import { getProducts, getCategories } from '@/lib/db/products'
 import { PLATFORMS, PLATFORM_VEHICLE } from '@/lib/platforms'
 import { formatRupiah } from '@/lib/utils'
 import { tryGetServerClient } from '@/lib/supabase'
-import { SlidersHorizontal, TrendingDown, Package, Sparkles, Search, Clock, Car } from 'lucide-react'
+import { SlidersHorizontal, TrendingDown, Package, Sparkles, Search, Car } from 'lucide-react'
 import Link from 'next/link'
 import { PropertyCityStats } from '@/components/PropertyCityStats'
 
@@ -406,19 +406,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 </form>
               </div>
 
-              {!isVehicleCategory && (
-                <div className="rounded-xl border border-[var(--border-subtle)] px-3 py-3 space-y-2">
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
-                    <Clock size={10} /> Segera hadir
-                  </div>
-                  {['Rating Minimal', 'Gratis Ongkir', 'Toko Resmi'].map(label => (
-                    <div key={label} className="flex items-center gap-2 opacity-40 select-none">
-                      <div className="w-3 h-3 rounded border border-[var(--border)] bg-[var(--bg-hover)]" />
-                      <span className="text-xs text-[var(--text-muted)]">{label}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
 
               {isVehicleCategory && (<>{/* Merk filter */}<div><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2.5">🏷️ Merk</div><div className="flex flex-wrap gap-1.5">{['', ...(category === 'motor-bekas' ? MOTOR_BRANDS : MOBIL_BRANDS)].map(b => (<Link key={b||"all"} href={buildHref({ merk: b||undefined, offset: undefined })}className={"px-2.5 py-1 text-xs rounded-lg border transition-colors " + (merk === b ? "bg-amber-500/15 text-amber-400 border-amber-500/25 font-semibold" : "text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]")}>{b||"Semua"}</Link>))}</div></div>{/* Kota filter */}<div><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2.5">📍 Kota</div><div className="flex flex-wrap gap-1.5"><Link href={buildHref({ kota: undefined, offset: undefined })} className={"px-2.5 py-1 text-xs rounded-lg border transition-colors " + (!kota ? "bg-amber-500/15 text-amber-400 border-amber-500/25 font-semibold" : "text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]")}>Semua</Link>{KOTA_LIST.map(k => (<Link key={k} href={buildHref({ kota: k, offset: undefined })} className={"px-2.5 py-1 text-xs rounded-lg border transition-colors " + (kota === k ? "bg-amber-500/15 text-amber-400 border-amber-500/25 font-semibold" : "text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--brand)] hover:bg-[var(--bg-hover)]")}>{k}</Link>))}</div></div><div className="rounded-xl border border-blue-500/20 bg-blue-500/5 px-3 py-3"><div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1 flex items-center gap-1"><Car size={10}/> Kendaraan</div><p className="text-[10px] text-[var(--text-muted)]">Data dari OLX, Carousell, Carsome, Mobil123, OTO.</p></div></>)}
 
