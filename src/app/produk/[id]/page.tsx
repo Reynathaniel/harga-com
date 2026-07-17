@@ -55,8 +55,8 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
   // Related products: same category, similar price range (20% - 500% of current), sorted by popularity
   // Avoid showing completely unrelated cheap items (e.g., Alibaba Rp 3rb when viewing iPhone)
-  const minRelatedPrice = cheapest.price * 0.2
-  const maxRelatedPrice = cheapest.price * 5
+  const minRelatedPrice = Math.round(cheapest.price * 0.2)
+  const maxRelatedPrice = Math.round(cheapest.price * 5)
   const { products: related } = await getProducts({
     category: product.category,
     limit: 20,
