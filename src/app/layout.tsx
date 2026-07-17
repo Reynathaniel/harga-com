@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import './globals.css'
 import { Navbar } from '@/components/Navbar'
-import { LiveBar } from '@/components/LiveBar'
 import { ReferralHandler } from '@/components/ReferralHandler'
 
 export const metadata: Metadata = {
@@ -31,7 +30,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="id" suppressHydrationWarning>
       <body>
         <Suspense fallback={null}><ReferralHandler /></Suspense>
-        <LiveBar />
         <Navbar />
         <main>{children}</main>
       </body>
