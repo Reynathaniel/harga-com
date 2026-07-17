@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation'
 import { getProductById, getProducts } from '@/lib/db/products'
 import { PLATFORMS } from '@/lib/platforms'
 import { formatRupiah, lowestListingFirst, priceDiffPercent } from '@/lib/utils'
-import { PriceChart } from '@/components/PriceChart'
 import { ProductCard } from '@/components/ProductCard'
 import { PlatformBadge } from '@/components/PlatformBadge'
 import { ProductActions } from '@/components/ProductActions'
@@ -264,9 +263,6 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
           {/* RIGHT: Chart + Alert + Specs */}
           <div className="lg:col-span-3 space-y-4">
-            <div className="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl p-4">
-              <PriceChart history={product.priceHistory} activePlatforms={activePlatforms.slice(0, 4)} />
-            </div>
             <ProductActions
               productId={product.id}
               productName={product.name}
