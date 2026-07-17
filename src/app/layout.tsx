@@ -6,7 +6,7 @@ import { LiveBar } from '@/components/LiveBar'
 import { ReferralHandler } from '@/components/ReferralHandler'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://harga.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://harga-com.vercel.app'),
   title: 'Harga.com — Temukan Harga Termurah di Seluruh Indonesia',
   description: 'Bandingkan harga dari Tokopedia, Shopee, Lazada, dan 14+ marketplace lainnya. Dapatkan cashback, set price alert, dan beli langsung dengan harga terbaik.',
   keywords: ['bandingkan harga', 'harga murah', 'cashback', 'price comparison', 'tokopedia', 'shopee', 'lazada'],
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     title: 'Harga.com — Perbandingan Harga Terbaik Indonesia',
     description: 'Temukan harga terbaik dari Tokopedia, Shopee, Lazada dan platform lain',
     type: 'website',
-    url: 'https://harga.com',
+    url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://harga-com.vercel.app',
     siteName: 'Harga.com',
     locale: 'id_ID',
   },
