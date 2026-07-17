@@ -20,7 +20,8 @@ import type { PriceHistory } from '../types'
 import { CATEGORY_CONFIGS } from '../config/category-config'
 
 function sanitizeSearchQuery(q: string): string {
-  return q.trim().slice(0, 200).replace(/[<>{}]/g, '')
+  // Strip PostgREST .or()/ilike reserved chars (commas, parens) that cause 400 Bad Request
+  return q.trim().slice(0, 200).replace(/[<>{}(),\\]/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
 // Map category URL id â DB label
@@ -199,7 +200,10 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
         q = q.eq('best_condition', 'new')
       }
       if (merk) q = q.ilike('brand', `%${merk}%`)
-      if (kota) q = q.or(`name.ilike.%${kota}%,city.ilike.%${kota}%`)
+      if (kota) {
+        const kotaSafe = sanitizeSearchQuery(kota)
+        if (kotaSafe) q = q.or(`name.ilike.%${kotaSafe}%,city.ilike.%${kotaSafe}%`)
+      }
       // Math.round() prevents bigint cast error when URL params contain floats (e.g. 75743666.60000001)
       if (minPrice != null) q = q.gte('best_price', Math.round(minPrice))
       if (maxPrice != null) q = q.lte('best_price', Math.round(maxPrice))
