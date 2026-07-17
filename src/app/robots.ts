@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/r/'],
       },
     ],
-    sitemap: 'https://harga.com/sitemap.xml',
+    sitemap: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://harga-com.vercel.app'}/sitemap.xml`,
   }
 }
